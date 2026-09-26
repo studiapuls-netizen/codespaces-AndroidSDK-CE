@@ -29,6 +29,7 @@ layout activity_player
 layout custom_player_controls
 layout fragment_feed
 layout fragment_player
+layout fragment_player_modal
 layout item_video
 navigation nav_graph
 string app_name

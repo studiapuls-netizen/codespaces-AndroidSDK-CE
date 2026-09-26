@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -72,6 +73,9 @@ dependencies {
     // Coil
     implementation("io.coil-kt:coil:2.7.0")
 
+    // ConstraintLayout
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
     // SwipeRefresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
@@ -80,3 +84,5 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.4.1")
     implementation("androidx.media3:media3-common:1.4.1")
 }
+
+apply(plugin = "kotlin-parcelize")

@@ -25,6 +25,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openPlayer(video: Video) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, ru.asmr1.app.player.PlayerModalFragment.newInstance(video))
+            .addToBackStack("player")
+            .commit()
+    }
+
+    fun _oldOpenPlayer(video: Video) {
         // TODO Этап 2
     }
 

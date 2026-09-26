@@ -1,7 +1,10 @@
 package ru.asmr1.app.data
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Video(
     @SerializedName("id") val id: Int,
     @SerializedName("title") val title: String,
@@ -15,10 +18,11 @@ data class Video(
     @SerializedName("published") val published: String,
     @SerializedName("author") val author: Author,
     @SerializedName("tags") val tags: List<String>?
-)
+) : Parcelable
 
+@Parcelize
 data class Author(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String,
     @SerializedName("avatar") val avatar: String
-)
+) : Parcelable

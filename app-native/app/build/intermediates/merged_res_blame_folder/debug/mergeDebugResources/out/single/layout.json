@@ -22,5 +22,9 @@
     {
         "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/fragment_player.xml",
         "source": "ru.asmr1.app-main-56:/layout/fragment_player.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/fragment_player_modal.xml",
+        "source": "ru.asmr1.app-main-56:/layout/fragment_player_modal.xml"
     }
 ]
