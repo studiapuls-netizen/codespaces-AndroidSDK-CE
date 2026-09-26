@@ -1,0 +1,37 @@
+R_DEF: Internal format may change without notice
+local
+color accent_red
+color bg_dark
+color card_bg
+color text_primary
+color text_secondary
+id author_avatar
+id author_name
+id btn_close
+id btn_like
+id btn_save
+id description
+id duration
+id feedFragment
+id fragment_container
+id meta
+id nav_graph
+id player_view
+id profileFragment
+id recycler_view
+id swipe_refresh
+id tab_latest
+id tab_recommended
+id thumbnail
+id title
+layout activity_main
+layout activity_player
+layout custom_player_controls
+layout fragment_feed
+layout fragment_player
+layout item_video
+navigation nav_graph
+string app_name
+string tab_latest
+string tab_recommended
+style Theme.ASMR1

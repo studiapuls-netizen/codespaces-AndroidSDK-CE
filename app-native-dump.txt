@@ -1,0 +1,1352 @@
+===== FILE: app-native/app/src/main/res/layout/fragment_player.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Плеер (16:9) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Постер" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:use_controller="true"
+            app:show_buffering="when_playing"
+            app:resize_mode="fit" />
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top|start"
+            android:layout_margin="12dp"
+            android:background="#80000000"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Закрыть"
+            android:scaleType="centerInside"
+            android:tint="#FFFFFF" />
+
+    </FrameLayout>
+
+    <!-- Контент под плеером -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Автор -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/author_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/card_bg"
+                    android:contentDescription="Аватар" />
+
+                <TextView
+                    android:id="@+id/author_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Кнопки -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="❤️ Нравится"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="🔖 Сохранить"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+            <!-- Описание -->
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.3" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/activity_main.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark" />
+
+
+===== FILE: app-native/app/src/main/res/layout/item_video.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:paddingBottom="16dp">
+
+    <!-- Превью -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0dp">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:background="@color/card_bg"
+            android:contentDescription="Превью" />
+
+        <!-- Длительность -->
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="8dp"
+            android:background="#CC000000"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- Информация -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="12dp">
+
+        <!-- Аватар -->
+        <ImageView
+            android:id="@+id/author_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/card_bg"
+            android:contentDescription="Аватар"
+            android:scaleType="centerCrop" />
+
+        <!-- Текст -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="1.2" />
+
+            <TextView
+                android:id="@+id/meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/fragment_feed.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Табы -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tab_recommended"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/accent_red"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:text="В тренде" />
+
+        <TextView
+            android:id="@+id/tab_latest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/card_bg"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:text="Свежее" />
+
+    </LinearLayout>
+
+    <!-- SwipeRefresh + RecyclerView -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="0dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/custom_player_controls.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+    <!-- Прогресс-бар и стандартные контролы Media3 -->
+    <androidx.media3.ui.DefaultTimeBar
+        android:id="@id/exo_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@id/exo_play_pause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_play"
+            android:contentDescription="Play/Pause" />
+
+        <TextView
+            android:id="@id/exo_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginHorizontal="8dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@id/exo_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginHorizontal="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/activity_player.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- ExoPlayer -->
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:use_controller="true"
+        app:show_buffering="when_playing"
+        app:resize_mode="fit"
+        app:controller_layout_id="@layout/custom_player_controls" />
+
+    <!-- Кнопка "Закрыть" -->
+    <ImageButton
+        android:id="@+id/btn_close"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="12dp"
+        android:background="#80000000"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="Закрыть"
+        android:scaleType="centerInside"
+        android:tint="#FFFFFF" />
+
+</FrameLayout>
+
+
+===== FILE: app-native/app/src/main/res/values/colors.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0F0F0F</color>
+    <color name="card_bg">#1A1A1A</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <color name="accent_red">#FF0000</color>
+</resources>
+
+
+===== FILE: app-native/app/src/main/res/values/strings.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ASMR1</string>
+    <string name="tab_recommended">В тренде</string>
+    <string name="tab_latest">Свежее</string>
+</resources>
+
+
+===== FILE: app-native/app/src/main/res/values/themes.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ASMR1" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#FF0000</item>
+        <item name="android:statusBarColor">#0F0F0F</item>
+        <item name="android:navigationBarColor">#0F0F0F</item>
+        <item name="android:windowBackground">#0F0F0F</item>
+    </style>
+</resources>
+
+
+===== FILE: app-native/app/src/main/AndroidManifest.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_media_play"
+        android:label="ASMR1"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ASMR1"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode|density|locale">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/utils/Formatters.kt =====
+package ru.asmr1.app.utils
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
+/**
+ * 1234 → "1.2K просмотров"
+ */
+fun formatViews(n: Int): String = when {
+    n >= 1_000_000 -> String.format("%.1fM просмотров", n / 1_000_000.0)
+    n >= 1_000 -> String.format("%.1fK просмотров", n / 1_000.0)
+    else -> "$n просмотров"
+}
+
+/**
+ * Секунды → "12:34"
+ */
+fun formatDuration(sec: Int): String {
+    val m = sec / 60
+    val s = sec % 60
+    return "$m:${if (s < 10) "0$s" else s}"
+}
+
+/**
+ * "2025-09-26 12:34:56" → "5 мин назад"
+ */
+fun timeAgo(dateStr: String): String {
+    if (dateStr.isEmpty()) return ""
+    return try {
+        val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val date = fmt.parse(dateStr) ?: return ""
+        val diff = (System.currentTimeMillis() - date.time) / 1000
+        when {
+            diff < 60 -> "только что"
+            diff < 3600 -> "${diff / 60} мин назад"
+            diff < 86400 -> "${diff / 3600} ч назад"
+            diff < 2592000 -> "${diff / 86400} дн назад"
+            diff < 31536000 -> "${diff / 2592000} мес назад"
+            else -> "${diff / 31536000} г назад"
+        }
+    } catch (_: Exception) {
+        ""
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/ui/VideoAdapter.kt =====
+package ru.asmr1.app.ui
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.ItemVideoBinding
+
+class VideoAdapter(
+    private var videos: List<Video> = emptyList(),
+    private val onClick: (Video) -> Unit = {}
+) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
+
+    fun setVideos(newVideos: List<Video>) {
+        videos = newVideos
+        notifyDataSetChanged()
+    }
+
+    fun appendVideos(newVideos: List<Video>) {
+        val startPos = videos.size
+        videos = videos + newVideos
+        notifyItemRangeInserted(startPos, newVideos.size)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
+        val binding = ItemVideoBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return VideoViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
+        holder.bind(videos[position])
+    }
+
+    override fun getItemCount(): Int = videos.size
+
+    inner class VideoViewHolder(private val binding: ItemVideoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(video: Video) {
+            // Название
+            binding.title.text = video.title
+
+            // Мета: автор • просмотры
+            val viewsText = formatViews(video.views)
+            binding.meta.text = "${video.author.name} • $viewsText"
+
+            // Превью
+            if (video.thumbnail.isNotEmpty()) {
+                binding.thumbnail.load(video.thumbnail) {
+                    crossfade(true)
+                    placeholder(R.color.card_bg)
+                }
+            }
+
+            // Аватар (круглый)
+            if (video.author.avatar.isNotEmpty()) {
+                binding.authorAvatar.load(video.author.avatar) {
+                    crossfade(true)
+                    placeholder(R.color.card_bg)
+                }
+            }
+
+            // Длительность
+            if (video.duration > 0) {
+                binding.duration.visibility = View.VISIBLE
+                binding.duration.text = formatDuration(video.duration)
+            } else {
+                binding.duration.visibility = View.GONE
+            }
+
+            // Клик
+            binding.root.setOnClickListener { onClick(video) }
+        }
+    }
+
+    private fun formatViews(n: Int): String {
+        return when {
+            n >= 1_000_000 -> String.format("%.1fM просмотров", n / 1_000_000.0)
+            n >= 1_000 -> String.format("%.1fK просмотров", n / 1_000.0)
+            else -> "$n просмотров"
+        }
+    }
+
+    private fun formatDuration(sec: Int): String {
+        val m = sec / 60
+        val s = sec % 60
+        return "$m:${if (s < 10) "0$s" else s}"
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/ui/FeedFragment.kt =====
+package ru.asmr1.app.ui
+
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentFeedBinding
+import ru.asmr1.app.player.PlayerActivity
+
+class FeedFragment : Fragment() {
+
+    private var _binding: FragmentFeedBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+
+    private var currentTab = "recommended"
+    private var currentPage = 1
+    private var isLoading = false
+    private var hasMore = true
+    private val perPage = 20
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFeedBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupRecyclerView()
+        setupTabs()
+        setupSwipeRefresh()
+        setupInfiniteScroll()
+        loadFeed(currentTab, 1, false)
+    }
+
+    private fun setupRecyclerView() {
+        adapter = VideoAdapter { video ->
+            openVideo(video)
+        }
+        layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+    }
+
+    private fun setupTabs() {
+        binding.tabRecommended.setOnClickListener {
+            if (currentTab == "recommended") return@setOnClickListener
+            switchTab("recommended")
+        }
+        binding.tabLatest.setOnClickListener {
+            if (currentTab == "latest") return@setOnClickListener
+            switchTab("latest")
+        }
+        updateTabsUi()
+    }
+
+    private fun switchTab(tab: String) {
+        currentTab = tab
+        currentPage = 1
+        hasMore = true
+        binding.recyclerView.scrollToPosition(0)
+        updateTabsUi()
+        loadFeed(tab, 1, false)
+    }
+
+    private fun updateTabsUi() {
+        val active = requireContext().getColor(R.color.accent_red)
+        val inactive = requireContext().getColor(R.color.card_bg)
+        binding.tabRecommended.setBackgroundColor(
+            if (currentTab == "recommended") active else inactive
+        )
+        binding.tabLatest.setBackgroundColor(
+            if (currentTab == "latest") active else inactive
+        )
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            currentPage = 1
+            hasMore = true
+            loadFeed(currentTab, 1, false)
+        }
+    }
+
+    private fun setupInfiniteScroll() {
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy <= 0) return
+                if (isLoading || !hasMore) return
+
+                val totalItems = layoutManager.itemCount
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+
+                if (lastVisible >= totalItems - 5) {
+                    currentPage++
+                    loadFeed(currentTab, currentPage, true)
+                }
+            }
+        })
+    }
+
+    private fun loadFeed(tab: String, page: Int, append: Boolean) {
+        if (isLoading) return
+        isLoading = true
+
+        if (!append) {
+            binding.swipeRefresh.isRefreshing = true
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getFeed(tab = tab, page = page, perPage = perPage)
+                if (response.success) {
+                    if (append) adapter.appendVideos(response.videos)
+                    else adapter.setVideos(response.videos)
+                    hasMore = response.hasMore
+                } else {
+                    hasMore = false
+                }
+            } catch (e: Exception) {
+                Log.e("FeedFragment", "Ошибка загрузки", e)
+                hasMore = false
+            } finally {
+                isLoading = false
+                binding.swipeRefresh.isRefreshing = false
+            }
+        }
+    }
+
+    /**
+     * Открываем нативный плеер.
+     */
+    private fun openVideo(video: Video) {
+        (requireActivity() as ru.asmr1.app.MainActivity).openPlayer(video)
+    }
+        Log.d("FeedFragment", "🎬 Открываем видео: ${video.id} — ${video.title}")
+
+        val intent = Intent(requireContext(), PlayerActivity::class.java).apply {
+            putExtra(PlayerActivity.EXTRA_VIDEO_ID, video.id)
+            putExtra(PlayerActivity.EXTRA_VIDEO_URL, video.videoUrl)
+            putExtra(PlayerActivity.EXTRA_TITLE, video.title)
+            putExtra(PlayerActivity.EXTRA_AUTHOR, video.author.name)
+            putExtra(PlayerActivity.EXTRA_START_TIME_MS, 0L)
+        }
+        startActivity(intent)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/Video.kt =====
+package ru.asmr1.app.data
+
+import com.google.gson.annotations.SerializedName
+
+data class Video(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("thumbnail") val thumbnail: String,
+    @SerializedName("video_url") val videoUrl: String,
+    @SerializedName("audio_url") val audioUrl: String?,
+    @SerializedName("duration") val duration: Int,
+    @SerializedName("views") val views: Int,
+    @SerializedName("likes") val likes: Int,
+    @SerializedName("published") val published: String,
+    @SerializedName("author") val author: Author,
+    @SerializedName("tags") val tags: List<String>?
+)
+
+data class Author(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("avatar") val avatar: String
+)
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/ApiClient.kt =====
+package ru.asmr1.app.data
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+
+object ApiClient {
+
+    private const val BASE_URL = "https://asmr1.ru/wp-json/yt/v1/"
+
+    val service: ApiService by lazy {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/FeedResponse.kt =====
+package ru.asmr1.app.data
+
+import com.google.gson.annotations.SerializedName
+
+data class FeedResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("tab") val tab: String,
+    @SerializedName("page") val page: Int,
+    @SerializedName("per_page") val perPage: Int,
+    @SerializedName("total") val total: Int,
+    @SerializedName("has_more") val hasMore: Boolean,
+    @SerializedName("videos") val videos: List<Video>
+)
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/ApiService.kt =====
+package ru.asmr1.app.data
+
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+interface ApiService {
+
+    /**
+     * Лента видео
+     * @param tab "recommended" или "latest"
+     * @param page номер страницы (с 1)
+     * @param perPage сколько за раз (по умолч. 20)
+     */
+    @GET("feed")
+    suspend fun getFeed(
+        @Query("tab") tab: String = "recommended",
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
+    ): FeedResponse
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/MainActivity.kt =====
+package ru.asmr1.app
+
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import android.util.Rational
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.player.PlayerFragment
+import ru.asmr1.app.ui.FeedFragment
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Авто-PiP (Android 12+)
+        setupAutoPip()
+
+        if (savedInstanceState == null) {
+            loadRootFragment(FeedFragment())
+        }
+    }
+
+    /**
+     * Загружаем корневой фрагмент (ленту).
+     */
+    private fun loadRootFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .commit()
+    }
+
+    /**
+     * Открываем плеер как Fragment поверх ленты.
+     */
+    fun openPlayer(video: Video) {
+        val playerFragment = PlayerFragment.newInstance(video)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, playerFragment)
+            .addToBackStack("player")
+            .commit()
+    }
+
+    /**
+     * Авто-PiP для всей Activity.
+     * Система сама переводит в PiP при жесте Home.
+     */
+    private fun setupAutoPip() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .setAutoEnterEnabled(true)
+                    .setSeamlessResizeEnabled(true)
+                    .build()
+                setPictureInPictureParams(params)
+            } catch (_: Exception) {}
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        // Здесь можно скрыть/показать UI поверх плеера в PiP
+    }
+
+    override fun onBackPressed() {
+        // Если есть открытые фрагменты — вернуться
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/player/PlayerActivity.kt =====
+package ru.asmr1.app.player
+
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import android.util.Rational
+import android.view.WindowManager
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import ru.asmr1.app.R
+
+class PlayerActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_VIDEO_URL = "video_url"
+        const val EXTRA_VIDEO_ID = "video_id"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_AUTHOR = "author"
+        const val EXTRA_START_TIME_MS = "start_time_ms"
+    }
+
+    private lateinit var player: ExoPlayer
+    private lateinit var playerView: PlayerView
+    private var videoId: Int = 0
+    private var startTimeMs: Long = 0L
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_player)
+
+        // Fullscreen
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+        // Данные
+        val videoUrl = intent.getStringExtra(EXTRA_VIDEO_URL) ?: ""
+        videoId = intent.getIntExtra(EXTRA_VIDEO_ID, 0)
+        startTimeMs = intent.getLongExtra(EXTRA_START_TIME_MS, 0L)
+
+        // Кнопка закрытия
+        findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            finish()
+        }
+
+        // ExoPlayer
+        player = ExoPlayer.Builder(this).build()
+        playerView = findViewById(R.id.player_view)
+        playerView.player = player
+
+        if (videoUrl.isNotEmpty()) {
+            val mediaItem = MediaItem.fromUri(videoUrl)
+            player.setMediaItem(mediaItem, startTimeMs)
+            player.prepare()
+            player.playWhenReady = true
+        }
+
+        // Auto-PiP: система сама переведёт в PiP при жесте Home (Android 12+)
+        setupAutoPip()
+
+        // Когда видео закончилось — закрываем
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    finish()
+                }
+            }
+        })
+    }
+
+    /**
+     * ★ ГЛАВНОЕ: включаем авто-PiP.
+     * Работает на Android 12+ (включая HyperOS, MIUI).
+     */
+    private fun setupAutoPip() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .setAutoEnterEnabled(true)
+                    .setSeamlessResizeEnabled(true)
+                    .build()
+                setPictureInPictureParams(params)
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        // Скрываем кнопку закрытия в PiP
+        findViewById<ImageButton>(R.id.btn_close).visibility =
+            if (isInPictureInPictureMode) android.view.View.GONE else android.view.View.VISIBLE
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Паузим если уходим в фон (кроме PiP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode) {
+            player.pause()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.release()
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/player/PlayerFragment.kt =====
+package ru.asmr1.app.player
+
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import coil.load
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentPlayerBinding
+import ru.asmr1.app.utils.formatDuration
+import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.timeAgo
+
+class PlayerFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO_ID = "video_id"
+        const val ARG_VIDEO_URL = "video_url"
+        const val ARG_TITLE = "title"
+        const val ARG_AUTHOR_ID = "author_id"
+        const val ARG_AUTHOR_NAME = "author_name"
+        const val ARG_AUTHOR_AVATAR = "author_avatar"
+        const val ARG_VIEWS = "views"
+        const val ARG_PUBLISHED = "published"
+        const val ARG_DESCRIPTION = "description"
+        const val ARG_THUMBNAIL = "thumbnail"
+
+        fun newInstance(video: Video): PlayerFragment {
+            return PlayerFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_VIDEO_ID, video.id)
+                    putString(ARG_VIDEO_URL, video.videoUrl)
+                    putString(ARG_TITLE, video.title)
+                    putInt(ARG_AUTHOR_ID, video.author.id)
+                    putString(ARG_AUTHOR_NAME, video.author.name)
+                    putString(ARG_AUTHOR_AVATAR, video.author.avatar)
+                    putInt(ARG_VIEWS, video.views)
+                    putString(ARG_PUBLISHED, video.published)
+                    putString(ARG_DESCRIPTION, video.description)
+                    putString(ARG_THUMBNAIL, video.thumbnail)
+                }
+            }
+        }
+    }
+
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
+
+    private var player: ExoPlayer? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val args = requireArguments()
+        val videoUrl = args.getString(ARG_VIDEO_URL) ?: ""
+        val title = args.getString(ARG_TITLE) ?: ""
+        val authorName = args.getString(ARG_AUTHOR_NAME) ?: ""
+        val authorAvatar = args.getString(ARG_AUTHOR_AVATAR) ?: ""
+        val views = args.getInt(ARG_VIEWS)
+        val published = args.getString(ARG_PUBLISHED) ?: ""
+        val description = args.getString(ARG_DESCRIPTION) ?: ""
+        val thumbnail = args.getString(ARG_THUMBNAIL) ?: ""
+
+        // Заполняем UI
+        binding.title.text = title
+        binding.authorName.text = authorName
+        binding.meta.text = "${formatViews(views)} • ${timeAgo(published)}"
+        binding.description.text = description
+
+        if (authorAvatar.isNotEmpty()) {
+            binding.authorAvatar.load(authorAvatar)
+        }
+
+        if (thumbnail.isNotEmpty() && videoUrl.isEmpty()) {
+            binding.thumbnail.load(thumbnail)
+        }
+
+        // Кнопка закрытия
+        binding.btnClose.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
+        // ExoPlayer
+        player = ExoPlayer.Builder(requireContext()).build().also { exo ->
+            binding.playerView.player = exo
+
+            if (videoUrl.isNotEmpty()) {
+                val mediaItem = MediaItem.fromUri(videoUrl)
+                exo.setMediaItem(mediaItem)
+                exo.prepare()
+                exo.playWhenReady = true
+            }
+
+            exo.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_ENDED) {
+                        parentFragmentManager.popBackStack()
+                    }
+                }
+            })
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        player?.play()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Паузим если не в PiP
+        val activity = requireActivity()
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N ||
+            !activity.isInPictureInPictureMode) {
+            player?.pause()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        player?.release()
+        player = null
+        _binding = null
+    }
+
+    fun getPlayer(): ExoPlayer? = player
+}
+
+
+===== FILE: app-native/app/build.gradle.kts =====
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "ru.asmr1.app"
+    compileSdk = 36
+    buildToolsVersion = "35.0.0"
+
+    defaultConfig {
+        applicationId = "ru.asmr1.app"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    // AndroidX
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.activity:activity-ktx:1.9.2")
+    implementation("androidx.fragment:fragment-ktx:1.8.3")
+
+    // Material Design 3
+    implementation("com.google.android.material:material:1.12.0")
+
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Lifecycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    // Coil
+    implementation("io.coil-kt:coil:2.7.0")
+
+    // SwipeRefresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // ExoPlayer (Media3)
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+
+    // ExoPlayer (Media3)
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+}
+
+
+===== FILE: app-native/local.properties =====
+sdk.dir=/opt/android
+
+
+===== FILE: app-native/settings.gradle.kts =====
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "ASMR1"
+include(":app")
+
+
+===== FILE: app-native/gradle.properties =====
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+kotlin.code.style=official
+android.suppressUnsupportedCompileSdk=36
+
+
+===== FILE: app-native/build.gradle.kts =====
+plugins {
+    id("com.android.application") version "8.5.2" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+}
+
+

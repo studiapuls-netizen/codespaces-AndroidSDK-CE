@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_activity_player.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/activity_player.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_item_video.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/item_video.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/navigation_nav_graph.xml.flat",
+        "source": "ru.asmr1.app-main-56:/navigation/nav_graph.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_custom_player_controls.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/custom_player_controls.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_activity_main.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/activity_main.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_fragment_feed.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/fragment_feed.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-debug-54:/layout_fragment_player.xml.flat",
+        "source": "ru.asmr1.app-main-56:/layout/fragment_player.xml"
+    }
+]

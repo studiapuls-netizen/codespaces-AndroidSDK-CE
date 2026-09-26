@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>ASMR1</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+    <div id="screen-feed" class="screen active">
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="recommended">В тренде</button>
+            <button class="tab" data-tab="latest">Свежее</button>
+        </div>
+        <div class="feed" id="feed">
+            <div class="empty">Загрузка...</div>
+        </div>
+    </div>
+
+    <div id="screen-profile" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Профиль</span>
+        </div>
+        <div class="screen-content"><div class="empty">Профиль — скоро</div></div>
+    </div>
+
+    <div id="screen-channel" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Канал</span>
+        </div>
+        <div class="screen-content"><div class="empty">Канал — скоро</div></div>
+    </div>
+
+    <div id="screen-playlists" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Плейлисты</span>
+        </div>
+        <div class="screen-content"><div class="empty">Плейлисты — скоро</div></div>
+    </div>
+
+    <div id="screen-subscriptions" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Подписки</span>
+        </div>
+        <div class="screen-content"><div class="empty">Подписки — скоро</div></div>
+    </div>
+
+    <div id="screen-history" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">История</span>
+        </div>
+        <div class="screen-content"><div class="empty">История — скоро</div></div>
+    </div>
+
+    <div id="screen-studio" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Студия автора</span>
+        </div>
+        <div class="screen-content"><div class="empty">Студия — скоро</div></div>
+    </div>
+
+    <div id="screen-search" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">Поиск</span>
+        </div>
+        <div class="screen-content"><div class="empty">Поиск — скоро</div></div>
+    </div>
+
+    <div id="screen-faq" class="screen">
+        <div class="screen-header">
+            <button class="screen-back-btn" data-back>←</button>
+            <span class="screen-title">FAQ</span>
+        </div>
+        <div class="screen-content"><div class="empty">FAQ — скоро</div></div>
+    </div>
+
+    <div id="backdrop" class="backdrop"></div>
+
+    <!-- Контент-модалка -->
+    <div id="content-modal" class="content-modal">
+        <div class="content-drag-handle" id="content-drag-handle"></div>
+        <div class="content-body" id="content-body"></div>
+    </div>
+
+    <!-- ============================================================
+         МОДАЛКА ОПИСАНИЯ
+         ============================================================ -->
+    <div id="description-modal" class="sheet-modal">
+        <div class="sheet-overlay" data-close="description"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+                <h3>Описание</h3>
+                <button class="sheet-close" data-close="description">✕</button>
+            </div>
+            <div class="sheet-body" id="description-body"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         МОДАЛКА КОММЕНТАРИЕВ
+         ============================================================ -->
+    <div id="comments-modal" class="sheet-modal">
+        <div class="sheet-overlay" data-close="comments"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+                <h3>Комментарии <span id="comments-count">0</span></h3>
+                <button class="sheet-close" data-close="comments">✕</button>
+            </div>
+            <div class="sheet-body" id="comments-body">
+                <div class="empty">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

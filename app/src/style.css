@@ -1,0 +1,702 @@
+/* ============================================================
+   RESET
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f0f0f;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    user-select: none;
+}
+
+/* ============================================================
+   ЭКРАНЫ
+   ============================================================ */
+.screen {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    background: #0f0f0f;
+    z-index: 1;
+}
+
+.screen.active { display: flex; }
+
+.screen-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #0f0f0f;
+    border-bottom: 1px solid #272727;
+    flex-shrink: 0;
+    min-height: 56px;
+}
+
+.screen-back-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.screen-title { font-size: 18px; font-weight: 600; }
+
+.screen-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+#screen-feed {
+    z-index: 1;
+    transition: filter 0.3s ease;
+}
+
+#screen-feed.dimmed {
+    filter: brightness(0.4) blur(2px);
+    pointer-events: none;
+}
+
+/* ============================================================
+   ТАБЫ
+   ============================================================ */
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    background: #0f0f0f;
+    z-index: 10;
+    border-bottom: 1px solid #272727;
+    flex-shrink: 0;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: #272727;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s;
+}
+
+.tab.active { background: #fff; color: #0f0f0f; }
+
+/* ============================================================
+   FEED
+   ============================================================ */
+.feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.video-card { margin-bottom: 24px; cursor: pointer; }
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #272727;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.duration {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.video-info { display: flex; gap: 12px; margin-top: 12px; }
+
+.author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #272727;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    overflow: hidden;
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.video-details { flex: 1; min-width: 0; }
+
+.video-title {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.video-meta { font-size: 12px; color: #aaa; }
+
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* ============================================================
+   BACKDROP
+   ============================================================ */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+}
+
+.backdrop.active { opacity: 1; pointer-events: auto; }
+
+/* ============================================================
+   МОДАЛКА ПЛЕЕРА
+   ============================================================ */
+.player-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    z-index: 200;
+    transform: translateY(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.player-modal.active { transform: translateY(0); }
+.player-modal.dragging { transition: none; }
+
+.player-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.player-container video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+    object-fit: contain;
+}
+
+.player-drag-handle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 24px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+}
+
+.player-drag-handle::before {
+    content: '';
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+}
+
+.player-drag-handle:active { cursor: grabbing; }
+
+.player-close-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.player-close-btn:active { background: rgba(0, 0, 0, 0.85); }
+
+/* ============================================================
+   КОНТЕНТ-МОДАЛКА
+   ============================================================ */
+.content-modal {
+    position: fixed;
+    top: calc(100vw * 9 / 16);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0f0f0f;
+    border-radius: 16px 16px 0 0;
+    z-index: 150;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    will-change: transform;
+}
+
+.content-modal.active { transform: translateY(0); }
+.content-modal.dragging { transition: none; }
+
+.content-drag-handle {
+    flex-shrink: 0;
+    padding: 12px 0 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    touch-action: none;
+}
+
+.content-drag-handle::before {
+    content: '';
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.content-drag-handle:active { cursor: grabbing; }
+
+.content-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 32px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   КОНТЕНТ ВНУТРИ КОНТЕНТ-МОДАЛКИ
+   ============================================================ */
+.content-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.content-meta { font-size: 13px; color: #aaa; margin-bottom: 16px; }
+
+.content-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid #272727;
+    border-bottom: 1px solid #272727;
+    margin-bottom: 16px;
+}
+
+.content-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #272727;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.content-author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content-author-name { font-weight: 500; font-size: 14px; }
+
+.content-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.content-actions::-webkit-scrollbar { display: none; }
+
+.action-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: #272727;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.action-btn:active { background: #3a3a3a; }
+.action-btn.active { background: #fff; color: #0f0f0f; }
+
+.content-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ccc;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* ============================================================
+   МИНИ-ПЛЕЕР
+   Когда .player-modal.minimized — плеер маленький в углу.
+   Лента активна, backdrop скрыт, content-modal скрыта.
+   ============================================================ */
+
+/* Мини-плеер */
+.player-modal.minimized {
+    top: auto !important;
+    bottom: 12px;
+    left: auto !important;
+    right: 12px;
+    width: 200px;
+    height: 112px;
+    aspect-ratio: auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    z-index: 500;
+    transform: translateY(0) !important;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Планшеты / большие экраны */
+@media (min-width: 768px) {
+    .player-modal.minimized {
+        width: 280px;
+        height: 158px;
+        bottom: 16px;
+        right: 16px;
+    }
+}
+
+/* Скрываем drag-handle и close-btn в мини-режиме */
+.player-modal.minimized .player-drag-handle,
+.player-modal.minimized .player-close-btn {
+    display: none !important;
+}
+
+/* Добавляем кнопки в мини-режиме */
+.player-modal.minimized .player-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: 5;
+    /* прозрачный оверлей для тапа */
+    cursor: pointer;
+}
+
+/* Кнопка закрытия мини-плеера */
+.mini-close-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 20;
+    display: none;   /* показывается только в мини-режиме */
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    line-height: 1;
+    padding: 0;
+}
+
+.player-modal.minimized .mini-close-btn {
+    display: flex;
+}
+
+.mini-close-btn:active { background: rgba(0, 0, 0, 0.9); }
+
+/* Скрываем content-modal и backdrop в мини-режиме */
+.content-modal.minimized {
+    transform: translateY(100%) !important;
+    transition: none;
+}
+
+.backdrop.minimized {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Лента не затемнена в мини-режиме */
+body.player-minimized #screen-feed.dimmed {
+    filter: none;
+    pointer-events: auto;
+}
+
+/* ===== Z-INDEX ФИКС ===== */
+.player-close-btn,
+.player-minimize-btn,
+.mini-close-btn {
+    z-index: 99999 !important;
+    pointer-events: auto !important;
+}
+
+.player-drag-handle {
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+}
+
+/* ============================================================
+   SHEET-МОДАЛКИ (описание, комментарии)
+   ============================================================ */
+.sheet-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.sheet-modal.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+}
+
+.sheet-content {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    background: #1a1a1a;
+    border-radius: 16px 16px 0 0;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 501;
+}
+
+.sheet-modal.active .sheet-content {
+    transform: translateY(0);
+}
+
+.sheet-handle {
+    flex-shrink: 0;
+    padding: 12px 0 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sheet-handle::before {
+    content: '';
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.sheet-header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px 12px 16px;
+    border-bottom: 1px solid #272727;
+}
+
+.sheet-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.sheet-header h3 span {
+    color: #aaa;
+    font-weight: 400;
+    margin-left: 6px;
+    font-size: 14px;
+}
+
+.sheet-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.6;
+    word-wrap: break-word;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sheet-body .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+/* Описание — pre-wrap для переносов строк */
+.sheet-body .description-text {
+    white-space: pre-wrap;
+}
+
+.sheet-body .description-text a {
+    color: #3ea6ff;
+    text-decoration: none;
+}
+
+/* Комментарии — мини-стили */
+.sheet-body .comment-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #272727;
+}
+
+.sheet-body .comment-item:last-child {
+    border-bottom: none;
+}
+
+.sheet-body .comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.sheet-body .comment-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sheet-body .comment-author {
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+}
+
+.sheet-body .comment-date {
+    font-size: 12px;
+    color: #888;
+    margin-left: 6px;
+}
+
+.sheet-body .comment-text {
+    font-size: 14px;
+    margin-left: 40px;
+    color: #ccc;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
