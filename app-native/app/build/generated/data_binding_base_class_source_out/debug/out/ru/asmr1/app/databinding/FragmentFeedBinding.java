@@ -4,14 +4,14 @@ package ru.asmr1.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import androidx.viewpager2.widget.ViewPager2;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -22,25 +22,29 @@ public final class FragmentFeedBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final RecyclerView recyclerView;
+  public final ImageView appLogo;
 
   @NonNull
-  public final SwipeRefreshLayout swipeRefresh;
+  public final FrameLayout tabDownloads;
 
   @NonNull
-  public final TextView tabLatest;
+  public final FrameLayout tabLatest;
 
   @NonNull
-  public final TextView tabRecommended;
+  public final FrameLayout tabRecommended;
 
-  private FragmentFeedBinding(@NonNull LinearLayout rootView, @NonNull RecyclerView recyclerView,
-      @NonNull SwipeRefreshLayout swipeRefresh, @NonNull TextView tabLatest,
-      @NonNull TextView tabRecommended) {
+  @NonNull
+  public final ViewPager2 viewPager;
+
+  private FragmentFeedBinding(@NonNull LinearLayout rootView, @NonNull ImageView appLogo,
+      @NonNull FrameLayout tabDownloads, @NonNull FrameLayout tabLatest,
+      @NonNull FrameLayout tabRecommended, @NonNull ViewPager2 viewPager) {
     this.rootView = rootView;
-    this.recyclerView = recyclerView;
-    this.swipeRefresh = swipeRefresh;
+    this.appLogo = appLogo;
+    this.tabDownloads = tabDownloads;
     this.tabLatest = tabLatest;
     this.tabRecommended = tabRecommended;
+    this.viewPager = viewPager;
   }
 
   @Override
@@ -70,32 +74,38 @@ public final class FragmentFeedBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.recycler_view;
-      RecyclerView recyclerView = ViewBindings.findChildViewById(rootView, id);
-      if (recyclerView == null) {
+      id = R.id.app_logo;
+      ImageView appLogo = ViewBindings.findChildViewById(rootView, id);
+      if (appLogo == null) {
         break missingId;
       }
 
-      id = R.id.swipe_refresh;
-      SwipeRefreshLayout swipeRefresh = ViewBindings.findChildViewById(rootView, id);
-      if (swipeRefresh == null) {
+      id = R.id.tab_downloads;
+      FrameLayout tabDownloads = ViewBindings.findChildViewById(rootView, id);
+      if (tabDownloads == null) {
         break missingId;
       }
 
       id = R.id.tab_latest;
-      TextView tabLatest = ViewBindings.findChildViewById(rootView, id);
+      FrameLayout tabLatest = ViewBindings.findChildViewById(rootView, id);
       if (tabLatest == null) {
         break missingId;
       }
 
       id = R.id.tab_recommended;
-      TextView tabRecommended = ViewBindings.findChildViewById(rootView, id);
+      FrameLayout tabRecommended = ViewBindings.findChildViewById(rootView, id);
       if (tabRecommended == null) {
         break missingId;
       }
 
-      return new FragmentFeedBinding((LinearLayout) rootView, recyclerView, swipeRefresh, tabLatest,
-          tabRecommended);
+      id = R.id.view_pager;
+      ViewPager2 viewPager = ViewBindings.findChildViewById(rootView, id);
+      if (viewPager == null) {
+        break missingId;
+      }
+
+      return new FragmentFeedBinding((LinearLayout) rootView, appLogo, tabDownloads, tabLatest,
+          tabRecommended, viewPager);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

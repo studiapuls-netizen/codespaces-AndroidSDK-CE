@@ -1,0 +1,1554 @@
+===== FILE: app-native/app/src/main/res/layout/fragment_player.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Постер" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:use_controller="true"
+            app:show_buffering="when_playing"
+            app:resize_mode="fit" />
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top|start"
+            android:layout_margin="12dp"
+            android:background="#80000000"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Закрыть"
+            android:scaleType="centerInside"
+            android:tint="#FFFFFF" />
+
+    </FrameLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/author_avatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/card_bg"
+                    android:contentDescription="Аватар" />
+
+                <TextView
+                    android:id="@+id/author_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="❤️ Нравится"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="🔖 Сохранить"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.3" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/activity_main.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <FrameLayout
+        android:id="@+id/feed_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/overlay_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Мини-плеер с закруглёнными углами -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/mini_player_container"
+            android:layout_width="200dp"
+            android:layout_height="112dp"
+            android:visibility="gone"
+            android:elevation="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#000000">
+
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/mini_player_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:use_controller="false"
+                app:resize_mode="fit" />
+
+        </androidx.cardview.widget.CardView>
+
+    </FrameLayout>
+
+</FrameLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/item_video.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:paddingBottom="16dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0dp">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:background="@color/card_bg"
+            android:contentDescription="Превью" />
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="8dp"
+            android:background="#CC000000"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="12dp">
+
+        <ImageView
+            android:id="@+id/author_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/card_bg"
+            android:contentDescription="Аватар"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="1.2" />
+
+            <TextView
+                android:id="@+id/meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/fragment_feed.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tab_recommended"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/accent_red"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:text="В тренде" />
+
+        <TextView
+            android:id="@+id/tab_latest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/card_bg"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:text="Свежее" />
+
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="0dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/custom_player_controls.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="bottom">
+
+    <androidx.media3.ui.DefaultTimeBar
+        android:id="@id/exo_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@id/exo_play_pause"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_play"
+            android:contentDescription="Play/Pause" />
+
+        <TextView
+            android:id="@id/exo_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginHorizontal="8dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@id/exo_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginHorizontal="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+===== FILE: app-native/app/src/main/res/layout/activity_player.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:use_controller="true"
+        app:show_buffering="when_playing"
+        app:resize_mode="fit"
+        app:controller_layout_id="@layout/custom_player_controls" />
+
+    <ImageButton
+        android:id="@+id/btn_close"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="12dp"
+        android:background="#80000000"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="Закрыть"
+        android:scaleType="centerInside"
+        android:tint="#FFFFFF" />
+
+</FrameLayout>
+
+
+===== FILE: app-native/app/src/main/res/values/colors.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0F0F0F</color>
+    <color name="card_bg">#1A1A1A</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <color name="accent_red">#FF0000</color>
+</resources>
+
+
+===== FILE: app-native/app/src/main/res/values/strings.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ASMR1</string>
+    <string name="tab_recommended">В тренде</string>
+    <string name="tab_latest">Свежее</string>
+</resources>
+
+
+===== FILE: app-native/app/src/main/res/values/themes.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ASMR1" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#FF0000</item>
+        <item name="android:statusBarColor">#0F0F0F</item>
+        <item name="android:navigationBarColor">#0F0F0F</item>
+        <item name="android:windowBackground">#0F0F0F</item>
+    </style>
+</resources>
+
+
+===== FILE: app-native/app/src/main/AndroidManifest.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_media_play"
+        android:label="ASMR1"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ASMR1"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode|density|locale">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/utils/Formatters.kt =====
+package ru.asmr1.app.utils
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
+fun formatViews(n: Int): String = when {
+    n >= 1_000_000 -> String.format("%.1fM просмотров", n / 1_000_000.0)
+    n >= 1_000 -> String.format("%.1fK просмотров", n / 1_000.0)
+    else -> "$n просмотров"
+}
+
+fun formatDuration(sec: Int): String {
+    val m = sec / 60
+    val s = sec % 60
+    return "$m:${if (s < 10) "0$s" else s}"
+}
+
+fun timeAgo(dateStr: String): String {
+    if (dateStr.isEmpty()) return ""
+    return try {
+        val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val date = fmt.parse(dateStr) ?: return ""
+        val diff = (System.currentTimeMillis() - date.time) / 1000
+        when {
+            diff < 60 -> "только что"
+            diff < 3600 -> "${diff / 60} мин назад"
+            diff < 86400 -> "${diff / 3600} ч назад"
+            diff < 2592000 -> "${diff / 86400} дн назад"
+            diff < 31536000 -> "${diff / 2592000} мес назад"
+            else -> "${diff / 31536000} г назад"
+        }
+    } catch (_: Exception) {
+        ""
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/ui/VideoAdapter.kt =====
+package ru.asmr1.app.ui
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.ItemVideoBinding
+
+class VideoAdapter(
+    private var videos: List<Video> = emptyList(),
+    private val onClick: (Video) -> Unit = {}
+) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
+
+    fun setVideos(newVideos: List<Video>) {
+        videos = newVideos
+        notifyDataSetChanged()
+    }
+
+    fun appendVideos(newVideos: List<Video>) {
+        val startPos = videos.size
+        videos = videos + newVideos
+        notifyItemRangeInserted(startPos, newVideos.size)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
+        val binding = ItemVideoBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return VideoViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
+        holder.bind(videos[position])
+    }
+
+    override fun getItemCount(): Int = videos.size
+
+    inner class VideoViewHolder(private val binding: ItemVideoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(video: Video) {
+            binding.title.text = video.title
+
+            val viewsText = formatViews(video.views)
+            binding.meta.text = "${video.author.name} • $viewsText"
+
+            if (video.thumbnail.isNotEmpty()) {
+                binding.thumbnail.load(video.thumbnail) {
+                    crossfade(true)
+                    placeholder(R.color.card_bg)
+                }
+            }
+
+            if (video.author.avatar.isNotEmpty()) {
+                binding.authorAvatar.load(video.author.avatar) {
+                    crossfade(true)
+                    placeholder(R.color.card_bg)
+                }
+            }
+
+            if (video.duration > 0) {
+                binding.duration.visibility = View.VISIBLE
+                binding.duration.text = formatDuration(video.duration)
+            } else {
+                binding.duration.visibility = View.GONE
+            }
+
+            binding.root.setOnClickListener { onClick(video) }
+        }
+    }
+
+    private fun formatViews(n: Int): String {
+        return when {
+            n >= 1_000_000 -> String.format("%.1fM просмотров", n / 1_000_000.0)
+            n >= 1_000 -> String.format("%.1fK просмотров", n / 1_000.0)
+            else -> "$n просмотров"
+        }
+    }
+
+    private fun formatDuration(sec: Int): String {
+        val m = sec / 60
+        val s = sec % 60
+        return "$m:${if (s < 10) "0$s" else s}"
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/ui/FeedFragment.kt =====
+package ru.asmr1.app.ui
+
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentFeedBinding
+
+class FeedFragment : Fragment() {
+
+    private var _binding: FragmentFeedBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+
+    private var currentTab = "recommended"
+    private var currentPage = 1
+    private var isLoading = false
+    private var hasMore = true
+    private val perPage = 20
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFeedBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupRecyclerView()
+        setupTabs()
+        setupSwipeRefresh()
+        setupInfiniteScroll()
+        loadFeed(currentTab, 1, false)
+    }
+
+    private fun setupRecyclerView() {
+        adapter = VideoAdapter { video ->
+            openVideo(video)
+        }
+        layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+    }
+
+    private fun setupTabs() {
+        binding.tabRecommended.setOnClickListener {
+            if (currentTab == "recommended") return@setOnClickListener
+            switchTab("recommended")
+        }
+        binding.tabLatest.setOnClickListener {
+            if (currentTab == "latest") return@setOnClickListener
+            switchTab("latest")
+        }
+        updateTabsUi()
+    }
+
+    private fun switchTab(tab: String) {
+        currentTab = tab
+        currentPage = 1
+        hasMore = true
+        binding.recyclerView.scrollToPosition(0)
+        updateTabsUi()
+        loadFeed(tab, 1, false)
+    }
+
+    private fun updateTabsUi() {
+        val active = requireContext().getColor(R.color.accent_red)
+        val inactive = requireContext().getColor(R.color.card_bg)
+        binding.tabRecommended.setBackgroundColor(
+            if (currentTab == "recommended") active else inactive
+        )
+        binding.tabLatest.setBackgroundColor(
+            if (currentTab == "latest") active else inactive
+        )
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            currentPage = 1
+            hasMore = true
+            loadFeed(currentTab, 1, false)
+        }
+    }
+
+    private fun setupInfiniteScroll() {
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy <= 0) return
+                if (isLoading || !hasMore) return
+
+                val totalItems = layoutManager.itemCount
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+
+                if (lastVisible >= totalItems - 5) {
+                    currentPage++
+                    loadFeed(currentTab, currentPage, true)
+                }
+            }
+        })
+    }
+
+    private fun loadFeed(tab: String, page: Int, append: Boolean) {
+        if (isLoading) return
+        isLoading = true
+
+        if (!append) {
+            binding.swipeRefresh.isRefreshing = true
+        }
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getFeed(tab = tab, page = page, perPage = perPage)
+                if (response.success) {
+                    if (append) adapter.appendVideos(response.videos)
+                    else adapter.setVideos(response.videos)
+                    hasMore = response.hasMore
+                } else {
+                    hasMore = false
+                }
+            } catch (e: Exception) {
+                Log.e("FeedFragment", "Ошибка загрузки", e)
+                hasMore = false
+            } finally {
+                isLoading = false
+                binding.swipeRefresh.isRefreshing = false
+            }
+        }
+    }
+
+    private fun openVideo(video: Video) {
+        (requireActivity() as ru.asmr1.app.MainActivity).openPlayer(video)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/Video.kt =====
+package ru.asmr1.app.data
+
+import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Video(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("thumbnail") val thumbnail: String,
+    @SerializedName("video_url") val videoUrl: String,
+    @SerializedName("audio_url") val audioUrl: String?,
+    @SerializedName("duration") val duration: Int,
+    @SerializedName("views") val views: Int,
+    @SerializedName("likes") val likes: Int,
+    @SerializedName("published") val published: String,
+    @SerializedName("author") val author: Author,
+    @SerializedName("tags") val tags: List<String>?
+) : Parcelable
+
+@Parcelize
+data class Author(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("avatar") val avatar: String
+) : Parcelable
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/ApiClient.kt =====
+package ru.asmr1.app.data
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+
+object ApiClient {
+
+    private const val BASE_URL = "https://asmr1.ru/wp-json/yt/v1/"
+
+    val service: ApiService by lazy {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/FeedResponse.kt =====
+package ru.asmr1.app.data
+
+import com.google.gson.annotations.SerializedName
+
+data class FeedResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("tab") val tab: String,
+    @SerializedName("page") val page: Int,
+    @SerializedName("per_page") val perPage: Int,
+    @SerializedName("total") val total: Int,
+    @SerializedName("has_more") val hasMore: Boolean,
+    @SerializedName("videos") val videos: List<Video>
+)
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/data/ApiService.kt =====
+package ru.asmr1.app.data
+
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+interface ApiService {
+
+    @GET("feed")
+    suspend fun getFeed(
+        @Query("tab") tab: String = "recommended",
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
+    ): FeedResponse
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/MainActivity.kt =====
+package ru.asmr1.app
+
+import android.annotation.SuppressLint
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import android.util.Rational
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.player.PlayerFragment
+import ru.asmr1.app.ui.FeedFragment
+import kotlin.math.abs
+
+class MainActivity : AppCompatActivity() {
+
+    companion object {
+        var globalPlayer: ExoPlayer? = null
+        var currentVideo: Video? = null
+    }
+
+    private lateinit var feedContainer: View
+    private lateinit var overlayContainer: View
+    private lateinit var playerContainer: View
+    private lateinit var contentContainer: View
+    private lateinit var miniPlayerContainer: CardView
+    private lateinit var miniPlayerView: PlayerView
+
+    private val density by lazy { resources.displayMetrics.density }
+    private val marginPx by lazy { (12 * density).toInt() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        feedContainer = findViewById(R.id.feed_container)
+        overlayContainer = findViewById(R.id.overlay_container)
+        playerContainer = findViewById(R.id.player_container)
+        contentContainer = findViewById(R.id.content_container)
+        miniPlayerContainer = findViewById(R.id.mini_player_container)
+        miniPlayerView = findViewById(R.id.mini_player_view)
+
+        if (globalPlayer == null) {
+            globalPlayer = ExoPlayer.Builder(this).build().also { exo ->
+                exo.addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == Player.STATE_ENDED) closePlayer()
+                    }
+                })
+            }
+        }
+
+        setupMiniPlayerGestures()
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.feed_container, FeedFragment())
+                .commit()
+        }
+    }
+
+    // ============================================================
+    // ЖЕСТЫ МИНИ-ПЛЕЕРА
+    // ============================================================
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupMiniPlayerGestures() {
+        var startX = 0f
+        var startY = 0f
+        var startTouchX = 0f
+        var startTouchY = 0f
+        var isDragging = false
+        var downTime = 0L
+
+        miniPlayerContainer.setOnTouchListener { v, event ->
+            val parentW = (v.parent as ViewGroup).width.toFloat()
+            val parentH = (v.parent as ViewGroup).height.toFloat()
+            val marginF = marginPx.toFloat()
+            val maxX = (parentW - v.width - marginPx).coerceAtLeast(marginF)
+            val maxY = (parentH - v.height - marginPx).coerceAtLeast(marginF)
+
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = v.x
+                    startY = v.y
+                    startTouchX = event.rawX
+                    startTouchY = event.rawY
+                    isDragging = false
+                    downTime = System.currentTimeMillis()
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - startTouchX
+                    val dy = event.rawY - startTouchY
+                    if (abs(dx) > 10 || abs(dy) > 10) isDragging = true
+
+                    v.x = (startX + dx).coerceIn(marginF, maxX)
+                    v.y = (startY + dy).coerceIn(marginF, maxY)
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val elapsed = System.currentTimeMillis() - downTime
+                    if (!isDragging && elapsed < 250) {
+                        expandFromMini()
+                    } else if (isDragging) {
+                        val cx = v.x + v.width / 2f
+                        val cy = v.y + v.height / 2f
+                        val targetX = if (cx < parentW / 2f) marginF else maxX
+                        val targetY = if (cy < parentH / 2f) marginF else maxY
+
+                        v.animate()
+                            .x(targetX)
+                            .y(targetY)
+                            .setDuration(200)
+                            .start()
+                    }
+                    isDragging = false
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    // ============================================================
+    // ОТКРЫТИЕ / СВОРАЧИВАНИЕ / РАЗВОРАЧИВАНИЕ
+    // ============================================================
+    fun openPlayer(video: Video) {
+        currentVideo = video
+
+        globalPlayer?.apply {
+            stop()
+            clearMediaItems()
+            setMediaItem(MediaItem.fromUri(video.videoUrl))
+            prepare()
+            playWhenReady = true
+        }
+
+        overlayContainer.visibility = View.VISIBLE
+        overlayContainer.translationY = overlayContainer.height.toFloat()
+        overlayContainer.animate()
+            .translationY(0f)
+            .setDuration(250)
+            .start()
+
+        playerContainer.visibility = View.VISIBLE
+        contentContainer.visibility = View.VISIBLE
+        miniPlayerContainer.visibility = View.GONE
+        miniPlayerView.player = null
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.player_container, PlayerFragment.newInstance(video))
+            .commit()
+
+        enablePip()
+    }
+
+    fun collapseToMini() {
+        if (currentVideo == null || globalPlayer == null) return
+
+        supportFragmentManager.findFragmentById(R.id.player_container)?.let { f ->
+            supportFragmentManager.beginTransaction().remove(f).commit()
+        }
+
+        playerContainer.visibility = View.GONE
+        contentContainer.visibility = View.GONE
+        overlayContainer.visibility = View.VISIBLE
+        overlayContainer.translationY = 0f
+
+        miniPlayerView.player = globalPlayer
+        miniPlayerContainer.visibility = View.VISIBLE
+
+        // Позиция: правый нижний угол
+        miniPlayerContainer.post {
+            val parentW = (miniPlayerContainer.parent as ViewGroup).width
+            val parentH = (miniPlayerContainer.parent as ViewGroup).height
+            miniPlayerContainer.x = (parentW - miniPlayerContainer.width - marginPx).toFloat()
+            miniPlayerContainer.y = (parentH - miniPlayerContainer.height - marginPx).toFloat()
+        }
+
+        miniPlayerContainer.alpha = 0f
+        miniPlayerContainer.animate().alpha(1f).setDuration(200).start()
+
+        feedContainer.visibility = View.VISIBLE
+    }
+
+    fun expandFromMini() {
+        val video = currentVideo ?: return
+
+        miniPlayerContainer.animate()
+            .alpha(0f)
+            .setDuration(150)
+            .withEndAction {
+                miniPlayerContainer.visibility = View.GONE
+                miniPlayerView.player = null
+
+                playerContainer.visibility = View.VISIBLE
+                contentContainer.visibility = View.VISIBLE
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.player_container, PlayerFragment.newInstance(video))
+                    .commit()
+
+                enablePip()
+            }
+            .start()
+    }
+
+    fun closePlayer() {
+        globalPlayer?.stop()
+        globalPlayer?.clearMediaItems()
+        currentVideo = null
+
+        miniPlayerContainer.visibility = View.GONE
+        miniPlayerView.player = null
+        overlayContainer.visibility = View.GONE
+        feedContainer.visibility = View.VISIBLE
+
+        disablePip()
+    }
+
+    fun setOverlayOffset(offset: Float) {
+        overlayContainer.translationY = offset
+    }
+
+    private fun enablePip() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .setAutoEnterEnabled(true)
+                    .setSeamlessResizeEnabled(true)
+                    .build()
+                setPictureInPictureParams(params)
+            } catch (_: Exception) {}
+        }
+    }
+
+    private fun disablePip() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val params = PictureInPictureParams.Builder()
+                    .setAutoEnterEnabled(false)
+                    .build()
+                setPictureInPictureParams(params)
+            } catch (_: Exception) {}
+        }
+    }
+
+    // ============================================================
+    // PIP
+    // ============================================================
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        // Перед PiP — растягиваем мини на весь экран, чтобы PiP не был чёрным
+        if (miniPlayerContainer.visibility == View.VISIBLE) {
+            val lp = miniPlayerContainer.layoutParams
+            miniPlayerContainer.tag = "pip_restore_${lp.width}x${lp.height}"
+            val parentW = (miniPlayerContainer.parent as ViewGroup).width
+            val parentH = (miniPlayerContainer.parent as ViewGroup).height
+            lp.width = parentW
+            lp.height = parentH
+            miniPlayerContainer.layoutParams = lp
+            miniPlayerContainer.x = 0f
+            miniPlayerContainer.y = 0f
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        if (isInPictureInPictureMode) {
+            feedContainer.visibility = View.GONE
+            contentContainer.visibility = View.GONE
+        } else {
+            feedContainer.visibility = View.VISIBLE
+
+            if (currentVideo == null) {
+                globalPlayer?.pause()
+                globalPlayer?.clearMediaItems()
+                miniPlayerView.player = null
+                miniPlayerContainer.visibility = View.GONE
+                overlayContainer.visibility = View.GONE
+                disablePip()
+                return
+            }
+
+            // Восстанавливаем размер мини-плеера
+            val tag = miniPlayerContainer.tag as? String
+            if (tag != null && tag.startsWith("pip_restore_")) {
+                val parts = tag.removePrefix("pip_restore_").split("x")
+                val w = parts.getOrNull(0)?.toIntOrNull() ?: (200 * density).toInt()
+                val h = parts.getOrNull(1)?.toIntOrNull() ?: (112 * density).toInt()
+
+                val lp = miniPlayerContainer.layoutParams
+                lp.width = w
+                lp.height = h
+                miniPlayerContainer.layoutParams = lp
+                miniPlayerContainer.tag = null
+            }
+
+            // Всегда разворачиваем большую модалку
+            miniPlayerContainer.visibility = View.GONE
+            miniPlayerView.player = null
+            playerContainer.visibility = View.VISIBLE
+            contentContainer.visibility = View.VISIBLE
+
+            val hasPlayerFragment = supportFragmentManager
+                .findFragmentById(R.id.player_container) is PlayerFragment
+
+            if (!hasPlayerFragment) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.player_container, PlayerFragment.newInstance(currentVideo!!))
+                    .commit()
+            }
+
+            enablePip()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            globalPlayer?.release()
+            globalPlayer = null
+            currentVideo = null
+        }
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/player/PlayerActivity.kt =====
+package ru.asmr1.app.player
+
+import android.app.PictureInPictureParams
+import android.content.res.Configuration
+import android.os.Build
+import android.os.Bundle
+import android.util.Rational
+import android.view.WindowManager
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import ru.asmr1.app.R
+
+class PlayerActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_VIDEO_URL = "video_url"
+        const val EXTRA_VIDEO_ID = "video_id"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_AUTHOR = "author"
+        const val EXTRA_START_TIME_MS = "start_time_ms"
+    }
+
+    private lateinit var player: ExoPlayer
+    private lateinit var playerView: PlayerView
+    private var videoId: Int = 0
+    private var startTimeMs: Long = 0L
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_player)
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+        val videoUrl = intent.getStringExtra(EXTRA_VIDEO_URL) ?: ""
+        videoId = intent.getIntExtra(EXTRA_VIDEO_ID, 0)
+        startTimeMs = intent.getLongExtra(EXTRA_START_TIME_MS, 0L)
+
+        findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
+            finish()
+        }
+
+        player = ExoPlayer.Builder(this).build()
+        playerView = findViewById(R.id.player_view)
+        playerView.player = player
+
+        if (videoUrl.isNotEmpty()) {
+            val mediaItem = MediaItem.fromUri(videoUrl)
+            player.setMediaItem(mediaItem, startTimeMs)
+            player.prepare()
+            player.playWhenReady = true
+        }
+
+        setupAutoPip()
+
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    finish()
+                }
+            }
+        })
+    }
+
+    private fun setupAutoPip() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                val params = PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .setAutoEnterEnabled(true)
+                    .setSeamlessResizeEnabled(true)
+                    .build()
+                setPictureInPictureParams(params)
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        findViewById<ImageButton>(R.id.btn_close).visibility =
+            if (isInPictureInPictureMode) android.view.View.GONE else android.view.View.VISIBLE
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode) {
+            player.pause()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.release()
+    }
+}
+
+
+===== FILE: app-native/app/src/main/java/ru/asmr1/app/player/PlayerFragment.kt =====
+package ru.asmr1.app.player
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import coil.load
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentPlayerBinding
+import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.timeAgo
+
+class PlayerFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO = "video"
+        fun newInstance(video: Video) = PlayerFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
+        }
+    }
+
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
+
+    private var touchStartY = 0f
+    private var isDragging = false
+    private var controlsVisible = true
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val video = requireArguments().getParcelable<Video>(ARG_VIDEO) ?: return
+
+        binding.title.text = video.title
+        binding.authorName.text = video.author.name
+        binding.meta.text = "${formatViews(video.views)} • ${timeAgo(video.published)}"
+        binding.description.text = video.description
+
+        if (video.author.avatar.isNotEmpty()) {
+            binding.authorAvatar.load(video.author.avatar)
+        }
+
+        val activity = requireActivity() as MainActivity
+        binding.playerView.player = MainActivity.globalPlayer
+
+        binding.btnClose.setOnClickListener { activity.closePlayer() }
+
+        // Свайп вниз ТОЛЬКО по верхней полоске над плеером (не по плееру)
+        // В YouTube — свайп по мини "хендлу" сверху плеера.
+        // Проще: вешаем на ImageView-poster + отдельная полоса над плеером.
+        // Здесь вешаем на btn_close-зону и на верхние 40dp плеера.
+
+        binding.playerView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    touchStartY = event.rawY
+                    isDragging = false
+                    // Не перехватываем клик — пусть контролы работают
+                    false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val deltaY = event.rawY - touchStartY
+                    if (deltaY > 60) {
+                        isDragging = true
+                        binding.root.translationY = deltaY
+                        binding.root.alpha = 1f - (deltaY / 1000f).coerceIn(0f, 1f)
+                    }
+                    isDragging
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (isDragging) {
+                        val deltaY = event.rawY - touchStartY
+                        if (deltaY > 150) {
+                            binding.root.animate()
+                                .translationY(binding.root.height.toFloat())
+                                .alpha(0f)
+                                .setDuration(200)
+                                .withEndAction { activity.collapseToMini() }
+                                .start()
+                        } else {
+                            binding.root.animate()
+                                .translationY(0f)
+                                .alpha(1f)
+                                .setDuration(200)
+                                .start()
+                        }
+                        isDragging = false
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.playerView.player = null
+        _binding = null
+    }
+}
+
+
+===== FILE: app-native/app/build.gradle.kts =====
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
+}
+
+android {
+    namespace = "ru.asmr1.app"
+    compileSdk = 36
+    buildToolsVersion = "35.0.0"
+
+    defaultConfig {
+        applicationId = "ru.asmr1.app"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.activity:activity-ktx:1.9.2")
+    implementation("androidx.fragment:fragment-ktx:1.8.3")
+
+    implementation("com.google.android.material:material:1.12.0")
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation("io.coil-kt:coil:2.7.0")
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+}
+
+
+===== FILE: app-native/local.properties =====
+sdk.dir=/opt/android
+
+
+===== FILE: app-native/settings.gradle.kts =====
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "ASMR1"
+include(":app")
+
+
+===== FILE: app-native/gradle.properties =====
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+kotlin.code.style=official
+android.suppressUnsupportedCompileSdk=36
+
+
+===== FILE: app-native/build.gradle.kts =====
+plugins {
+    id("com.android.application") version "8.5.2" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+}
+
+

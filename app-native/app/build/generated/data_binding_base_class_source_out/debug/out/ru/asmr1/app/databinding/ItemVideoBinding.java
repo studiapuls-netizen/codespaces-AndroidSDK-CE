@@ -4,6 +4,7 @@ package ru.asmr1.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.imageview.ShapeableImageView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -21,7 +23,13 @@ public final class ItemVideoBinding implements ViewBinding {
   private final LinearLayout rootView;
 
   @NonNull
-  public final ImageView authorAvatar;
+  public final ShapeableImageView authorAvatar;
+
+  @NonNull
+  public final ImageButton btnMore;
+
+  @NonNull
+  public final TextView dateOverlay;
 
   @NonNull
   public final TextView duration;
@@ -35,15 +43,22 @@ public final class ItemVideoBinding implements ViewBinding {
   @NonNull
   public final TextView title;
 
-  private ItemVideoBinding(@NonNull LinearLayout rootView, @NonNull ImageView authorAvatar,
-      @NonNull TextView duration, @NonNull TextView meta, @NonNull ImageView thumbnail,
-      @NonNull TextView title) {
+  @NonNull
+  public final TextView viewsOverlay;
+
+  private ItemVideoBinding(@NonNull LinearLayout rootView, @NonNull ShapeableImageView authorAvatar,
+      @NonNull ImageButton btnMore, @NonNull TextView dateOverlay, @NonNull TextView duration,
+      @NonNull TextView meta, @NonNull ImageView thumbnail, @NonNull TextView title,
+      @NonNull TextView viewsOverlay) {
     this.rootView = rootView;
     this.authorAvatar = authorAvatar;
+    this.btnMore = btnMore;
+    this.dateOverlay = dateOverlay;
     this.duration = duration;
     this.meta = meta;
     this.thumbnail = thumbnail;
     this.title = title;
+    this.viewsOverlay = viewsOverlay;
   }
 
   @Override
@@ -74,8 +89,20 @@ public final class ItemVideoBinding implements ViewBinding {
     int id;
     missingId: {
       id = R.id.author_avatar;
-      ImageView authorAvatar = ViewBindings.findChildViewById(rootView, id);
+      ShapeableImageView authorAvatar = ViewBindings.findChildViewById(rootView, id);
       if (authorAvatar == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_more;
+      ImageButton btnMore = ViewBindings.findChildViewById(rootView, id);
+      if (btnMore == null) {
+        break missingId;
+      }
+
+      id = R.id.date_overlay;
+      TextView dateOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (dateOverlay == null) {
         break missingId;
       }
 
@@ -103,8 +130,14 @@ public final class ItemVideoBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemVideoBinding((LinearLayout) rootView, authorAvatar, duration, meta, thumbnail,
-          title);
+      id = R.id.views_overlay;
+      TextView viewsOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (viewsOverlay == null) {
+        break missingId;
+      }
+
+      return new ItemVideoBinding((LinearLayout) rootView, authorAvatar, btnMore, dateOverlay,
+          duration, meta, thumbnail, title, viewsOverlay);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

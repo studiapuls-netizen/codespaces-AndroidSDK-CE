@@ -2,7 +2,7 @@
 <resources>
     <color name="bg_dark">#0F0F0F</color>
     <color name="card_bg">#1A1A1A</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#AAAAAA</color>
-    <color name="accent_red">#FF0000</color>
+    <color name="text_primary">#E6E6E6</color>
+    <color name="text_secondary">#9E9E9E</color>
+    <color name="accent_red">#CF001F</color>
 </resources>

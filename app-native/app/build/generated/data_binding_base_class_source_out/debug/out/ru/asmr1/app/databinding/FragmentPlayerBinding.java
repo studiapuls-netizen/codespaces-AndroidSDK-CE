@@ -4,7 +4,7 @@ package ru.asmr1.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,61 +18,131 @@ import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
 import ru.asmr1.app.R;
+import ru.asmr1.app.player.RippleView;
+import ru.asmr1.app.player.VideoProgressBar;
 
 public final class FragmentPlayerBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final FrameLayout rootView;
 
   @NonNull
-  public final ImageView authorAvatar;
+  public final View audioDim;
 
   @NonNull
-  public final TextView authorName;
+  public final ImageView audioModeIcon;
+
+  @NonNull
+  public final ImageView audioPreview;
 
   @NonNull
   public final ImageButton btnClose;
 
   @NonNull
-  public final Button btnLike;
+  public final ImageButton btnFullscreen;
 
   @NonNull
-  public final Button btnSave;
+  public final ImageButton btnMinimize;
 
   @NonNull
-  public final TextView description;
+  public final ImageButton btnNext;
 
   @NonNull
-  public final TextView meta;
+  public final FrameLayout btnNextWrap;
+
+  @NonNull
+  public final ImageButton btnPlayPause;
+
+  @NonNull
+  public final FrameLayout btnPlayPauseWrap;
+
+  @NonNull
+  public final ImageButton btnPrev;
+
+  @NonNull
+  public final FrameLayout btnPrevWrap;
+
+  @NonNull
+  public final FrameLayout controlsLayer;
+
+  @NonNull
+  public final TextView currentTime;
+
+  @NonNull
+  public final View dimOverlay;
+
+  @NonNull
+  public final FrameLayout playerFrame;
+
+  @NonNull
+  public final FrameLayout playerRoot;
 
   @NonNull
   public final PlayerView playerView;
 
   @NonNull
-  public final ImageView thumbnail;
+  public final VideoProgressBar progressBar;
 
   @NonNull
-  public final TextView title;
+  public final RippleView rippleView;
 
-  private FragmentPlayerBinding(@NonNull LinearLayout rootView, @NonNull ImageView authorAvatar,
-      @NonNull TextView authorName, @NonNull ImageButton btnClose, @NonNull Button btnLike,
-      @NonNull Button btnSave, @NonNull TextView description, @NonNull TextView meta,
-      @NonNull PlayerView playerView, @NonNull ImageView thumbnail, @NonNull TextView title) {
+  @NonNull
+  public final LinearLayout seekIndicator;
+
+  @NonNull
+  public final TextView seekIndicatorText;
+
+  @NonNull
+  public final View thumbView;
+
+  @NonNull
+  public final LinearLayout timeRow;
+
+  @NonNull
+  public final TextView totalTime;
+
+  private FragmentPlayerBinding(@NonNull FrameLayout rootView, @NonNull View audioDim,
+      @NonNull ImageView audioModeIcon, @NonNull ImageView audioPreview,
+      @NonNull ImageButton btnClose, @NonNull ImageButton btnFullscreen,
+      @NonNull ImageButton btnMinimize, @NonNull ImageButton btnNext,
+      @NonNull FrameLayout btnNextWrap, @NonNull ImageButton btnPlayPause,
+      @NonNull FrameLayout btnPlayPauseWrap, @NonNull ImageButton btnPrev,
+      @NonNull FrameLayout btnPrevWrap, @NonNull FrameLayout controlsLayer,
+      @NonNull TextView currentTime, @NonNull View dimOverlay, @NonNull FrameLayout playerFrame,
+      @NonNull FrameLayout playerRoot, @NonNull PlayerView playerView,
+      @NonNull VideoProgressBar progressBar, @NonNull RippleView rippleView,
+      @NonNull LinearLayout seekIndicator, @NonNull TextView seekIndicatorText,
+      @NonNull View thumbView, @NonNull LinearLayout timeRow, @NonNull TextView totalTime) {
     this.rootView = rootView;
-    this.authorAvatar = authorAvatar;
-    this.authorName = authorName;
+    this.audioDim = audioDim;
+    this.audioModeIcon = audioModeIcon;
+    this.audioPreview = audioPreview;
     this.btnClose = btnClose;
-    this.btnLike = btnLike;
-    this.btnSave = btnSave;
-    this.description = description;
-    this.meta = meta;
+    this.btnFullscreen = btnFullscreen;
+    this.btnMinimize = btnMinimize;
+    this.btnNext = btnNext;
+    this.btnNextWrap = btnNextWrap;
+    this.btnPlayPause = btnPlayPause;
+    this.btnPlayPauseWrap = btnPlayPauseWrap;
+    this.btnPrev = btnPrev;
+    this.btnPrevWrap = btnPrevWrap;
+    this.controlsLayer = controlsLayer;
+    this.currentTime = currentTime;
+    this.dimOverlay = dimOverlay;
+    this.playerFrame = playerFrame;
+    this.playerRoot = playerRoot;
     this.playerView = playerView;
-    this.thumbnail = thumbnail;
-    this.title = title;
+    this.progressBar = progressBar;
+    this.rippleView = rippleView;
+    this.seekIndicator = seekIndicator;
+    this.seekIndicatorText = seekIndicatorText;
+    this.thumbView = thumbView;
+    this.timeRow = timeRow;
+    this.totalTime = totalTime;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public FrameLayout getRoot() {
     return rootView;
   }
 
@@ -97,15 +167,21 @@ public final class FragmentPlayerBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.author_avatar;
-      ImageView authorAvatar = ViewBindings.findChildViewById(rootView, id);
-      if (authorAvatar == null) {
+      id = R.id.audio_dim;
+      View audioDim = ViewBindings.findChildViewById(rootView, id);
+      if (audioDim == null) {
         break missingId;
       }
 
-      id = R.id.author_name;
-      TextView authorName = ViewBindings.findChildViewById(rootView, id);
-      if (authorName == null) {
+      id = R.id.audio_mode_icon;
+      ImageView audioModeIcon = ViewBindings.findChildViewById(rootView, id);
+      if (audioModeIcon == null) {
+        break missingId;
+      }
+
+      id = R.id.audio_preview;
+      ImageView audioPreview = ViewBindings.findChildViewById(rootView, id);
+      if (audioPreview == null) {
         break missingId;
       }
 
@@ -115,29 +191,79 @@ public final class FragmentPlayerBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btn_like;
-      Button btnLike = ViewBindings.findChildViewById(rootView, id);
-      if (btnLike == null) {
+      id = R.id.btn_fullscreen;
+      ImageButton btnFullscreen = ViewBindings.findChildViewById(rootView, id);
+      if (btnFullscreen == null) {
         break missingId;
       }
 
-      id = R.id.btn_save;
-      Button btnSave = ViewBindings.findChildViewById(rootView, id);
-      if (btnSave == null) {
+      id = R.id.btn_minimize;
+      ImageButton btnMinimize = ViewBindings.findChildViewById(rootView, id);
+      if (btnMinimize == null) {
         break missingId;
       }
 
-      id = R.id.description;
-      TextView description = ViewBindings.findChildViewById(rootView, id);
-      if (description == null) {
+      id = R.id.btn_next;
+      ImageButton btnNext = ViewBindings.findChildViewById(rootView, id);
+      if (btnNext == null) {
         break missingId;
       }
 
-      id = R.id.meta;
-      TextView meta = ViewBindings.findChildViewById(rootView, id);
-      if (meta == null) {
+      id = R.id.btn_next_wrap;
+      FrameLayout btnNextWrap = ViewBindings.findChildViewById(rootView, id);
+      if (btnNextWrap == null) {
         break missingId;
       }
+
+      id = R.id.btn_play_pause;
+      ImageButton btnPlayPause = ViewBindings.findChildViewById(rootView, id);
+      if (btnPlayPause == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_play_pause_wrap;
+      FrameLayout btnPlayPauseWrap = ViewBindings.findChildViewById(rootView, id);
+      if (btnPlayPauseWrap == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_prev;
+      ImageButton btnPrev = ViewBindings.findChildViewById(rootView, id);
+      if (btnPrev == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_prev_wrap;
+      FrameLayout btnPrevWrap = ViewBindings.findChildViewById(rootView, id);
+      if (btnPrevWrap == null) {
+        break missingId;
+      }
+
+      id = R.id.controls_layer;
+      FrameLayout controlsLayer = ViewBindings.findChildViewById(rootView, id);
+      if (controlsLayer == null) {
+        break missingId;
+      }
+
+      id = R.id.current_time;
+      TextView currentTime = ViewBindings.findChildViewById(rootView, id);
+      if (currentTime == null) {
+        break missingId;
+      }
+
+      id = R.id.dim_overlay;
+      View dimOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (dimOverlay == null) {
+        break missingId;
+      }
+
+      id = R.id.player_frame;
+      FrameLayout playerFrame = ViewBindings.findChildViewById(rootView, id);
+      if (playerFrame == null) {
+        break missingId;
+      }
+
+      FrameLayout playerRoot = (FrameLayout) rootView;
 
       id = R.id.player_view;
       PlayerView playerView = ViewBindings.findChildViewById(rootView, id);
@@ -145,20 +271,53 @@ public final class FragmentPlayerBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.thumbnail;
-      ImageView thumbnail = ViewBindings.findChildViewById(rootView, id);
-      if (thumbnail == null) {
+      id = R.id.progress_bar;
+      VideoProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
+      if (progressBar == null) {
         break missingId;
       }
 
-      id = R.id.title;
-      TextView title = ViewBindings.findChildViewById(rootView, id);
-      if (title == null) {
+      id = R.id.ripple_view;
+      RippleView rippleView = ViewBindings.findChildViewById(rootView, id);
+      if (rippleView == null) {
         break missingId;
       }
 
-      return new FragmentPlayerBinding((LinearLayout) rootView, authorAvatar, authorName, btnClose,
-          btnLike, btnSave, description, meta, playerView, thumbnail, title);
+      id = R.id.seek_indicator;
+      LinearLayout seekIndicator = ViewBindings.findChildViewById(rootView, id);
+      if (seekIndicator == null) {
+        break missingId;
+      }
+
+      id = R.id.seek_indicator_text;
+      TextView seekIndicatorText = ViewBindings.findChildViewById(rootView, id);
+      if (seekIndicatorText == null) {
+        break missingId;
+      }
+
+      id = R.id.thumb_view;
+      View thumbView = ViewBindings.findChildViewById(rootView, id);
+      if (thumbView == null) {
+        break missingId;
+      }
+
+      id = R.id.time_row;
+      LinearLayout timeRow = ViewBindings.findChildViewById(rootView, id);
+      if (timeRow == null) {
+        break missingId;
+      }
+
+      id = R.id.total_time;
+      TextView totalTime = ViewBindings.findChildViewById(rootView, id);
+      if (totalTime == null) {
+        break missingId;
+      }
+
+      return new FragmentPlayerBinding((FrameLayout) rootView, audioDim, audioModeIcon,
+          audioPreview, btnClose, btnFullscreen, btnMinimize, btnNext, btnNextWrap, btnPlayPause,
+          btnPlayPauseWrap, btnPrev, btnPrevWrap, controlsLayer, currentTime, dimOverlay,
+          playerFrame, playerRoot, playerView, progressBar, rippleView, seekIndicator,
+          seekIndicatorText, thumbView, timeRow, totalTime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

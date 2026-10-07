@@ -1,30 +1,118 @@
 [
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/custom_player_controls.xml",
-        "source": "ru.asmr1.app-main-56:/layout/custom_player_controls.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_download.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_download.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/activity_main.xml",
-        "source": "ru.asmr1.app-main-56:/layout/activity_main.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_stub.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_stub.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/activity_player.xml",
-        "source": "ru.asmr1.app-main-56:/layout/activity_player.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_downloads.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_downloads.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/item_video.xml",
-        "source": "ru.asmr1.app-main-56:/layout/item_video.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_subscribed_author.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_subscribed_author.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/fragment_feed.xml",
-        "source": "ru.asmr1.app-main-56:/layout/fragment_feed.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/sheet_download_menu.xml",
+        "source": "ru.asmr1.app-main-49:/layout/sheet_download_menu.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/fragment_player.xml",
-        "source": "ru.asmr1.app-main-56:/layout/fragment_player.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_register.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_register.xml"
     },
     {
-        "merged": "ru.asmr1.app-mergeDebugResources-53:/layout/fragment_player_modal.xml",
-        "source": "ru.asmr1.app-main-56:/layout/fragment_player_modal.xml"
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_video_search.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_video_search.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_subscriptions.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_subscriptions.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_profile.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_profile.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_feed.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_feed.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_video_skeleton_search.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_video_skeleton_search.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_comment_reply.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_comment_reply.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_search_history.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_search_history.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/sheet_video_menu.xml",
+        "source": "ru.asmr1.app-main-49:/layout/sheet_video_menu.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/activity_main.xml",
+        "source": "ru.asmr1.app-main-49:/layout/activity_main.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_login.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_login.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_subscribed_all.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_subscribed_all.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_content.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_content.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_video_skeleton.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_video_skeleton.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_video.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_video.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_comments.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_comments.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/sheet_subscription_menu.xml",
+        "source": "ru.asmr1.app-main-49:/layout/sheet_subscription_menu.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_search.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_search.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_player.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_player.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_description.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_description.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/item_comment.xml",
+        "source": "ru.asmr1.app-main-49:/layout/item_comment.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/fragment_video_list.xml",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_video_list.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/activity_player.xml",
+        "source": "ru.asmr1.app-main-49:/layout/activity_player.xml"
+    },
+    {
+        "merged": "ru.asmr1.app-mergeDebugResources-46:/layout/custom_player_controls.xml",
+        "source": "ru.asmr1.app-main-49:/layout/custom_player_controls.xml"
     }
 ]

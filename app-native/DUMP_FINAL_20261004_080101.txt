@@ -1,0 +1,4660 @@
+]633;E;echo "===== ASMR1 DUMP $(date) =====";6dca97d1-3a23-4a99-80b0-7b5144339587]633;C===== ASMR1 DUMP Sun Oct  4 08:01:01 UTC 2026 =====
+
+===== FILE: app/src/main/java/ru/asmr1/app/MainActivity.kt =====
+package ru.asmr1.app
+
+import android.annotation.SuppressLint
+import android.app.PictureInPictureParams
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+import android.graphics.Rect
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Rational
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.player.AudioBoost
+import ru.asmr1.app.player.CommentsFragment
+import ru.asmr1.app.player.ContentFragment
+import ru.asmr1.app.player.DescriptionFragment
+import ru.asmr1.app.player.PlayerFragment
+import ru.asmr1.app.player.RippleView
+import ru.asmr1.app.ui.FeedFragment
+import ru.asmr1.app.ui.StubFragment
+import kotlin.math.abs
+import kotlin.math.hypot
+
+class MainActivity : AppCompatActivity() {
+
+    companion object {
+        var globalPlayer: ExoPlayer? = null
+        var currentVideo: Video? = null
+        val audioBoost = AudioBoost()
+
+        private const val CARD_RATIO = 9f / 16f
+        private const val CONTROLS_DP = 36f
+        private const val CONTROLS_MARGIN_DP = 2f
+
+        private const val SPLASH_DURATION_MS = 2000L
+        private const val SPLASH_FADE_MS = 400L
+        private const val SPLASH_RIPPLE_INTERVAL_MS = 1100L
+    }
+
+    private lateinit var feedContainer: View
+    private lateinit var overlayContainer: View
+    private lateinit var playerContainer: View
+    private lateinit var contentContainer: View
+    private lateinit var contentOverlayContainer: View
+    private lateinit var descriptionOverlayContainer: View
+    private lateinit var commentsOverlayContainer: View
+    private lateinit var miniPlayerWrap: View
+    private lateinit var miniPlayerContainer: View
+    private lateinit var miniControls: View
+    private lateinit var miniPlayerView: PlayerView
+    private lateinit var miniBtnPrev: ImageButton
+    private lateinit var miniBtnPlayPause: ImageButton
+    private lateinit var miniBtnNext: ImageButton
+    private lateinit var miniBtnClose: ImageButton
+    private lateinit var bottomNav: BottomNavigationView
+
+    private val density by lazy { resources.displayMetrics.density }
+    private val marginPx by lazy { (12 * density).toInt() }
+
+    private val screenHeightPx: Float
+        get() = resources.displayMetrics.heightPixels.toFloat()
+
+    private val minWidthDp = 100
+    private val maxWidthDp = 400
+
+    private var miniPlayerRestoreW = 0
+    private var miniPlayerRestoreH = 0
+    private var miniPlayerRestoreX = 0f
+    private var miniPlayerRestoreY = 0f
+
+    private var wasInPip = false
+    private var pendingRestoreModal = false
+
+    private var isAnimatingCollapse = false
+    private var pendingExpandAnimation = false
+
+    private var lastAudioSessionId = 0
+
+    // Splash
+    private val splashHandler = Handler(Looper.getMainLooper())
+    private var splashRippleRun: Runnable? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        feedContainer = findViewById(R.id.feed_container)
+        overlayContainer = findViewById(R.id.overlay_container)
+        playerContainer = findViewById(R.id.player_container)
+        contentContainer = findViewById(R.id.content_container)
+        contentOverlayContainer = findViewById(R.id.content_overlay_container)
+        descriptionOverlayContainer = findViewById(R.id.description_overlay_container)
+        commentsOverlayContainer = findViewById(R.id.comments_overlay_container)
+        miniPlayerWrap = findViewById(R.id.mini_wrap)
+        miniPlayerContainer = findViewById(R.id.mini_player_container)
+        miniControls = findViewById(R.id.mini_controls)
+        miniPlayerView = findViewById(R.id.mini_player_view)
+        miniBtnClose = findViewById(R.id.mini_btn_close)
+        miniBtnPrev = findViewById(R.id.mini_btn_prev)
+        miniBtnPlayPause = findViewById(R.id.mini_btn_play_pause)
+        miniBtnNext = findViewById(R.id.mini_btn_next)
+        bottomNav = findViewById(R.id.bottom_nav)
+
+        val sw = resources.displayMetrics.widthPixels
+        val overlayTopMarginPx = (sw * 9f / 16f).toInt()
+        val mlp = contentOverlayContainer.layoutParams as? ViewGroup.MarginLayoutParams
+        mlp?.topMargin = overlayTopMarginPx
+        contentOverlayContainer.layoutParams = mlp
+
+        val dmlp = descriptionOverlayContainer.layoutParams as? ViewGroup.MarginLayoutParams
+        dmlp?.topMargin = overlayTopMarginPx
+        descriptionOverlayContainer.layoutParams = dmlp
+
+        val cmlp = commentsOverlayContainer.layoutParams as? ViewGroup.MarginLayoutParams
+        cmlp?.topMargin = overlayTopMarginPx
+        commentsOverlayContainer.layoutParams = cmlp
+
+        if (globalPlayer == null) {
+            globalPlayer = ExoPlayer.Builder(this).build().also { exo ->
+                exo.addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == Player.STATE_ENDED) closePlayer()
+                        if (state == Player.STATE_READY) attachAudioBoostIfNeeded()
+                    }
+
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        if (::miniBtnPlayPause.isInitialized) {
+                            miniBtnPlayPause.setImageResource(
+                                if (isPlaying) R.drawable.ic_player_pause
+                                else R.drawable.ic_player_play
+                            )
+                        }
+                    }
+
+                    override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                        if (audioSessionId != 0 && audioSessionId != lastAudioSessionId) {
+                            lastAudioSessionId = audioSessionId
+                            audioBoost.attach(audioSessionId)
+                            audioBoost.fadeIn()
+                        }
+                    }
+                })
+            }
+        }
+
+        miniBtnClose.setOnClickListener { closePlayer() }
+        miniBtnPlayPause.setOnClickListener {
+            val p = globalPlayer ?: return@setOnClickListener
+            if (p.isPlaying) p.pause() else p.play()
+        }
+        miniBtnPrev.setOnClickListener { /* TODO */ }
+        miniBtnNext.setOnClickListener { /* TODO */ }
+
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentViewCreated(
+                    fm: FragmentManager,
+                    f: Fragment,
+                    v: View,
+                    savedInstanceState: Bundle?
+                ) {
+                    if (f is PlayerFragment && pendingExpandAnimation) {
+                        pendingExpandAnimation = false
+                        v.post { runExpandAnimation() }
+                    }
+                }
+            },
+            false
+        )
+
+        setupMiniPlayerGestures()
+        setupBottomNav(savedInstanceState)
+        setupSplash()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (commentsOverlayContainer.visibility == View.VISIBLE) {
+                    closeComments()
+                    return
+                }
+                if (descriptionOverlayContainer.visibility == View.VISIBLE) {
+                    closeDescription()
+                    return
+                }
+
+                val pf = getPlayerFragmentOrNull()
+                if (pf != null && pf.handleBack()) return
+
+                if (currentVideo != null && overlayContainer.visibility == View.VISIBLE && miniPlayerWrap.visibility != View.VISIBLE) {
+                    collapseToMini()
+                    return
+                }
+                if (currentVideo != null && miniPlayerWrap.visibility == View.VISIBLE) {
+                    closePlayer()
+                    return
+                }
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
+    }
+
+    // ============================================================
+    // SPLASH
+    // ============================================================
+    private fun setupSplash() {
+        val splashOverlay = findViewById<View>(R.id.splash_overlay)
+        val splashRipple = findViewById<RippleView>(R.id.splash_ripple)
+        val splashLogo = findViewById<ImageView>(R.id.splash_logo)
+
+        // Лого появляется с масштабом
+        splashLogo.scaleX = 0.7f
+        splashLogo.scaleY = 0.7f
+        splashLogo.alpha = 0f
+        splashLogo.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(500)
+            .start()
+
+        // Ripple циклично
+        val rippleRun = object : Runnable {
+            override fun run() {
+                if (splashRipple.width > 0) {
+                    splashRipple.start(
+                        splashRipple.width / 2f,
+                        splashRipple.height / 2f
+                    )
+                }
+                splashHandler.postDelayed(this, SPLASH_RIPPLE_INTERVAL_MS)
+            }
+        }
+        splashRippleRun = rippleRun
+        splashRipple.post { rippleRun.run() }
+
+        // Через SPLASH_DURATION_MS — fade-out
+        splashHandler.postDelayed({
+            splashRippleRun?.let { splashHandler.removeCallbacks(it) }
+            splashOverlay.animate()
+                .alpha(0f)
+                .withLayer()
+                .setDuration(SPLASH_FADE_MS)
+                .withEndAction { splashOverlay.visibility = View.GONE }
+                .start()
+        }, SPLASH_DURATION_MS)
+    }
+
+    private fun attachAudioBoostIfNeeded() {
+        val p = globalPlayer ?: return
+        val id = p.audioSessionId
+        if (id == 0) return
+        if (id == lastAudioSessionId) return
+        lastAudioSessionId = id
+        audioBoost.attach(id)
+        audioBoost.fadeIn()
+    }
+
+    private fun setupBottomNav(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.feed_container, FeedFragment())
+                .commit()
+        }
+
+        bottomNav.setOnItemSelectedListener { item ->
+            try {
+                val fragment = when (item.itemId) {
+                    R.id.nav_home -> FeedFragment()
+                    R.id.nav_search -> StubFragment.newInstance("Поиск — скоро")
+                    R.id.nav_subs -> StubFragment.newInstance("Подписки — скоро")
+                    R.id.nav_bell -> StubFragment.newInstance("Уведомления — скоро")
+                    R.id.nav_profile -> StubFragment.newInstance("Войти / Регистрация")
+                    else -> return@setOnItemSelectedListener false
+                }
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.feed_container, fragment)
+                    .commit()
+                true
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(
+                    this,
+                    "CRASH: ${e.javaClass.simpleName}: ${e.message}",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                false
+            }
+        }
+    }
+
+    private fun wrapHeightForWidth(width: Int): Int {
+        val cardH = (width * CARD_RATIO).toInt()
+        val controlsH = (CONTROLS_DP * density).toInt()
+        val marginH = (CONTROLS_MARGIN_DP * density).toInt()
+        return cardH + marginH + controlsH
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupMiniPlayerGestures() {
+        var startX = 0f
+        var startY = 0f
+        var startTouchX = 0f
+        var startTouchY = 0f
+        var isDragging = false
+        var downTime = 0L
+
+        var isPinching = false
+        var pinchStartDist = 0f
+        var pinchStartWidth = 0
+        var pinchCenterX = 0f
+        var pinchCenterY = 0f
+
+        miniPlayerWrap.setOnTouchListener { v, event ->
+            val parent = v.parent as? ViewGroup ?: return@setOnTouchListener false
+            val parentW = parent.width.toFloat()
+            val parentH = parent.height.toFloat()
+            val marginF = marginPx.toFloat()
+            val minWidthPx = (minWidthDp * density).toInt()
+            val maxWidthPx = (maxWidthDp * density).toInt()
+
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = v.x
+                    startY = v.y
+                    startTouchX = event.rawX
+                    startTouchY = event.rawY
+                    isDragging = false
+                    downTime = System.currentTimeMillis()
+                    true
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (event.pointerCount >= 2) {
+                        isPinching = true
+                        isDragging = false
+                        pinchStartDist = distanceBetween(event, 0, 1)
+                        pinchStartWidth = v.width
+                        pinchCenterX = v.x + v.width / 2f
+                        pinchCenterY = v.y + v.height / 2f
+                    }
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    if (isPinching && event.pointerCount >= 2) {
+                        val curDist = distanceBetween(event, 0, 1)
+                        if (pinchStartDist > 0f && pinchStartWidth > 0) {
+                            val factor = curDist / pinchStartDist
+                            var newW = (pinchStartWidth * factor).toInt()
+                            newW = newW.coerceIn(minWidthPx, maxWidthPx)
+                            val newH = wrapHeightForWidth(newW)
+                            val maxX = (parentW - newW - marginPx).coerceAtLeast(marginF)
+                            val maxY = (parentH - newH - marginPx).coerceAtLeast(marginF)
+                            val lp = v.layoutParams
+                            lp.width = newW
+                            lp.height = newH
+                            v.layoutParams = lp
+                            v.x = (pinchCenterX - newW / 2f).coerceIn(marginF, maxX)
+                            v.y = (pinchCenterY - newH / 2f).coerceIn(marginF, maxY)
+                        }
+                        return@setOnTouchListener true
+                    }
+                    val maxX = (parentW - v.width - marginPx).coerceAtLeast(marginF)
+                    val maxY = (parentH - v.height - marginPx).coerceAtLeast(marginF)
+                    val dx = event.rawX - startTouchX
+                    val dy = event.rawY - startTouchY
+                    if (abs(dx) > 10 || abs(dy) > 10) isDragging = true
+                    v.x = (startX + dx).coerceIn(marginF, maxX)
+                    v.y = (startY + dy).coerceIn(marginF, maxY)
+                    true
+                }
+                MotionEvent.ACTION_POINTER_UP -> {
+                    if (isPinching) {
+                        val idx = event.actionIndex
+                        val remainIdx = if (idx == 0) 1 else 0
+                        if (remainIdx < event.pointerCount) {
+                            startTouchX = event.getRawX(remainIdx)
+                            startTouchY = event.getRawY(remainIdx)
+                            startX = v.x
+                            startY = v.y
+                        }
+                        isPinching = false
+                        isDragging = false
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (!isDragging && System.currentTimeMillis() - downTime < 250) {
+                        expandFromMini()
+                    } else if (isDragging) {
+                        val maxX = (parentW - v.width - marginPx).coerceAtLeast(marginF)
+                        val maxY = (parentH - v.height - marginPx).coerceAtLeast(marginF)
+                        val cx = v.x + v.width / 2f
+                        val cy = v.y + v.height / 2f
+                        val targetX = if (cx < parentW / 2f) marginF else maxX
+                        val targetY = if (cy < parentH / 2f) marginF else maxY
+                        v.animate().x(targetX).y(targetY).setDuration(200)
+                            .withEndAction { refreshPipSourceRect() }.start()
+                    }
+                    isDragging = false
+                    isPinching = false
+                    refreshPipSourceRect()
+                    true
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    isDragging = false
+                    isPinching = false
+                    refreshPipSourceRect()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        val blockDrag = View.OnTouchListener { btn, ev ->
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_DOWN -> btn.parent?.requestDisallowInterceptTouchEvent(true)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> btn.parent?.requestDisallowInterceptTouchEvent(false)
+            }
+            false
+        }
+        miniBtnClose.setOnTouchListener(blockDrag)
+        miniBtnPrev.setOnTouchListener(blockDrag)
+        miniBtnPlayPause.setOnTouchListener(blockDrag)
+        miniBtnNext.setOnTouchListener(blockDrag)
+    }
+
+    private fun distanceBetween(event: MotionEvent, i1: Int, i2: Int): Float {
+        val dx = event.getX(i1) - event.getX(i2)
+        val dy = event.getY(i1) - event.getY(i2)
+        return hypot(dx, dy)
+    }
+
+    private fun getPlayerFragmentOrNull(): PlayerFragment? {
+        return supportFragmentManager
+            .findFragmentById(R.id.player_container) as? PlayerFragment
+    }
+
+    private fun getContentFragmentOrNull(): ContentFragment? {
+        return supportFragmentManager
+            .findFragmentById(R.id.content_overlay_container) as? ContentFragment
+    }
+
+    private fun openPlayerFragments(video: Video) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.player_container, PlayerFragment.newInstance(video))
+            .replace(R.id.content_overlay_container, ContentFragment.newInstance(video))
+            .commit()
+    }
+
+    private fun removePlayerFragments() {
+        supportFragmentManager.findFragmentById(R.id.player_container)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commit()
+        }
+        supportFragmentManager.findFragmentById(R.id.content_overlay_container)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commit()
+        }
+    }
+
+    fun openPlayerWithTransition(video: Video, sourceRect: Rect, thumbUrl: String) {
+        openPlayer(video)
+    }
+
+    fun openPlayer(video: Video) {
+        currentVideo = video
+
+        globalPlayer?.apply {
+            stop()
+            clearMediaItems()
+            setMediaItem(MediaItem.fromUri(video.videoUrl))
+            prepare()
+            playWhenReady = true
+        }
+
+        overlayContainer.visibility = View.VISIBLE
+        overlayContainer.translationY = screenHeightPx
+        overlayContainer.alpha = 1f
+
+        playerContainer.visibility = View.VISIBLE
+        contentContainer.visibility = View.VISIBLE
+        contentOverlayContainer.visibility = View.VISIBLE
+        descriptionOverlayContainer.visibility = View.GONE
+        commentsOverlayContainer.visibility = View.GONE
+        miniPlayerWrap.visibility = View.GONE
+        miniPlayerView.player = null
+
+        playerContainer.translationY = 0f
+        playerContainer.alpha = 1f
+        contentOverlayContainer.translationY = 0f
+        contentOverlayContainer.alpha = 1f
+
+        openPlayerFragments(video)
+
+        overlayContainer.post {
+            overlayContainer.animate()
+                .translationY(0f)
+                .setDuration(320)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+
+        enablePip()
+    }
+
+    fun openDescription(video: Video) {
+        descriptionOverlayContainer.visibility = View.VISIBLE
+        descriptionOverlayContainer.translationY = screenHeightPx
+        descriptionOverlayContainer.alpha = 1f
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.description_overlay_container, DescriptionFragment.newInstance(video))
+            .commit()
+
+        descriptionOverlayContainer.post {
+            descriptionOverlayContainer.animate()
+                .translationY(0f)
+                .setDuration(280)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    fun closeDescription() {
+        descriptionOverlayContainer.animate()
+            .translationY(screenHeightPx)
+            .setDuration(240)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                supportFragmentManager.findFragmentById(R.id.description_overlay_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+                descriptionOverlayContainer.visibility = View.GONE
+                descriptionOverlayContainer.translationY = 0f
+            }
+            .start()
+    }
+
+    fun openComments(video: Video) {
+        commentsOverlayContainer.visibility = View.VISIBLE
+        commentsOverlayContainer.translationY = screenHeightPx
+        commentsOverlayContainer.alpha = 1f
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.comments_overlay_container, CommentsFragment.newInstance(video))
+            .commit()
+
+        commentsOverlayContainer.post {
+            commentsOverlayContainer.animate()
+                .translationY(0f)
+                .setDuration(280)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    fun closeComments() {
+        commentsOverlayContainer.animate()
+            .translationY(screenHeightPx)
+            .setDuration(240)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                supportFragmentManager.findFragmentById(R.id.comments_overlay_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+                commentsOverlayContainer.visibility = View.GONE
+                commentsOverlayContainer.translationY = 0f
+            }
+            .start()
+    }
+
+    fun hideContentForFullscreen(hide: Boolean) {
+        contentContainer.visibility = if (hide) View.GONE else View.VISIBLE
+        contentOverlayContainer.visibility = if (hide) View.GONE else View.VISIBLE
+    }
+
+    fun onPlayerSwipeDown(deltaY: Float) {
+        val pf = getPlayerFragmentOrNull()
+        pf?.view?.translationY = deltaY
+        contentOverlayContainer.translationY = deltaY
+        contentOverlayContainer.alpha = 1f - (deltaY / 800f).coerceIn(0f, 1f)
+    }
+
+    fun collapseToMini() {
+        if (currentVideo == null || globalPlayer == null) return
+        if (isAnimatingCollapse) return
+        isAnimatingCollapse = true
+
+        descriptionOverlayContainer.visibility = View.GONE
+        commentsOverlayContainer.visibility = View.GONE
+
+        val pf = getPlayerFragmentOrNull()
+        val playerFrame = pf?.view?.findViewById<View>(R.id.player_frame)
+        val playerRoot = pf?.view
+        val contentView = getContentFragmentOrNull()?.view
+
+        playerRoot?.animate()?.cancel()
+        playerFrame?.animate()?.cancel()
+        contentView?.animate()?.cancel()
+
+        val targetW = (200 * density).toInt()
+        val targetWrapH = wrapHeightForWidth(targetW)
+
+        val overlayW = overlayContainer.width
+        val overlayH = overlayContainer.height
+        val targetX = (overlayW - targetW - marginPx).toFloat()
+        val targetY = (overlayH - targetWrapH - marginPx).toFloat()
+
+        val pfLoc = IntArray(2)
+        playerFrame?.getLocationInWindow(pfLoc)
+        val ovLoc = IntArray(2)
+        overlayContainer.getLocationInWindow(ovLoc)
+        val frameX = (pfLoc[0] - ovLoc[0]).toFloat()
+        val frameY = (pfLoc[1] - ovLoc[1]).toFloat()
+        val frameW = (playerFrame?.width ?: 1).toFloat().coerceAtLeast(1f)
+        val frameH = (playerFrame?.height ?: 1).toFloat().coerceAtLeast(1f)
+
+        val targetCardH = (targetW * CARD_RATIO).toInt()
+        val scaleX = targetW / frameW
+        val scaleY = targetCardH / frameH
+        val dx = targetX - frameX - (frameW * (1 - scaleX) / 2f)
+        val dy = targetY - frameY - (frameH * (1 - scaleY) / 2f)
+
+        miniPlayerView.player = globalPlayer
+        val lp = miniPlayerWrap.layoutParams
+        lp.width = targetW
+        lp.height = targetWrapH
+        miniPlayerWrap.layoutParams = lp
+        miniPlayerWrap.x = targetX
+        miniPlayerWrap.y = targetY
+        miniPlayerWrap.alpha = 0f
+        miniPlayerWrap.visibility = View.VISIBLE
+
+        playerFrame?.animate()
+            ?.scaleX(scaleX)
+            ?.scaleY(scaleY)
+            ?.translationX(dx)
+            ?.translationY(dy)
+            ?.setDuration(300)
+            ?.withEndAction {
+                miniPlayerWrap.alpha = 1f
+                playerRoot?.visibility = View.GONE
+                playerFrame?.animate()?.cancel()
+                playerFrame?.scaleX = 1f
+                playerFrame?.scaleY = 1f
+                playerFrame?.translationX = 0f
+                playerFrame?.translationY = 0f
+                playerRoot?.translationY = 0f
+
+                removePlayerFragments()
+                supportFragmentManager.findFragmentById(R.id.description_overlay_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+                supportFragmentManager.findFragmentById(R.id.comments_overlay_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+
+                playerContainer.visibility = View.GONE
+                contentContainer.visibility = View.GONE
+                overlayContainer.visibility = View.VISIBLE
+                overlayContainer.translationY = 0f
+
+                feedContainer.visibility = View.VISIBLE
+                isAnimatingCollapse = false
+
+                bottomNav.visibility = View.VISIBLE
+
+                refreshPipSourceRect()
+            }
+            ?.start()
+
+        contentView?.animate()
+            ?.translationY((contentView.height).toFloat())
+            ?.alpha(0f)
+            ?.setDuration(300)
+            ?.start()
+    }
+
+    fun expandFromMini() {
+        val video = currentVideo ?: return
+
+        playerContainer.animate().cancel()
+        contentOverlayContainer.animate().cancel()
+
+        overlayContainer.visibility = View.VISIBLE
+        playerContainer.visibility = View.VISIBLE
+        contentContainer.visibility = View.VISIBLE
+        contentOverlayContainer.visibility = View.VISIBLE
+
+        playerContainer.translationY = screenHeightPx
+        playerContainer.alpha = 0f
+        contentOverlayContainer.translationY = screenHeightPx
+        contentOverlayContainer.alpha = 0f
+
+        miniPlayerWrap.visibility = View.GONE
+        miniPlayerView.player = null
+
+        pendingExpandAnimation = true
+        openPlayerFragments(video)
+    }
+
+    private fun runExpandAnimation() {
+        playerContainer.animate().cancel()
+        contentOverlayContainer.animate().cancel()
+
+        playerContainer.translationY = screenHeightPx
+        playerContainer.alpha = 0f
+        contentOverlayContainer.translationY = screenHeightPx
+        contentOverlayContainer.alpha = 0f
+
+        val decel = DecelerateInterpolator()
+
+        playerContainer.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(320)
+            .setInterpolator(decel)
+            .start()
+
+        contentOverlayContainer.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(320)
+            .setInterpolator(decel)
+            .start()
+
+        enablePip()
+    }
+
+    fun closePlayer() {
+        if (descriptionOverlayContainer.visibility == View.VISIBLE) {
+            supportFragmentManager.findFragmentById(R.id.description_overlay_container)?.let {
+                supportFragmentManager.beginTransaction().remove(it).commit()
+            }
+            descriptionOverlayContainer.visibility = View.GONE
+        }
+        if (commentsOverlayContainer.visibility == View.VISIBLE) {
+            supportFragmentManager.findFragmentById(R.id.comments_overlay_container)?.let {
+                supportFragmentManager.beginTransaction().remove(it).commit()
+            }
+            commentsOverlayContainer.visibility = View.GONE
+        }
+
+        globalPlayer?.stop()
+        globalPlayer?.clearMediaItems()
+        currentVideo = null
+
+        audioBoost.release()
+        lastAudioSessionId = 0
+
+        miniPlayerWrap.visibility = View.GONE
+        miniPlayerView.player = null
+        overlayContainer.visibility = View.GONE
+        feedContainer.visibility = View.VISIBLE
+
+        bottomNav.visibility = View.VISIBLE
+
+        disablePip()
+    }
+
+    fun setOverlayOffset(offset: Float) {
+        overlayContainer.translationY = offset
+    }
+
+    private fun enablePip() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            val builder = PictureInPictureParams.Builder()
+                .setAspectRatio(Rational(16, 9))
+                .setAutoEnterEnabled(true)
+            if (miniPlayerWrap.visibility == View.VISIBLE &&
+                miniPlayerContainer.width > 0 && miniPlayerContainer.height > 0) {
+                val rect = Rect()
+                miniPlayerContainer.getGlobalVisibleRect(rect)
+                if (!rect.isEmpty) builder.setSourceRectHint(rect)
+            }
+            setPictureInPictureParams(builder.build())
+        } catch (_: Exception) {}
+    }
+
+    private fun disablePip() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            setPictureInPictureParams(
+                PictureInPictureParams.Builder().setAutoEnterEnabled(false).build()
+            )
+        } catch (_: Exception) {}
+    }
+
+    private fun refreshPipSourceRect() {
+        if (miniPlayerWrap.visibility != View.VISIBLE) return
+        if (miniPlayerContainer.width == 0 || miniPlayerContainer.height == 0) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            val rect = Rect()
+            miniPlayerContainer.getGlobalVisibleRect(rect)
+            if (rect.isEmpty) return
+            setPictureInPictureParams(
+                PictureInPictureParams.Builder()
+                    .setAspectRatio(Rational(16, 9))
+                    .setAutoEnterEnabled(true)
+                    .setSourceRectHint(rect)
+                    .build()
+            )
+        } catch (_: Exception) {}
+    }
+
+    private fun forceResetMiniPlayer() {
+        if (miniPlayerRestoreW > 0) {
+            val lp = miniPlayerWrap.layoutParams
+            lp.width = miniPlayerRestoreW
+            lp.height = miniPlayerRestoreH
+            miniPlayerWrap.layoutParams = lp
+            miniPlayerWrap.x = miniPlayerRestoreX
+            miniPlayerWrap.y = miniPlayerRestoreY
+        } else {
+            val lp = miniPlayerWrap.layoutParams
+            if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT ||
+                lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+                val w = (200 * density).toInt()
+                lp.width = w
+                lp.height = wrapHeightForWidth(w)
+                miniPlayerWrap.layoutParams = lp
+            }
+        }
+        miniPlayerRestoreW = 0
+        miniPlayerRestoreH = 0
+        miniPlayerWrap.animate().cancel()
+        miniPlayerWrap.visibility = View.GONE
+        miniPlayerWrap.alpha = 0f
+        miniPlayerView.player = null
+    }
+
+    private fun restoreBigPlayerPaused() {
+        if (currentVideo == null) return
+
+        forceResetMiniPlayer()
+        getPlayerFragmentOrNull()?.restoreAfterPip()
+
+        feedContainer.visibility = View.VISIBLE
+        overlayContainer.visibility = View.VISIBLE
+        overlayContainer.translationY = 0f
+        playerContainer.visibility = View.VISIBLE
+        contentContainer.visibility = View.VISIBLE
+        contentOverlayContainer.visibility = View.VISIBLE
+        playerContainer.translationY = 0f
+        playerContainer.alpha = 1f
+        contentOverlayContainer.translationY = 0f
+        contentOverlayContainer.alpha = 1f
+
+        val hasPlayerFragment = supportFragmentManager
+            .findFragmentById(R.id.player_container) is PlayerFragment
+
+        if (!hasPlayerFragment) openPlayerFragments(currentVideo!!)
+        val pvF = getPlayerFragmentOrNull()?.view?.findViewById<PlayerView>(R.id.player_view)
+        pvF?.player = null
+        pvF?.player = globalPlayer
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        playerContainer.post {
+            setBigPlayerExpandedForPip(expand = false)
+            playerContainer.post {
+                setBigPlayerExpandedForPip(expand = false)
+            }
+        }
+
+        enablePip()
+    }
+
+    private fun setBigPlayerExpandedForPip(expand: Boolean) {
+        val pf = getPlayerFragmentOrNull() ?: return
+        val root = pf.view ?: return
+        val frame = root.findViewById<FrameLayout>(R.id.player_frame) ?: return
+        val pv = root.findViewById<PlayerView>(R.id.player_view) ?: return
+
+        val dm = resources.displayMetrics
+        val screenWidth = minOf(dm.widthPixels, dm.heightPixels)
+        val targetHeight = (screenWidth * 9f / 16f).toInt()
+
+        if (expand) {
+            frame.layoutParams = frame.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+            pv.layoutParams = pv.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+        } else {
+            frame.layoutParams = frame.layoutParams.apply {
+                height = targetHeight
+            }
+            pv.layoutParams = pv.layoutParams.apply { height = targetHeight }
+        }
+        frame.requestLayout()
+        pv.requestLayout()
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        if (isInPictureInPictureMode) {
+            wasInPip = true
+            feedContainer.visibility = View.GONE
+            contentContainer.visibility = View.GONE
+            contentOverlayContainer.visibility = View.GONE
+            descriptionOverlayContainer.visibility = View.GONE
+            commentsOverlayContainer.visibility = View.GONE
+
+            miniControls.visibility = View.GONE
+
+            setBigPlayerExpandedForPip(expand = true)
+
+            if (miniPlayerWrap.visibility == View.VISIBLE) {
+                miniPlayerRestoreW = miniPlayerWrap.width
+                miniPlayerRestoreH = miniPlayerWrap.height
+                miniPlayerRestoreX = miniPlayerWrap.x
+                miniPlayerRestoreY = miniPlayerWrap.y
+
+                miniPlayerWrap.animate().cancel()
+                miniPlayerWrap.alpha = 1f
+
+                val lp = miniPlayerWrap.layoutParams
+                lp.width = ViewGroup.LayoutParams.MATCH_PARENT
+                lp.height = ViewGroup.LayoutParams.MATCH_PARENT
+                miniPlayerWrap.layoutParams = lp
+                miniPlayerWrap.x = 0f
+                miniPlayerWrap.y = 0f
+            }
+        } else {
+            if (!wasInPip) return
+            wasInPip = false
+
+            playerContainer.visibility = View.INVISIBLE
+            contentOverlayContainer.visibility = View.INVISIBLE
+
+            miniControls.visibility = View.VISIBLE
+
+            setBigPlayerExpandedForPip(expand = false)
+
+            forceResetMiniPlayer()
+
+            pendingRestoreModal = true
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (pendingRestoreModal) {
+                    pendingRestoreModal = false
+                    restoreBigPlayerPaused()
+                    enablePip()
+                }
+            }, 50)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (wasInPip) {
+            wasInPip = false
+            pendingRestoreModal = true
+        }
+        if (miniPlayerRestoreW > 0 && miniPlayerWrap.visibility == View.VISIBLE) {
+            val lp = miniPlayerWrap.layoutParams
+            lp.width = miniPlayerRestoreW
+            lp.height = miniPlayerRestoreH
+            miniPlayerWrap.layoutParams = lp
+            miniPlayerWrap.x = miniPlayerRestoreX
+            miniPlayerWrap.y = miniPlayerRestoreY
+        }
+        miniPlayerRestoreW = 0
+        miniPlayerRestoreH = 0
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (pendingRestoreModal) {
+            pendingRestoreModal = false
+            if (currentVideo != null) {
+                window.decorView.post {
+                    restoreBigPlayerPaused()
+                    enablePip()
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        splashRippleRun?.let { splashHandler.removeCallbacks(it) }
+        splashHandler.removeCallbacksAndMessages(null)
+        if (isFinishing) {
+            audioBoost.release()
+            globalPlayer?.release()
+            globalPlayer = null
+            currentVideo = null
+        }
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/PlayerFragment.kt =====
+package ru.asmr1.app.player
+
+import android.animation.ArgbEvaluator
+import android.animation.ValueAnimator
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.GestureDetector
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.Player
+import androidx.palette.graphics.Palette
+import coil.imageLoader
+import coil.request.ImageRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentPlayerBinding
+import kotlin.math.abs
+import kotlin.math.roundToInt
+
+class PlayerFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO = "video"
+        fun newInstance(video: Video) = PlayerFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
+        }
+        private const val FS_SIDE_DP = 48f
+        private const val FS_BOTTOM_DP = 45f
+        private const val NORMAL_SIDE_DP = 12f
+        private const val NORMAL_BOTTOM_TIME_DP = 12f
+        private const val NORMAL_END_FS_DP = 8f
+
+        private const val THUMB_SIZE_DP = 10f
+        private const val PALETTE_BRIGHTNESS = 0.45f
+
+        private const val RAPID_SEEK_WINDOW_MS = 1500L
+    }
+
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
+
+    private var controlsVisible = false
+    private val handler = Handler(Looper.getMainLooper())
+
+    private var playerListener: Player.Listener? = null
+    private var userSeeking = false
+
+    private var isFullscreen = false
+    private var gestureDetector: GestureDetector? = null
+    private var isLongPressing = false
+
+    private var accumulatedSeekMs = 0L
+    private var lastSeekTapTime = 0L
+    private val seekResetRunnable = Runnable {
+        accumulatedSeekMs = 0L
+    }
+
+    private var rapidSeekActive = false
+    private val rapidSeekResetRunnable = Runnable {
+        rapidSeekActive = false
+        accumulatedSeekMs = 0L
+    }
+
+    private val longPressRunnable = Runnable {
+        isLongPressing = true
+        MainActivity.globalPlayer?.setPlaybackSpeed(2.0f)
+        showSpeedIndicator()
+    }
+
+    fun isFullscreenMode(): Boolean = isFullscreen
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    private fun isPointInsidePlayerView(e: MotionEvent): Boolean {
+        val view = binding.playerView
+        val loc = IntArray(2)
+        view.getLocationOnScreen(loc)
+        val x = e.rawX
+        val y = e.rawY
+        return x >= loc[0] && x <= loc[0] + view.width &&
+                y >= loc[1] && y <= loc[1] + view.height
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val screenWidth = resources.displayMetrics.widthPixels
+        val targetHeight = (screenWidth * 9f / 16f).toInt()
+
+        binding.playerFrame.layoutParams = binding.playerFrame.layoutParams.apply {
+            height = targetHeight
+        }
+        binding.playerView.layoutParams = binding.playerView.layoutParams.apply {
+            height = targetHeight
+        }
+
+        binding.playerView.player = MainActivity.globalPlayer
+
+        val activity = requireActivity() as MainActivity
+
+        binding.btnClose.setOnClickListener {
+            if (isFullscreen) {
+                exitFullscreen()
+                binding.playerView.postDelayed({
+                    activity.closePlayer()
+                }, 250)
+            } else {
+                activity.closePlayer()
+            }
+        }
+
+        binding.btnMinimize.setOnClickListener {
+            if (isFullscreen) {
+                exitFullscreen()
+                binding.playerView.postDelayed({
+                    activity.collapseToMini()
+                }, 250)
+            } else {
+                activity.collapseToMini()
+            }
+        }
+
+        binding.playerRoot.isClickable = true
+
+        setupGestures()
+        setupProgressBar()
+        setupPlayerControls()
+        setupTapAndSwipe()
+
+        binding.controlsLayer.alpha = 0f
+        binding.controlsLayer.visibility = View.INVISIBLE
+        controlsVisible = false
+
+        applyFullscreenProgressMargins(false)
+        applyFullscreenControlsMargins(false)
+        binding.progressBar.setCornersEnabled(false)
+
+        binding.progressBar.setExpanded(false)
+        binding.thumbView.visibility = View.GONE
+
+        val thumbSizePx = (THUMB_SIZE_DP * resources.displayMetrics.density).toInt()
+        val halfThumb = thumbSizePx / 2f
+
+        binding.progressBar.onThumbPosition = { cx, cy ->
+            val pbLeft = binding.progressBar.left.toFloat()
+            val pbTop = binding.progressBar.top.toFloat()
+            binding.thumbView.x = pbLeft + cx - halfThumb
+            binding.thumbView.y = pbTop + cy - halfThumb
+        }
+
+        binding.progressBar.post {
+            binding.progressBar.setProgress(0f)
+        }
+
+        loadPaletteFromThumbnail()
+    }
+
+    private fun loadPaletteFromThumbnail() {
+        val video = requireArguments().getParcelable<Video>(ARG_VIDEO) ?: return
+        val url = video.thumbnail
+        if (url.isEmpty()) return
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val bitmap: Bitmap? = withContext(Dispatchers.IO) {
+                try {
+                    val request = ImageRequest.Builder(requireContext())
+                        .data(url)
+                        .size(80, 80)
+                        .allowHardware(false)
+                        .build()
+                    val result = requireContext().imageLoader.execute(request)
+                    (result.drawable as? BitmapDrawable)?.bitmap
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            if (bitmap == null) return@launch
+
+            val palette = withContext(Dispatchers.Default) {
+                Palette.from(bitmap).generate()
+            }
+
+            val vibrant = palette.getVibrantColor(
+                palette.getDominantColor(Color.BLACK)
+            )
+            val muted = palette.getMutedColor(
+                palette.getDarkVibrantColor(Color.BLACK)
+            )
+
+            val darkVibrant = blendWithBlack(vibrant, PALETTE_BRIGHTNESS)
+            val darkMuted = blendWithBlack(muted, PALETTE_BRIGHTNESS * 0.6f)
+
+            // Красим playerFrame
+            val gradient = android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(darkVibrant, darkMuted)
+            )
+
+            val current = (binding.playerFrame.background as? android.graphics.drawable.ColorDrawable)?.color
+                ?: Color.BLACK
+            val anim = ValueAnimator.ofObject(ArgbEvaluator(), current, darkVibrant).apply {
+                duration = 400L
+                addUpdateListener { a ->
+                    val c = a.animatedValue as Int
+                    binding.playerFrame.setBackgroundColor(c)
+                }
+                addListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        binding.playerFrame.background = gradient
+                    }
+                })
+            }
+            anim.start()
+        }
+    }
+
+    private fun blendWithBlack(color: Int, factor: Float): Int {
+        val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * factor).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * factor).toInt().coerceIn(0, 255)
+        return Color.rgb(r, g, b)
+    }
+
+    fun hideControlsForStart() {
+        handler.removeCallbacks(hideRunnable)
+        binding.controlsLayer.animate().cancel()
+        binding.controlsLayer.alpha = 0f
+        binding.controlsLayer.visibility = View.INVISIBLE
+        controlsVisible = false
+        binding.progressBar.setExpanded(false)
+        binding.thumbView.visibility = View.GONE
+    }
+
+    private fun showControls() {
+        if (controlsVisible) return
+        controlsVisible = true
+
+        handler.removeCallbacks(hideRunnable)
+        binding.controlsLayer.animate().cancel()
+
+        binding.controlsLayer.visibility = View.VISIBLE
+        binding.controlsLayer.animate()
+            .alpha(1f)
+            .setDuration(200)
+            .start()
+
+        if (isFullscreen) {
+            binding.progressBar.visibility = View.VISIBLE
+        }
+        binding.progressBar.setExpanded(true)
+        binding.thumbView.visibility = View.VISIBLE
+
+        scheduleHide()
+    }
+
+    private fun hideControls() {
+        if (!controlsVisible) return
+        if (userSeeking) return
+        controlsVisible = false
+
+        handler.removeCallbacks(hideRunnable)
+        binding.controlsLayer.animate().cancel()
+
+        binding.controlsLayer.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                if (!controlsVisible) {
+                    binding.controlsLayer.visibility = View.INVISIBLE
+                }
+            }
+            .start()
+
+        binding.progressBar.setExpanded(false)
+        binding.thumbView.visibility = View.GONE
+
+        if (isFullscreen) {
+            binding.progressBar.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun toggleControls() {
+        if (controlsVisible) hideControls() else showControls()
+    }
+
+    private val hideRunnable = Runnable { hideControls() }
+
+    private fun scheduleHide() {
+        handler.removeCallbacks(hideRunnable)
+        handler.postDelayed(hideRunnable, 3500)
+    }
+
+    private fun setupGestures() {
+        gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+
+            override fun onDown(e: MotionEvent): Boolean = true
+
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                if (!isPointInsidePlayerView(e)) return true
+
+                if (rapidSeekActive) {
+                    val player = MainActivity.globalPlayer ?: return true
+                    val w = binding.playerView.width
+                    val half = w / 2
+                    val isLeft = e.x < half
+                    val deltaMs = if (isLeft) -10_000L else 10_000L
+
+                    val newPos = if (isLeft) {
+                        (player.currentPosition - 10_000).coerceAtLeast(0)
+                    } else {
+                        (player.currentPosition + 10_000).coerceAtMost(player.duration)
+                    }
+                    player.seekTo(newPos)
+
+                    showSeekEffect(e.x, isLeft, deltaMs)
+
+                    handler.removeCallbacks(rapidSeekResetRunnable)
+                    handler.postDelayed(rapidSeekResetRunnable, RAPID_SEEK_WINDOW_MS)
+
+                    scheduleHide()
+                    return true
+                }
+
+                toggleControls()
+                return true
+            }
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                if (!isPointInsidePlayerView(e)) return false
+                val player = MainActivity.globalPlayer ?: return false
+                val w = binding.playerView.width
+                val half = w / 2
+                val isLeft = e.x < half
+                val deltaMs = if (isLeft) -10_000L else 10_000L
+
+                val newPos = if (isLeft) {
+                    (player.currentPosition - 10_000).coerceAtLeast(0)
+                } else {
+                    (player.currentPosition + 10_000).coerceAtMost(player.duration)
+                }
+                player.seekTo(newPos)
+
+                showSeekEffect(e.x, isLeft, deltaMs)
+
+                rapidSeekActive = true
+                handler.removeCallbacks(rapidSeekResetRunnable)
+                handler.postDelayed(rapidSeekResetRunnable, RAPID_SEEK_WINDOW_MS)
+
+                scheduleHide()
+                return true
+            }
+        })
+    }
+
+    private fun showSeekEffect(touchX: Float, isLeft: Boolean, deltaMs: Long) {
+        binding.rippleView.start(touchX, binding.rippleView.height / 2f)
+
+        val now = System.currentTimeMillis()
+        if (now - lastSeekTapTime > 1000L) {
+            accumulatedSeekMs = 0L
+        }
+        lastSeekTapTime = now
+        accumulatedSeekMs += deltaMs
+
+        handler.removeCallbacks(seekResetRunnable)
+
+        val totalSec = (accumulatedSeekMs / 1000.0).roundToInt()
+        val prefix = if (totalSec >= 0) "+" else "−"
+        val absSec = Math.abs(totalSec)
+
+        binding.seekIndicatorText.text = prefix + absSec + " сек"
+
+        handler.postDelayed(seekResetRunnable, 1000)
+
+        binding.seekIndicator.visibility = View.VISIBLE
+        binding.seekIndicator.alpha = 1f
+        binding.seekIndicator.animate().cancel()
+        binding.seekIndicator.animate()
+            .alpha(0f)
+            .setStartDelay(700)
+            .setDuration(300)
+            .withEndAction { binding.seekIndicator.visibility = View.GONE }
+            .start()
+    }
+
+    private fun showSpeedIndicator() {
+        binding.seekIndicatorText.text = "x2"
+
+        binding.seekIndicator.visibility = View.VISIBLE
+        binding.seekIndicator.alpha = 1f
+        binding.seekIndicator.animate().cancel()
+
+        binding.rippleView.start(
+            binding.rippleView.width / 2f,
+            binding.rippleView.height / 2f
+        )
+    }
+
+    private fun startLongPress() {
+        handler.postDelayed(longPressRunnable, 500L)
+    }
+
+    private fun stopLongPress() {
+        handler.removeCallbacks(longPressRunnable)
+        if (isLongPressing) {
+            isLongPressing = false
+            MainActivity.globalPlayer?.setPlaybackSpeed(1.0f)
+            binding.seekIndicator.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction { binding.seekIndicator.visibility = View.GONE }
+                .start()
+        }
+    }
+
+    private fun setupProgressBar() {
+        binding.progressBar.onSeekStart = {
+            userSeeking = true
+            handler.removeCallbacks(hideRunnable)
+            binding.progressBar.setExpanded(true)
+            binding.thumbView.visibility = View.VISIBLE
+        }
+        binding.progressBar.onSeek = { p ->
+            val player = MainActivity.globalPlayer
+            if (player != null) {
+                val duration = player.duration
+                if (duration > 0) {
+                    val newPos = (duration * p).toLong()
+                    player.seekTo(newPos)
+                    binding.currentTime.text = formatTime(newPos)
+                }
+            }
+        }
+        binding.progressBar.onSeekEnd = {
+            userSeeking = false
+            if (controlsVisible) {
+                scheduleHide()
+            } else {
+                binding.progressBar.setExpanded(false)
+                binding.thumbView.visibility = View.GONE
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupTapAndSwipe() {
+        var touchStartY = 0f
+        var touchStartX = 0f
+        var movedEnoughForSwipe = false
+        var movedUpForFullscreen = false
+        var movedBackSwipe = false
+        var downInsidePlayer = false
+
+        val backSwipeThresholdPx = (80 * resources.displayMetrics.density)
+
+        binding.playerRoot.setOnTouchListener { _, event ->
+            gestureDetector?.onTouchEvent(event)
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    touchStartY = event.rawY
+                    touchStartX = event.rawX
+                    movedEnoughForSwipe = false
+                    movedUpForFullscreen = false
+                    movedBackSwipe = false
+                    downInsidePlayer = isPointInsidePlayerView(event)
+
+                    if (downInsidePlayer) startLongPress()
+
+                    false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = event.rawY - touchStartY
+                    val dx = event.rawX - touchStartX
+
+                    if (abs(dy) > 20 || abs(dx) > 20) {
+                        stopLongPress()
+                    }
+
+                    if (isFullscreen && dx > backSwipeThresholdPx && dx > abs(dy) * 1.5f) {
+                        movedBackSwipe = true
+                        return@setOnTouchListener true
+                    }
+
+                    if (dy < -50 && abs(dy) > abs(dx) * 1.5f && !isFullscreen) {
+                        movedUpForFullscreen = true
+                    }
+
+                    if (dy > 30 && dy > abs(dx) * 1.5f) {
+                        movedEnoughForSwipe = true
+                        (requireActivity() as MainActivity).onPlayerSwipeDown(dy)
+                    }
+
+                    movedEnoughForSwipe || movedUpForFullscreen || movedBackSwipe
+                }
+                MotionEvent.ACTION_UP -> {
+                    stopLongPress()
+
+                    if (movedBackSwipe) {
+                        handleBack()
+                        true
+                    } else if (movedUpForFullscreen && !isFullscreen) {
+                        enterFullscreen()
+                        true
+                    } else if (movedEnoughForSwipe) {
+                        val deltaY = event.rawY - touchStartY
+                        if (deltaY > 150) {
+                            val activity = requireActivity() as MainActivity
+                            if (isFullscreen) {
+                                exitFullscreen()
+                                binding.playerView.postDelayed({
+                                    activity.collapseToMini()
+                                }, 250)
+                            } else {
+                                activity.collapseToMini()
+                            }
+                        } else {
+                            (requireActivity() as MainActivity).onPlayerSwipeDown(0f)
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    stopLongPress()
+                    false
+                }
+                else -> false
+            }
+        }
+    }
+
+    fun handleBack(): Boolean {
+        if (isFullscreen) {
+            exitFullscreen()
+            return true
+        }
+        return false
+    }
+
+    private fun applyFullscreenProgressMargins(fullscreen: Boolean) {
+        val lp = binding.progressBar.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val side = if (fullscreen) (FS_SIDE_DP * resources.displayMetrics.density).toInt() else 0
+        val bottom = if (fullscreen) (FS_BOTTOM_DP * resources.displayMetrics.density).toInt() else 0
+        lp.marginStart = side
+        lp.marginEnd = side
+        lp.bottomMargin = bottom
+        binding.progressBar.layoutParams = lp
+        binding.progressBar.requestLayout()
+        binding.progressBar.setCornersEnabled(fullscreen)
+    }
+
+    private fun applyFullscreenControlsMargins(fullscreen: Boolean) {
+        val dm = resources.displayMetrics.density
+
+        val lpTime = binding.timeRow.layoutParams as? ViewGroup.MarginLayoutParams
+        if (lpTime != null) {
+            lpTime.marginStart = if (fullscreen) (FS_SIDE_DP * dm).toInt()
+                              else (NORMAL_SIDE_DP * dm).toInt()
+            lpTime.bottomMargin = (NORMAL_BOTTOM_TIME_DP * dm).toInt()
+            binding.timeRow.layoutParams = lpTime
+            binding.timeRow.requestLayout()
+        }
+
+        val lpFs = binding.btnFullscreen.layoutParams as? ViewGroup.MarginLayoutParams
+        if (lpFs != null) {
+            lpFs.marginEnd = if (fullscreen) (FS_SIDE_DP * dm).toInt()
+                             else (NORMAL_END_FS_DP * dm).toInt()
+            lpFs.bottomMargin = (NORMAL_BOTTOM_TIME_DP * dm).toInt()
+            binding.btnFullscreen.layoutParams = lpFs
+            binding.btnFullscreen.requestLayout()
+        }
+    }
+
+    private fun enterFullscreen() {
+        isFullscreen = true
+        binding.btnFullscreen.setImageResource(R.drawable.ic_player_exit_fullscreen)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+        val activity = requireActivity()
+        val decor = activity.window.decorView
+        decor.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        )
+
+        binding.playerFrame.layoutParams = binding.playerFrame.layoutParams.apply {
+            height = ViewGroup.LayoutParams.MATCH_PARENT
+        }
+        binding.playerView.layoutParams = binding.playerView.layoutParams.apply {
+            height = ViewGroup.LayoutParams.MATCH_PARENT
+        }
+        binding.playerFrame.requestLayout()
+        binding.playerView.requestLayout()
+
+        applyFullscreenProgressMargins(true)
+        applyFullscreenControlsMargins(true)
+
+        binding.progressBar.setExpanded(false)
+        binding.progressBar.visibility = View.INVISIBLE
+        binding.thumbView.visibility = View.GONE
+
+        (requireActivity() as MainActivity).hideContentForFullscreen(true)
+        showControls()
+    }
+
+    private fun exitFullscreen() {
+        isFullscreen = false
+        binding.btnFullscreen.setImageResource(R.drawable.ic_player_fullscreen)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        val activity = requireActivity()
+        val decor = activity.window.decorView
+        decor.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+
+        applyFullscreenProgressMargins(false)
+        applyFullscreenControlsMargins(false)
+
+        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.setExpanded(false)
+        binding.thumbView.visibility = View.GONE
+
+        binding.playerFrame.postDelayed({
+            val screenWidth = resources.displayMetrics.widthPixels
+            val targetHeight = (screenWidth * 9f / 16f).toInt()
+            binding.playerFrame.layoutParams = binding.playerFrame.layoutParams.apply {
+                height = targetHeight
+            }
+            binding.playerView.layoutParams = binding.playerView.layoutParams.apply {
+                height = targetHeight
+            }
+            binding.playerFrame.requestLayout()
+            binding.playerView.requestLayout()
+        }, 150)
+
+        (requireActivity() as MainActivity).hideContentForFullscreen(false)
+        showControls()
+    }
+
+    private fun setupPlayerControls() {
+        val player = MainActivity.globalPlayer ?: return
+
+        binding.btnPlayPause.setOnClickListener {
+            if (player.isPlaying) player.pause() else player.play()
+            scheduleHide()
+        }
+
+        binding.btnPrev.setOnClickListener { scheduleHide() }
+        binding.btnNext.setOnClickListener { scheduleHide() }
+        binding.btnFullscreen.setOnClickListener {
+            if (isFullscreen) exitFullscreen() else enterFullscreen()
+            scheduleHide()
+        }
+
+        playerListener = object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (_binding == null) return
+                binding.btnPlayPause.setImageResource(
+                    if (isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
+                )
+            }
+        }
+        player.addListener(playerListener!!)
+
+        val runnable = object : Runnable {
+            override fun run() {
+                if (_binding != null) {
+                    updateTimes()
+                    handler.postDelayed(this, 500)
+                }
+            }
+        }
+        handler.post(runnable)
+
+        binding.btnPlayPause.setImageResource(
+            if (player.isPlaying) R.drawable.ic_player_pause else R.drawable.ic_player_play
+        )
+        updateTimes()
+    }
+
+    private fun updateTimes() {
+        if (_binding == null) return
+        if (userSeeking) return
+        val player = MainActivity.globalPlayer ?: return
+
+        val duration = player.duration.coerceAtLeast(0L)
+        val position = player.currentPosition.coerceAtLeast(0L)
+
+        binding.currentTime.text = formatTime(position)
+        binding.totalTime.text = formatTime(duration)
+
+        if (duration > 0) {
+            binding.progressBar.setProgress(position.toFloat() / duration.toFloat())
+            binding.progressBar.setBuffered(player.bufferedPosition.toFloat() / duration.toFloat())
+        } else {
+            binding.progressBar.setProgress(0f)
+            binding.progressBar.setBuffered(0f)
+        }
+    }
+
+    private fun formatTime(ms: Long): String {
+        if (ms <= 0) return "00:00"
+        val totalSec = ms / 1000
+        val h = totalSec / 3600
+        val m = (totalSec % 3600) / 60
+        val s = totalSec % 60
+        return if (h > 0) {
+            String.format("%d:%02d:%02d", h, m, s)
+        } else {
+            String.format("%02d:%02d", m, s)
+        }
+    }
+
+    fun expandForPip() { /* no-op */ }
+    fun restoreAfterPip() { /* no-op */ }
+
+    override fun onDestroyView() {
+        handler.removeCallbacksAndMessages(null)
+        playerListener?.let { MainActivity.globalPlayer?.removeListener(it) }
+        playerListener = null
+        binding.playerView.player = null
+        _binding = null
+        super.onDestroyView()
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/ContentFragment.kt =====
+package ru.asmr1.app.player
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import coil.load
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentContentBinding
+import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.timeAgo
+
+class ContentFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO = "video"
+        fun newInstance(video: Video) = ContentFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
+        }
+    }
+
+    private var _binding: FragmentContentBinding? = null
+    private val binding get() = _binding!!
+
+    private var video: Video? = null
+
+    // 0 = не подписан
+    // 1 = подписан с уведомлениями
+    // 2 = подписан без уведомлений
+    private var subscriptionState = 0
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentContentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        video = requireArguments().getParcelable<Video>(ARG_VIDEO) ?: return
+        val v = video!!
+
+        // Сразу скрываем title_block — PlayerFragment покажет его
+        // плавно после загрузки палитры
+
+        binding.title.text = v.title
+        binding.meta.text = "${formatViews(v.views)} • ${timeAgo(v.published)}"
+        binding.commentsCount.text = "Комментарии"
+
+        // Автор
+        binding.authorName.text = v.author.name
+        binding.authorSubs.text = "0 подписчиков"
+        if (v.author.avatar.isNotEmpty()) {
+            binding.authorAvatar.load(v.author.avatar) {
+                crossfade(true)
+                placeholder(R.color.card_bg)
+            }
+        }
+
+        updateSubscriptionUi()
+
+        binding.btnSubscribe.setOnClickListener {
+            subscriptionState = 1
+            updateSubscriptionUi()
+        }
+
+        binding.btnBell.setOnClickListener {
+            showSubscriptionMenu()
+        }
+
+        // Тап по title_block → модалка описания
+        binding.titleBlock.setOnClickListener {
+            (requireActivity() as MainActivity).openDescription(v)
+        }
+
+        // Комментарии
+        binding.commentsRow.setOnClickListener {
+            (requireActivity() as MainActivity).openComments(v)
+        }
+
+        // Кнопки действий
+        binding.btnLike.setOnClickListener {
+            Toast.makeText(requireContext(), "Лайк — скоро", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnWatchLater.setOnClickListener {
+            Toast.makeText(requireContext(), "Смотреть позже — скоро", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnDownload.setOnClickListener {
+            Toast.makeText(requireContext(), "Скачать — скоро", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnShare.setOnClickListener {
+            Toast.makeText(requireContext(), "Поделиться — скоро", Toast.LENGTH_SHORT).show()
+        }
+        binding.btnReport.setOnClickListener {
+            Toast.makeText(requireContext(), "Репорт — скоро", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Обновляет видимость кнопок подписки/колокольчика и иконку колокольчика. */
+    private fun updateSubscriptionUi() {
+        when (subscriptionState) {
+            0 -> {
+                binding.btnSubscribe.visibility = View.VISIBLE
+                binding.btnBell.visibility = View.GONE
+            }
+            else -> {
+                binding.btnSubscribe.visibility = View.GONE
+                binding.btnBell.visibility = View.VISIBLE
+                binding.bellIcon.setImageResource(
+                    if (subscriptionState == 1) R.drawable.ic_nav_bell
+                    else R.drawable.ic_bell_off
+                )
+            }
+        }
+    }
+
+    /** BottomSheet с 3 пунктами: Получать / Не получать / Отписаться. */
+    private fun showSubscriptionMenu() {
+        try {
+            val sheetView = layoutInflater.inflate(R.layout.sheet_subscription_menu, null)
+            val dialog = BottomSheetDialog(requireContext())
+            dialog.setContentView(sheetView)
+
+            sheetView.findViewById<View>(R.id.subs_menu_notify)?.setOnClickListener {
+                subscriptionState = 1
+                updateSubscriptionUi()
+                dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_mute)?.setOnClickListener {
+                subscriptionState = 2
+                updateSubscriptionUi()
+                dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_unsubscribe)?.setOnClickListener {
+                subscriptionState = 0
+                updateSubscriptionUi()
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Ошибка меню", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/DescriptionFragment.kt =====
+package ru.asmr1.app.player
+
+import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentDescriptionBinding
+import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.timeAgo
+
+class DescriptionFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO = "video"
+        fun newInstance(video: Video) = DescriptionFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
+        }
+    }
+
+    private var _binding: FragmentDescriptionBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentDescriptionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val video = requireArguments().getParcelable<Video>(ARG_VIDEO) ?: return
+
+        binding.descTitle.text = video.title
+        binding.descMeta.text = "${formatViews(video.views)} • ${timeAgo(video.published)}"
+        binding.descText.text = video.description
+
+        // Кликабельные ссылки (http, https, www)
+        Linkify.addLinks(binding.descText, Linkify.WEB_URLS)
+        binding.descText.movementMethod = LinkMovementMethod.getInstance()
+
+        binding.btnDescClose.setOnClickListener {
+            (requireActivity() as MainActivity).closeDescription()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/CommentsFragment.kt =====
+package ru.asmr1.app.player
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentCommentsBinding
+
+class CommentsFragment : Fragment() {
+
+    companion object {
+        const val ARG_VIDEO = "video"
+        fun newInstance(video: Video) = CommentsFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
+        }
+    }
+
+    private var _binding: FragmentCommentsBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentCommentsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnCommentsClose.setOnClickListener {
+            (requireActivity() as MainActivity).closeComments()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/VideoProgressBar.kt =====
+package ru.asmr1.app.player
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import android.util.AttributeSet
+import android.view.MotionEvent
+import android.view.View
+
+/**
+ * Только полоса прогресса. Thumb рисуется отдельным View поверх (thumb_view).
+ * Сообщает координаты thumb через [onThumbPosition].
+ */
+class VideoProgressBar @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
+
+    private var progress = 0f
+    private var buffered = 0f
+    private var expanded = false
+    private var cornersEnabled = false
+
+    private val thinHeightPx = dpToPx(2f)
+    private val thickHeightPx = dpToPx(3.5f)
+    private val cornerPx = dpToPx(2f)
+
+    // Высота зоны кликов
+    private val touchAreaPx = dpToPx(24f)
+
+    private val bgColor = Color.parseColor("#66000000")
+    private val progressColor = Color.WHITE
+
+    private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = bgColor
+        style = Paint.Style.FILL
+    }
+    private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = progressColor
+        style = Paint.Style.FILL
+    }
+
+    private val tmpRect = RectF()
+
+    var onSeek: ((Float) -> Unit)? = null
+    var onSeekStart: (() -> Unit)? = null
+    var onSeekEnd: (() -> Unit)? = null
+
+    /** Callback для перемещения внешнего thumb: (x, y) в координатах этого View. */
+    var onThumbPosition: ((Float, Float) -> Unit)? = null
+
+    private var isDragging = false
+
+    fun setProgress(p: Float) {
+        progress = p.coerceIn(0f, 1f)
+        invalidate()
+        notifyThumbPosition()
+    }
+
+    fun setBuffered(b: Float) {
+        buffered = b.coerceIn(0f, 1f)
+        invalidate()
+    }
+
+    fun setExpanded(expand: Boolean) {
+        expanded = expand
+        invalidate()
+    }
+
+    fun setCornersEnabled(enabled: Boolean) {
+        if (cornersEnabled == enabled) return
+        cornersEnabled = enabled
+        invalidate()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val desiredHeight = touchAreaPx.toInt()
+        val h = resolveSize(desiredHeight, heightMeasureSpec)
+        val w = resolveSize(suggestedMinimumWidth, widthMeasureSpec)
+        setMeasuredDimension(w, h)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        val w = width.toFloat()
+        val h = height.toFloat()
+
+        val barH = if (expanded) thickHeightPx else thinHeightPx
+
+        // Полоса в самом низу View
+        val barBottom = h
+        val barTop = h - barH
+
+        val r = if (cornersEnabled) cornerPx else 0f
+
+        // Фон полосы
+        tmpRect.set(0f, barTop, w, barBottom)
+        canvas.drawRoundRect(tmpRect, r, r, bgPaint)
+
+        // Прогресс
+        val progressW = w * progress
+        if (progressW > 0f) {
+            tmpRect.set(0f, barTop, progressW, barBottom)
+            canvas.drawRoundRect(tmpRect, r, r, progressPaint)
+        }
+
+        // Thumb рисуется ВНЕШНИМ View, но координаты сообщаем отсюда
+        notifyThumbPosition()
+    }
+
+    private fun notifyThumbPosition() {
+        if (width == 0 || height == 0) return
+        val barH = if (expanded) thickHeightPx else thinHeightPx
+        val barBottom = height.toFloat()
+        val barTop = barBottom - barH
+        val cx = (width * progress).coerceIn(0f, width.toFloat())
+        // Центр thumb на полосе
+        val cy = barTop + barH / 2f
+        onThumbPosition?.invoke(cx, cy)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                isDragging = true
+                parent?.requestDisallowInterceptTouchEvent(true)
+                onSeekStart?.invoke()
+                handleTouch(event.x)
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (isDragging) {
+                    handleTouch(event.x)
+                }
+                return true
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (isDragging) {
+                    isDragging = false
+                    parent?.requestDisallowInterceptTouchEvent(false)
+                    onSeekEnd?.invoke()
+                }
+                return true
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+    private fun handleTouch(x: Float) {
+        val p = (x / width).coerceIn(0f, 1f)
+        progress = p
+        invalidate()
+        notifyThumbPosition()
+        onSeek?.invoke(p)
+    }
+
+    fun setDragging(dragging: Boolean) {
+        isDragging = dragging
+    }
+
+    private fun dpToPx(dp: Float): Float =
+        dp * resources.displayMetrics.density
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/RippleView.kt =====
+package ru.asmr1.app.player
+
+import android.animation.ValueAnimator
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.util.AttributeSet
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+
+/**
+ * Расширяющийся круг из точки нажатия, затухающий со временем.
+ */
+class RippleView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
+
+    private var centerX = 0f
+    private var centerY = 0f
+    private var radius = 0f
+    private var maxRadius = 0f
+    private var alpha = 0f
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = Color.WHITE
+    }
+
+    private var animator: ValueAnimator? = null
+
+    fun start(touchX: Float, touchY: Float) {
+        centerX = touchX
+        centerY = touchY
+        maxRadius = Math.min(width.toFloat(), height.toFloat()) * 0.6f
+        radius = 0f
+        alpha = 0.35f
+
+        animator?.cancel()
+        animator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 800
+            interpolator = AccelerateDecelerateInterpolator()
+            addUpdateListener { anim ->
+                val v = anim.animatedValue as Float
+                radius = maxRadius * v
+                alpha = 0.35f * (1f - v)
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        if (radius <= 0f || alpha <= 0f) return
+        paint.alpha = (alpha * 255).toInt().coerceIn(0, 255)
+        canvas.drawCircle(centerX, centerY, radius, paint)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animator?.cancel()
+        animator = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/player/AudioBoost.kt =====
+package ru.asmr1.app.player
+
+import android.media.audiofx.LoudnessEnhancer
+import android.os.Handler
+import android.os.Looper
+
+/**
+ * Обёртка над LoudnessEnhancer.
+ * - Усиливает звук до [targetGainMb] миллибел.
+ * - Плавный fade-in с 0 до целевого усиления за [FADE_IN_MS] мс.
+ */
+class AudioBoost {
+
+    companion object {
+        // ×3 по амплитуде ≈ +9.5 дБ ≈ 950 mB
+        private const val TARGET_GAIN_MB = 950
+        private const val FADE_IN_MS = 1500L
+        private const val FADE_STEP_MS = 30L
+    }
+
+    private var enhancer: LoudnessEnhancer? = null
+    private var currentGainMb = 0
+    private var fadeRunnable: Runnable? = null
+    private val handler = Handler(Looper.getMainLooper())
+
+    private var targetAudioSessionId: Int = 0
+
+    fun attach(audioSessionId: Int) {
+        if (audioSessionId == 0) return
+        if (enhancer != null && targetAudioSessionId == audioSessionId) return
+
+        release()
+        targetAudioSessionId = audioSessionId
+
+        try {
+            enhancer = LoudnessEnhancer(audioSessionId).apply {
+                setTargetGain(0)
+                enabled = true
+            }
+        } catch (_: Exception) {
+            enhancer = null
+        }
+    }
+
+    /** Плавно увеличить громкость с 0 до TARGET_GAIN_MB за FADE_IN_MS. */
+    fun fadeIn() {
+        cancelFade()
+        val e = enhancer ?: return
+
+        currentGainMb = 0
+        try {
+            e.setTargetGain(0)
+        } catch (_: Exception) {
+        }
+
+        val steps = (FADE_IN_MS / FADE_STEP_MS).toInt().coerceAtLeast(1)
+        val stepGain = TARGET_GAIN_MB / steps
+        var step = 0
+
+        val r = object : Runnable {
+            override fun run() {
+                val e2 = enhancer ?: return
+                step++
+                currentGainMb = (currentGainMb + stepGain).coerceAtMost(TARGET_GAIN_MB)
+                try {
+                    e2.setTargetGain(currentGainMb)
+                } catch (_: Exception) {
+                }
+                if (step < steps) {
+                    handler.postDelayed(this, FADE_STEP_MS)
+                }
+            }
+        }
+        fadeRunnable = r
+        handler.postDelayed(r, FADE_STEP_MS)
+    }
+
+    fun setGain(gainMb: Int) {
+        cancelFade()
+        val e = enhancer ?: return
+        currentGainMb = gainMb.coerceIn(0, TARGET_GAIN_MB)
+        try {
+            e.setTargetGain(currentGainMb)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun cancelFade() {
+        fadeRunnable?.let { handler.removeCallbacks(it) }
+        fadeRunnable = null
+    }
+
+    fun release() {
+        cancelFade()
+        try {
+            enhancer?.enabled = false
+            enhancer?.release()
+        } catch (_: Exception) {
+        }
+        enhancer = null
+        currentGainMb = 0
+        targetAudioSessionId = 0
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/ui/FeedFragment.kt =====
+package ru.asmr1.app.ui
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import ru.asmr1.app.databinding.FragmentFeedBinding
+
+class FeedFragment : Fragment() {
+
+    private var _binding: FragmentFeedBinding? = null
+    private val binding get() = _binding!!
+
+    private val tabs = listOf("recommended", "latest")
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFeedBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.viewPager.offscreenPageLimit = 1
+        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
+            override fun getItemCount(): Int = tabs.size
+            override fun createFragment(position: Int): Fragment =
+                VideoListFragment.newInstance(tabs[position])
+        }
+
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                val progress = position + positionOffset
+                applyTabState(0, (1f - progress).coerceIn(0f, 1f))
+                applyTabState(1, progress.coerceIn(0f, 1f))
+            }
+
+            override fun onPageSelected(position: Int) {
+                // Сбрасываем скролл у СТАРОГО таба — того, с которого ушли
+                val oldIndex = if (position == 0) 1 else 0
+                getFragmentAt(oldIndex)?.scrollToTop()
+            }
+        })
+
+        binding.tabRecommended.setOnClickListener {
+            if (binding.viewPager.currentItem != 0) {
+                binding.viewPager.setCurrentItem(0, true)
+            }
+        }
+        binding.tabLatest.setOnClickListener {
+            if (binding.viewPager.currentItem != 1) {
+                binding.viewPager.setCurrentItem(1, true)
+            }
+        }
+
+        applyTabState(0, 1f)
+        applyTabState(1, 0f)
+    }
+
+    /**
+     * ViewPager2 (FragmentStateAdapter) хранит фрагменты под тегами "f0", "f1", ...
+     * Это единственный надёжный способ достать фрагмент по позиции.
+     */
+    private fun getFragmentAt(index: Int): VideoListFragment? {
+        return childFragmentManager.findFragmentByTag("f$index") as? VideoListFragment
+    }
+
+    private fun applyTabState(index: Int, weight: Float) {
+        val tab = if (index == 0) binding.tabRecommended else binding.tabLatest
+        val scale = 0.94f + 0.06f * weight
+        tab.scaleX = scale
+        tab.scaleY = scale
+        tab.alpha = 0.6f + 0.4f * weight
+        tab.background?.mutate()?.alpha = (weight * 255).toInt().coerceIn(0, 255)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/ui/VideoListFragment.kt =====
+package ru.asmr1.app.ui
+
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentVideoListBinding
+
+class VideoListFragment : Fragment() {
+
+    companion object {
+        const val ARG_TAB = "tab"
+        val sharedPool: RecyclerView.RecycledViewPool by lazy { RecyclerView.RecycledViewPool() }
+        fun newInstance(tab: String) = VideoListFragment().apply {
+            arguments = Bundle().apply { putString(ARG_TAB, tab) }
+        }
+    }
+
+    private var _binding: FragmentVideoListBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+    private var parentPager: ViewPager2? = null
+
+    private var currentTab = "recommended"
+    private var currentPage = 1
+    private var isLoading = false
+    private var hasMore = true
+    private val perPage = 10
+    private var loadJob: Job? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentVideoListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        currentTab = arguments?.getString(ARG_TAB) ?: "recommended"
+        parentPager = findParentViewPager2(view)
+
+        setupRecyclerView()
+        setupSwipeRefresh()
+        setupInfiniteScroll()
+        loadFeed(1, false)
+    }
+
+    private fun findParentViewPager2(view: View): ViewPager2? {
+        var v: View? = view.parent as? View
+        while (v != null) {
+            if (v is ViewPager2) return v
+            v = v.parent as? View
+        }
+        return null
+    }
+
+    private fun setupRecyclerView() {
+        adapter = VideoAdapter(
+            onClick = { video ->
+                (requireActivity() as ru.asmr1.app.MainActivity).openPlayer(video)
+            },
+            onMoreClick = { video, _ -> showVideoMenu(video) }
+        )
+        layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+
+        binding.recyclerView.setHasFixedSize(false)
+        binding.recyclerView.itemAnimator = null
+        binding.recyclerView.setItemViewCacheSize(30)
+        binding.recyclerView.setRecycledViewPool(sharedPool)
+        binding.recyclerView.isNestedScrollingEnabled = true
+        layoutManager.isItemPrefetchEnabled = true
+        layoutManager.initialPrefetchItemCount = 10
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                when (newState) {
+                    RecyclerView.SCROLL_STATE_DRAGGING,
+                    RecyclerView.SCROLL_STATE_SETTLING -> {
+                        parentPager?.isUserInputEnabled = false
+                    }
+                    RecyclerView.SCROLL_STATE_IDLE -> {
+                        parentPager?.isUserInputEnabled = true
+                    }
+                }
+            }
+        })
+    }
+
+    fun scrollToTop() {
+        _binding?.recyclerView?.scrollToPosition(0)
+    }
+
+    private fun showVideoMenu(video: Video) {
+        try {
+            val sheetView = layoutInflater.inflate(R.layout.sheet_video_menu, null)
+            val dialog = BottomSheetDialog(requireContext())
+            dialog.setContentView(sheetView)
+            sheetView.findViewById<View>(R.id.menu_hide)?.setOnClickListener { dialog.dismiss() }
+            sheetView.findViewById<View>(R.id.menu_hide_channel)?.setOnClickListener { dialog.dismiss() }
+            sheetView.findViewById<View>(R.id.menu_save)?.setOnClickListener { dialog.dismiss() }
+            sheetView.findViewById<View>(R.id.menu_report)?.setOnClickListener { dialog.dismiss() }
+            sheetView.findViewById<View>(R.id.menu_cancel)?.setOnClickListener { dialog.dismiss() }
+            dialog.show()
+        } catch (e: Exception) {
+            Log.e("VideoListFragment", "showVideoMenu failed", e)
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            currentPage = 1
+            hasMore = true
+            loadFeed(1, false)
+        }
+    }
+
+    private fun setupInfiniteScroll() {
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val last = layoutManager.findLastVisibleItemPosition()
+                if (last > 0) adapter.prefetchAround(recyclerView.context, last)
+                if (dy <= 0) return
+                if (isLoading || !hasMore) return
+                if (_binding == null) return
+
+                val totalItems = layoutManager.itemCount
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+                if (totalItems > 0 && lastVisible >= totalItems - 10) {
+                    currentPage++
+                    loadFeed(currentPage, true)
+                }
+            }
+        })
+    }
+
+    private fun loadFeed(page: Int, append: Boolean) {
+        if (isLoading) return
+        isLoading = true
+        if (!append) {
+            if (_binding != null) {
+                if (adapter.itemCount == 0) adapter.showSkeleton()
+                else binding.swipeRefresh.isRefreshing = true
+            }
+        }
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getFeed(tab = currentTab, page = page, perPage = perPage)
+                if (_binding == null) return@launch
+                if (response.success) {
+                    if (append) adapter.appendVideos(response.videos)
+                    else adapter.setVideos(response.videos)
+                    hasMore = response.hasMore
+                } else {
+                    adapter.setVideos(emptyList())
+                    hasMore = false
+                }
+            } catch (e: Exception) {
+                Log.e("VideoListFragment", "Ошибка загрузки", e)
+                if (_binding != null) adapter.setVideos(emptyList())
+                hasMore = false
+            } finally {
+                isLoading = false
+                _binding?.swipeRefresh?.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        loadJob?.cancel()
+        parentPager?.isUserInputEnabled = true
+        _binding = null
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/ui/VideoAdapter.kt =====
+package ru.asmr1.app.ui
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import coil.imageLoader
+import coil.load
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import ru.asmr1.app.R
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.ItemVideoBinding
+import ru.asmr1.app.databinding.ItemVideoSkeletonBinding
+import ru.asmr1.app.utils.formatDuration
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
+
+class VideoAdapter(
+    private var videos: List<Video> = emptyList(),
+    private val onClick: (Video) -> Unit = {},
+    private val onMoreClick: (Video, View) -> Unit = { _, _ -> }
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        private const val TYPE_VIDEO = 0
+        private const val TYPE_SKELETON = 1
+        private const val SKELETON_COUNT = 5
+        private const val PREFETCH_AHEAD = 2
+
+        private val dateFmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+    }
+
+    private var showSkeleton = false
+
+    fun setVideos(newVideos: List<Video>) {
+        val wasSkeleton = showSkeleton
+        showSkeleton = false
+
+        if (wasSkeleton) {
+            videos = newVideos
+            notifyDataSetChanged()
+            return
+        }
+
+        val old = videos
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = old.size
+            override fun getNewListSize() = newVideos.size
+            override fun areItemsTheSame(o: Int, n: Int) = old[o].id == newVideos[n].id
+            override fun areContentsTheSame(o: Int, n: Int) = old[o] == newVideos[n]
+        })
+        videos = newVideos
+        diff.dispatchUpdatesTo(this)
+    }
+
+    fun appendVideos(newVideos: List<Video>) {
+        if (newVideos.isEmpty()) return
+        val startPos = videos.size
+        videos = videos + newVideos
+        notifyItemRangeInserted(startPos, newVideos.size)
+    }
+
+    fun showSkeleton() {
+        showSkeleton = true
+        videos = emptyList()
+        notifyDataSetChanged()
+    }
+
+    override fun getItemViewType(position: Int): Int =
+        if (showSkeleton) TYPE_SKELETON else TYPE_VIDEO
+
+    override fun getItemCount(): Int =
+        if (showSkeleton) SKELETON_COUNT else videos.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            TYPE_SKELETON -> SkeletonViewHolder(
+                ItemVideoSkeletonBinding.inflate(inflater, parent, false)
+            )
+            else -> VideoViewHolder(
+                ItemVideoBinding.inflate(inflater, parent, false)
+            )
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is VideoViewHolder -> holder.bind(videos[position])
+            is SkeletonViewHolder -> holder.bind()
+        }
+    }
+
+    fun prefetchAround(context: android.content.Context, anchorPosition: Int) {
+        if (showSkeleton) return
+        val loader = context.imageLoader
+        for (i in 1..PREFETCH_AHEAD) {
+            val idx = anchorPosition + i
+            if (idx >= videos.size) break
+            val v = videos[idx]
+            if (v.thumbnail.isNotEmpty()) {
+                loader.enqueue(
+                    ImageRequest.Builder(context)
+                        .data(v.thumbnail)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .build()
+                )
+            }
+        }
+    }
+
+    inner class VideoViewHolder(private val binding: ItemVideoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(video: Video) {
+            binding.title.text = video.title
+            binding.meta.text = video.author.name
+
+            binding.viewsOverlay.text = formatViewsShort(video.views)
+            binding.dateOverlay.text = timeAgoShort(video.published)
+
+            binding.thumbnail.transitionName = "video_thumb_" + video.id
+
+            if (video.thumbnail.isNotEmpty()) {
+                binding.thumbnail.load(video.thumbnail) {
+                    crossfade(false)
+                    placeholder(R.color.card_bg)
+                    error(R.color.card_bg)
+                    memoryCachePolicy(CachePolicy.ENABLED)
+                    diskCachePolicy(CachePolicy.ENABLED)
+                    allowHardware(true)
+                }
+            }
+
+            if (video.author.avatar.isNotEmpty()) {
+                binding.authorAvatar.load(video.author.avatar) {
+                    crossfade(false)
+                    placeholder(R.color.card_bg)
+                    error(R.color.card_bg)
+                    memoryCachePolicy(CachePolicy.ENABLED)
+                    diskCachePolicy(CachePolicy.ENABLED)
+                    allowHardware(true)
+                }
+            }
+
+            if (video.duration > 0) {
+                binding.duration.visibility = View.VISIBLE
+                binding.duration.text = formatDuration(video.duration)
+            } else {
+                binding.duration.visibility = View.GONE
+            }
+
+            binding.root.setOnClickListener {
+                val rect = android.graphics.Rect()
+                binding.thumbnail.getGlobalVisibleRect(rect)
+                onClick(video)
+            }
+            binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
+        }
+    }
+
+    class SkeletonViewHolder(private val binding: ItemVideoSkeletonBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind() {
+            binding.veilLayout.veil()
+        }
+    }
+
+    private fun formatViewsShort(n: Int): String = when {
+        n >= 1_000_000 -> String.format(Locale.US, "%.1fM", n / 1_000_000.0)
+        n >= 1_000 -> String.format(Locale.US, "%.1fK", n / 1_000.0)
+        else -> n.toString()
+    }
+
+    private fun timeAgoShort(dateStr: String): String {
+        if (dateStr.isEmpty()) return ""
+        return try {
+            val date = synchronized(dateFmt) { dateFmt.parse(dateStr) } ?: return ""
+            val diff = (System.currentTimeMillis() - date.time) / 1000
+            when {
+                diff < 60 -> "сейчас"
+                diff < 3600 -> "${diff / 60}м"
+                diff < 86400 -> "${diff / 3600}ч"
+                diff < 2_592_000 -> "${diff / 86400}д"
+                diff < 31_536_000 -> "${diff / 2_592_000}мес"
+                else -> "${diff / 31_536_000}г"
+            }
+        } catch (_: Exception) {
+            ""
+        }
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/ui/StubFragment.kt =====
+package ru.asmr1.app.ui
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+
+class StubFragment : Fragment() {
+
+    companion object {
+        const val ARG_TITLE = "title"
+        fun newInstance(title: String) = StubFragment().apply {
+            arguments = Bundle().apply { putString(ARG_TITLE, title) }
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(ru.asmr1.app.R.layout.fragment_stub, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val title = arguments?.getString(ARG_TITLE) ?: ""
+        view.findViewById<TextView>(ru.asmr1.app.R.id.stub_text).text = title
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/data/ApiClient.kt =====
+package ru.asmr1.app.data
+
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+
+object ApiClient {
+
+    private const val BASE_URL = "https://asmr1.ru/wp-json/yt/v1/"
+
+    val service: ApiService by lazy {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/data/ApiService.kt =====
+package ru.asmr1.app.data
+
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+interface ApiService {
+
+    @GET("feed")
+    suspend fun getFeed(
+        @Query("tab") tab: String = "recommended",
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
+    ): FeedResponse
+}
+
+===== FILE: app/src/main/java/ru/asmr1/app/data/Video.kt =====
+package ru.asmr1.app.data
+
+import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Video(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("thumbnail") val thumbnail: String,
+    @SerializedName("video_url") val videoUrl: String,
+    @SerializedName("audio_url") val audioUrl: String?,
+    @SerializedName("duration") val duration: Int,
+    @SerializedName("views") val views: Int,
+    @SerializedName("likes") val likes: Int,
+    @SerializedName("published") val published: String,
+    @SerializedName("author") val author: Author,
+    @SerializedName("tags") val tags: List<String>?
+) : Parcelable
+
+@Parcelize
+data class Author(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("avatar") val avatar: String
+) : Parcelable
+
+===== FILE: app/src/main/java/ru/asmr1/app/data/FeedResponse.kt =====
+package ru.asmr1.app.data
+
+import com.google.gson.annotations.SerializedName
+
+data class FeedResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("tab") val tab: String,
+    @SerializedName("page") val page: Int,
+    @SerializedName("per_page") val perPage: Int,
+    @SerializedName("total") val total: Int,
+    @SerializedName("has_more") val hasMore: Boolean,
+    @SerializedName("videos") val videos: List<Video>
+)
+
+===== FILE: app/src/main/java/ru/asmr1/app/utils/Formatters.kt =====
+package ru.asmr1.app.utils
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+
+fun formatViews(n: Int): String = when {
+    n >= 1_000_000 -> String.format("%.1fM просмотров", n / 1_000_000.0)
+    n >= 1_000 -> String.format("%.1fK просмотров", n / 1_000.0)
+    else -> "$n просмотров"
+}
+
+fun formatDuration(sec: Int): String {
+    val m = sec / 60
+    val s = sec % 60
+    return "$m:${if (s < 10) "0$s" else s}"
+}
+
+fun timeAgo(dateStr: String): String {
+    if (dateStr.isEmpty()) return ""
+    return try {
+        val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val date = fmt.parse(dateStr) ?: return ""
+        val diff = (System.currentTimeMillis() - date.time) / 1000
+        when {
+            diff < 60 -> "только что"
+            diff < 3600 -> "${diff / 60} мин назад"
+            diff < 86400 -> "${diff / 3600} ч назад"
+            diff < 2592000 -> "${diff / 86400} дн назад"
+            diff < 31536000 -> "${diff / 2592000} мес назад"
+            else -> "${diff / 31536000} г назад"
+        }
+    } catch (_: Exception) {
+        ""
+    }
+}
+
+===== FILE: app/src/main/res/layout/activity_main.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/feed_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/card_bg"
+            app:itemActiveIndicatorStyle="@null"
+            app:itemIconTint="@color/bottom_nav_item"
+            app:itemTextColor="@color/bottom_nav_item"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/overlay_container"
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:clipChildren="false"
+            android:elevation="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/content_overlay_container"
+            android:elevation="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/description_overlay_container"
+            android:elevation="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/comments_overlay_container"
+            android:elevation="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/mini_wrap"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:elevation="60dp">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/mini_player_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="#000000">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.media3.ui.PlayerView
+                        android:id="@+id/mini_player_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:use_controller="false"
+                        app:resize_mode="fit"
+                        app:surface_type="texture_view" />
+
+                    <ImageButton
+                        android:id="@+id/mini_btn_close"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/bg_player_circle"
+                        android:src="@drawable/ic_player_close"
+                        android:contentDescription="Закрыть"
+                        android:scaleType="centerInside"
+                        android:padding="4dp"
+                        app:tint="#FFFFFF" />
+
+                </FrameLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:id="@+id/mini_controls"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_mini_controls"
+                android:paddingHorizontal="4dp">
+
+                <ImageButton
+                    android:id="@+id/mini_btn_prev"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_prev"
+                    android:contentDescription="Предыдущее"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/mini_btn_play_pause"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_play"
+                    android:contentDescription="Play/Pause"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/mini_btn_next"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_next"
+                    android:contentDescription="Следующее"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/splash_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_dark"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="999dp">
+
+        <ru.asmr1.app.player.RippleView
+            android:id="@+id/splash_ripple"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/splash_logo"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:src="@drawable/app_logo"
+            android:contentDescription="ASMR1"
+            android:alpha="0" />
+
+    </FrameLayout>
+
+</FrameLayout>
+
+===== FILE: app/src/main/res/layout/fragment_player.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/player_root"
+    android:clipChildren="false"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <FrameLayout
+        android:id="@+id/player_frame"
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#000000">
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:use_controller="false"
+            app:show_buffering="when_playing"
+            app:resize_mode="fit"
+            app:surface_type="texture_view" />
+
+        <ru.asmr1.app.player.RippleView
+            android:id="@+id/ripple_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <LinearLayout
+            android:id="@+id/seek_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_seek_indicator"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp"
+            android:visibility="gone"
+            android:alpha="0">
+
+            <TextView
+                android:id="@+id/seek_indicator_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:text="+10 сек" />
+
+        </LinearLayout>
+
+        <!-- ПРОГРЕСС-БАР — ВСЕГДА ВИДЕН, вне controls_layer -->
+        <ru.asmr1.app.player.VideoProgressBar
+            android:id="@+id/progress_bar"
+            android:clipChildren="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom" />
+
+        <!-- THUMB — отдельный, поверх полосы, вне controls_layer -->
+        <View
+            android:id="@+id/thumb_view"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/bg_thumb_circle"
+            android:visibility="gone"
+            android:elevation="10dp" />
+
+        <!-- Интерфейс управления: кнопки, тайм-код и т.д. -->
+        <FrameLayout
+            android:id="@+id/controls_layer"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/dim_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#88000000"
+                android:alpha="0.75" />
+
+            <ImageButton
+                android:id="@+id/btn_minimize"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="12dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_player_minimize"
+                android:contentDescription="Свернуть"
+                android:scaleType="centerInside"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btn_close"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="12dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_player_close"
+                android:contentDescription="Закрыть"
+                android:scaleType="centerInside"
+                app:tint="#FFFFFF" />
+
+            <FrameLayout
+                android:id="@+id/btn_prev_wrap"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="48dp"
+                android:background="@drawable/bg_player_circle">
+
+                <ImageButton
+                    android:id="@+id/btn_prev"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_player_prev"
+                    android:contentDescription="Предыдущее"
+                    android:scaleType="centerInside"
+                    android:padding="11dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/btn_play_pause_wrap"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_player_circle">
+
+                <ImageButton
+                    android:id="@+id/btn_play_pause"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_player_play"
+                    android:contentDescription="Play/Pause"
+                    android:scaleType="centerInside"
+                    android:padding="18dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/btn_next_wrap"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="48dp"
+                android:background="@drawable/bg_player_circle">
+
+                <ImageButton
+                    android:id="@+id/btn_next"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_player_next"
+                    android:contentDescription="Следующее"
+                    android:scaleType="centerInside"
+                    android:padding="11dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <ImageButton
+                android:id="@+id/btn_fullscreen"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_player_fullscreen"
+                android:contentDescription="Fullscreen"
+                android:scaleType="centerInside"
+                app:tint="#FFFFFF" />
+
+            <LinearLayout
+                android:id="@+id/time_row"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:text="00:00" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_marginHorizontal="3dp"
+                    android:text="/" />
+
+                <TextView
+                    android:id="@+id/total_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:text="00:00" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </FrameLayout>
+
+</FrameLayout>
+
+===== FILE: app/src/main/res/layout/fragment_content.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- title + meta — без постоянного фона, только ripple при тапе -->
+        <LinearLayout
+            android:id="@+id/title_block"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="1.15" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/meta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <ImageView
+                    android:id="@+id/meta_arrow"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_player_arrow_down"
+                    android:contentDescription="Показать описание"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Автор канала -->
+        <LinearLayout
+            android:id="@+id/author_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/author_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@color/card_bg"
+                android:contentDescription="Аватар автора"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/author_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/author_subs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="0 подписчиков" />
+
+            </LinearLayout>
+
+            <!-- Subscribe / Bell -->
+            <FrameLayout
+                android:id="@+id/subscribe_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_subscribe"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:minHeight="36dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#0F0F0F"
+                    android:text="Подписаться"
+                    app:backgroundTint="#FFFFFF"
+                    app:cornerRadius="18dp"
+                    app:rippleColor="#33FFFFFF" />
+
+                <FrameLayout
+                    android:id="@+id/btn_bell"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_subscribe_bell"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/bell_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_bell"
+                        android:contentDescription="Уведомления"
+                        app:tint="@color/text_primary" />
+
+                </FrameLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Кнопки действий -->
+        <LinearLayout
+            android:id="@+id/buttons_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:paddingHorizontal="4dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <LinearLayout
+                android:id="@+id/btn_like"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_like_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_player_like"
+                    android:contentDescription="Нравится"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/btn_like_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:text="Нравится" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_watch_later"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_watch_later_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_player_bookmark"
+                    android:contentDescription="Смотреть позже"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:text="Позже" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_download"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_download_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_player_download"
+                    android:contentDescription="Скачать"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:text="Скачать" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_share"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_share_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_player_share"
+                    android:contentDescription="Поделиться"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:text="Поделиться" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_report"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/btn_report_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_player_report"
+                    android:contentDescription="Репорт"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:text="Репорт" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Комментарии -->
+        <LinearLayout
+            android:id="@+id/comments_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_player_comments"
+                android:contentDescription="Комментарии"
+                app:tint="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/comments_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Комментарии" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_player_arrow_right"
+                android:contentDescription="Открыть"
+                app:tint="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
+
+===== FILE: app/src/main/res/layout/fragment_description.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/description_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:clickable="true"
+    android:focusable="true">
+
+    <View
+        android:id="@+id/handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#666666" />
+
+    <!-- Заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Описание"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <ImageButton
+            android:id="@+id/btn_desc_close"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_player_close"
+            android:contentDescription="Закрыть"
+            android:scaleType="centerInside"
+            app:tint="@color/text_primary" />
+
+    </LinearLayout>
+
+    <!-- Тонкая линия под заголовком -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1F1F1F" />
+
+    <!-- Контент -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/desc_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingMultiplier="1.2" />
+
+            <TextView
+                android:id="@+id/desc_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/desc_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.3"
+                android:autoLink="web"
+                android:linksClickable="true" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/layout/fragment_comments.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/comments_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:clickable="true"
+    android:focusable="true">
+
+    <View
+        android:id="@+id/handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#666666" />
+
+    <!-- Заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
+
+        <TextView
+            android:id="@+id/comments_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Комментарии"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <ImageButton
+            android:id="@+id/btn_comments_close"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_player_close"
+            android:contentDescription="Закрыть"
+            android:scaleType="centerInside"
+            app:tint="@color/text_primary" />
+
+    </LinearLayout>
+
+    <!-- Тонкая линия под заголовком -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1F1F1F" />
+
+    <!-- Контент -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/comments_stub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Комментарии будут здесь"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp"
+            android:gravity="center" />
+
+    </ScrollView>
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/layout/fragment_feed.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/app_logo"
+            android:layout_marginStart="5dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/app_logo"
+            android:contentDescription="ASMR1"
+            android:scaleType="fitCenter" />
+
+        <FrameLayout
+            android:id="@+id/tab_recommended"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_active"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_tab_trending"
+                    android:contentDescription=""
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:text="В тренде" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/tab_latest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/tab_active"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_tab_fresh"
+                    android:contentDescription=""
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:text="Свежее" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/layout/fragment_video_list.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_refresh"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="0dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+===== FILE: app/src/main/res/layout/fragment_stub.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <TextView
+        android:id="@+id/stub_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Скоро"
+        android:textColor="@color/text_secondary"
+        android:textSize="18sp" />
+
+</FrameLayout>
+
+===== FILE: app/src/main/res/layout/item_video.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/bg_dark"
+    android:paddingBottom="16dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_marginHorizontal="0dp">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:background="@color/card_bg"
+            android:adjustViewBounds="false"
+            android:contentDescription="Превью" />
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_video_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_video_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="3dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_eye"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/views_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/date_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="12dp"
+        android:gravity="top">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/author_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@color/card_bg"
+            android:contentDescription="Аватар"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircleImage" />
+
+        <!-- Столбик title+meta с фиксированной минимальной высотой = 2 строки title + meta -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="top"
+            android:minHeight="58dp"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="1.2" />
+
+            <TextView
+                android:id="@+id/meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btn_more"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/ripple_more"
+            android:src="@drawable/ic_more"
+            android:contentDescription="Ещё"
+            android:scaleType="centerInside"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/layout/item_video_skeleton.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<com.skydoves.androidveil.VeilLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/veil_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:veilLayout_veiled="true"
+    app:veilLayout_shimmerEnable="true"
+    app:veilLayout_baseColor="#1A1A1A"
+    app:veilLayout_highlightColor="#2E2E2E"
+    app:veilLayout_baseAlpha="1.0"
+    app:veilLayout_highlightAlpha="0.6"
+    app:veilLayout_radius="8dp">
+
+    <include layout="@layout/item_video" />
+
+</com.skydoves.androidveil.VeilLayout>
+
+===== FILE: app/src/main/res/layout/sheet_video_menu.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card_bg"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="#666666" />
+
+    <TextView
+        android:id="@+id/menu_hide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Не интересно"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_hide_channel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Не рекомендовать канал"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Сохранить в плейлист"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_report"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Пожаловаться"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Отмена"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/layout/sheet_subscription_menu.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card_bg"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="#666666" />
+
+    <TextView
+        android:id="@+id/subs_menu_notify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Получать уведомления"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/subs_menu_mute"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Не получать уведомления"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/subs_menu_unsubscribe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Отписаться"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+</LinearLayout>
+
+===== FILE: app/src/main/res/values/themes.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ASMR1" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#FF0000</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:colorBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+    <style name="CircleImage">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="BottomSheetDialogAnim">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+</resources>
+
+===== FILE: app/src/main/res/values/colors.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0F0F0F</color>
+    <color name="card_bg">#1A1A1A</color>
+    <color name="text_primary">#E6E6E6</color>
+    <color name="text_secondary">#9E9E9E</color>
+    <color name="accent_red">#FF0000</color>
+</resources>
+
+===== FILE: app/src/main/res/values/strings.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ASMR1</string>
+    <string name="tab_recommended">В тренде</string>
+    <string name="tab_latest">Свежее</string>
+</resources>
+
+===== FILE: app/src/main/res/menu/bottom_nav_menu.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_nav_home"
+        android:title="Главная" />
+    <item
+        android:id="@+id/nav_search"
+        android:icon="@drawable/ic_nav_search"
+        android:title="Поиск" />
+    <item
+        android:id="@+id/nav_subs"
+        android:icon="@drawable/ic_nav_subs"
+        android:title="Подписки" />
+    <item
+        android:id="@+id/nav_bell"
+        android:icon="@drawable/ic_nav_bell"
+        android:title="Уведомления" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_nav_profile"
+        android:title="Профиль" />
+</menu>
+
+===== FILE: app/src/main/res/color/bottom_nav_item.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/accent_red" android:state_checked="true" />
+    <item android:color="@color/text_secondary" />
+</selector>
+
+===== FILE: app/src/main/AndroidManifest.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="ASMR1"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ASMR1"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode|density|locale">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>
+
+===== FILE: app/build.gradle.kts =====
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
+}
+
+android {
+    namespace = "ru.asmr1.app"
+    compileSdk = 36
+    buildToolsVersion = "35.0.0"
+
+    defaultConfig {
+        applicationId = "ru.asmr1.app"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    implementation("androidx.activity:activity-ktx:1.9.2")
+    implementation("androidx.fragment:fragment-ktx:1.8.3")
+
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("com.github.skydoves:androidveil:1.1.4")
+    implementation("com.github.skydoves:androidveil:1.1.4")
+
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("com.google.code.gson:gson:2.11.0")
+
+    implementation("io.coil-kt:coil:2.7.0")
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+    implementation("androidx.palette:palette-ktx:1.0.0")
+}

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "ru.asmr1.app-mergeDebugResources-52:/values-v21/values-v21.xml",
+            "outputFile": "ru.asmr1.app-mergeDebugResources-45:/values-v21/values-v21.xml",
             "map": [
                 {
                     "source": "/home/vscode/.gradle/caches/8.14.3/transforms/23aca93b20639171143397318d173094/transformed/media-1.7.0/res/values-v21/values-v21.xml",

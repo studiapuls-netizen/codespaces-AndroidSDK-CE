@@ -5,24 +5,114 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.media3.ui.PlayerView;
 import androidx.viewbinding.ViewBinding;
+import androidx.viewbinding.ViewBindings;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.lang.NullPointerException;
 import java.lang.Override;
+import java.lang.String;
 import ru.asmr1.app.R;
+import ru.asmr1.app.player.RippleView;
 
 public final class ActivityMainBinding implements ViewBinding {
   @NonNull
   private final FrameLayout rootView;
 
   @NonNull
-  public final FrameLayout fragmentContainer;
+  public final BottomNavigationView bottomNav;
+
+  @NonNull
+  public final FrameLayout commentsOverlayContainer;
+
+  @NonNull
+  public final FrameLayout contentContainer;
+
+  @NonNull
+  public final FrameLayout contentOverlayContainer;
+
+  @NonNull
+  public final FrameLayout descriptionOverlayContainer;
+
+  @NonNull
+  public final FrameLayout feedContainer;
+
+  @NonNull
+  public final ImageButton miniBtnClose;
+
+  @NonNull
+  public final ImageButton miniBtnNext;
+
+  @NonNull
+  public final ImageButton miniBtnPlayPause;
+
+  @NonNull
+  public final ImageButton miniBtnPrev;
+
+  @NonNull
+  public final LinearLayout miniControls;
+
+  @NonNull
+  public final CardView miniPlayerContainer;
+
+  @NonNull
+  public final PlayerView miniPlayerView;
+
+  @NonNull
+  public final LinearLayout miniWrap;
+
+  @NonNull
+  public final FrameLayout overlayContainer;
+
+  @NonNull
+  public final FrameLayout playerContainer;
+
+  @NonNull
+  public final ImageView splashLogo;
+
+  @NonNull
+  public final FrameLayout splashOverlay;
+
+  @NonNull
+  public final RippleView splashRipple;
 
   private ActivityMainBinding(@NonNull FrameLayout rootView,
-      @NonNull FrameLayout fragmentContainer) {
+      @NonNull BottomNavigationView bottomNav, @NonNull FrameLayout commentsOverlayContainer,
+      @NonNull FrameLayout contentContainer, @NonNull FrameLayout contentOverlayContainer,
+      @NonNull FrameLayout descriptionOverlayContainer, @NonNull FrameLayout feedContainer,
+      @NonNull ImageButton miniBtnClose, @NonNull ImageButton miniBtnNext,
+      @NonNull ImageButton miniBtnPlayPause, @NonNull ImageButton miniBtnPrev,
+      @NonNull LinearLayout miniControls, @NonNull CardView miniPlayerContainer,
+      @NonNull PlayerView miniPlayerView, @NonNull LinearLayout miniWrap,
+      @NonNull FrameLayout overlayContainer, @NonNull FrameLayout playerContainer,
+      @NonNull ImageView splashLogo, @NonNull FrameLayout splashOverlay,
+      @NonNull RippleView splashRipple) {
     this.rootView = rootView;
-    this.fragmentContainer = fragmentContainer;
+    this.bottomNav = bottomNav;
+    this.commentsOverlayContainer = commentsOverlayContainer;
+    this.contentContainer = contentContainer;
+    this.contentOverlayContainer = contentOverlayContainer;
+    this.descriptionOverlayContainer = descriptionOverlayContainer;
+    this.feedContainer = feedContainer;
+    this.miniBtnClose = miniBtnClose;
+    this.miniBtnNext = miniBtnNext;
+    this.miniBtnPlayPause = miniBtnPlayPause;
+    this.miniBtnPrev = miniBtnPrev;
+    this.miniControls = miniControls;
+    this.miniPlayerContainer = miniPlayerContainer;
+    this.miniPlayerView = miniPlayerView;
+    this.miniWrap = miniWrap;
+    this.overlayContainer = overlayContainer;
+    this.playerContainer = playerContainer;
+    this.splashLogo = splashLogo;
+    this.splashOverlay = splashOverlay;
+    this.splashRipple = splashRipple;
   }
 
   @Override
@@ -48,12 +138,131 @@ public final class ActivityMainBinding implements ViewBinding {
 
   @NonNull
   public static ActivityMainBinding bind(@NonNull View rootView) {
-    if (rootView == null) {
-      throw new NullPointerException("rootView");
+    // The body of this method is generated in a way you would not otherwise write.
+    // This is done to optimize the compiled bytecode for size and performance.
+    int id;
+    missingId: {
+      id = R.id.bottom_nav;
+      BottomNavigationView bottomNav = ViewBindings.findChildViewById(rootView, id);
+      if (bottomNav == null) {
+        break missingId;
+      }
+
+      id = R.id.comments_overlay_container;
+      FrameLayout commentsOverlayContainer = ViewBindings.findChildViewById(rootView, id);
+      if (commentsOverlayContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.content_container;
+      FrameLayout contentContainer = ViewBindings.findChildViewById(rootView, id);
+      if (contentContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.content_overlay_container;
+      FrameLayout contentOverlayContainer = ViewBindings.findChildViewById(rootView, id);
+      if (contentOverlayContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.description_overlay_container;
+      FrameLayout descriptionOverlayContainer = ViewBindings.findChildViewById(rootView, id);
+      if (descriptionOverlayContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.feed_container;
+      FrameLayout feedContainer = ViewBindings.findChildViewById(rootView, id);
+      if (feedContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_btn_close;
+      ImageButton miniBtnClose = ViewBindings.findChildViewById(rootView, id);
+      if (miniBtnClose == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_btn_next;
+      ImageButton miniBtnNext = ViewBindings.findChildViewById(rootView, id);
+      if (miniBtnNext == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_btn_play_pause;
+      ImageButton miniBtnPlayPause = ViewBindings.findChildViewById(rootView, id);
+      if (miniBtnPlayPause == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_btn_prev;
+      ImageButton miniBtnPrev = ViewBindings.findChildViewById(rootView, id);
+      if (miniBtnPrev == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_controls;
+      LinearLayout miniControls = ViewBindings.findChildViewById(rootView, id);
+      if (miniControls == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_player_container;
+      CardView miniPlayerContainer = ViewBindings.findChildViewById(rootView, id);
+      if (miniPlayerContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_player_view;
+      PlayerView miniPlayerView = ViewBindings.findChildViewById(rootView, id);
+      if (miniPlayerView == null) {
+        break missingId;
+      }
+
+      id = R.id.mini_wrap;
+      LinearLayout miniWrap = ViewBindings.findChildViewById(rootView, id);
+      if (miniWrap == null) {
+        break missingId;
+      }
+
+      id = R.id.overlay_container;
+      FrameLayout overlayContainer = ViewBindings.findChildViewById(rootView, id);
+      if (overlayContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.player_container;
+      FrameLayout playerContainer = ViewBindings.findChildViewById(rootView, id);
+      if (playerContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.splash_logo;
+      ImageView splashLogo = ViewBindings.findChildViewById(rootView, id);
+      if (splashLogo == null) {
+        break missingId;
+      }
+
+      id = R.id.splash_overlay;
+      FrameLayout splashOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (splashOverlay == null) {
+        break missingId;
+      }
+
+      id = R.id.splash_ripple;
+      RippleView splashRipple = ViewBindings.findChildViewById(rootView, id);
+      if (splashRipple == null) {
+        break missingId;
+      }
+
+      return new ActivityMainBinding((FrameLayout) rootView, bottomNav, commentsOverlayContainer,
+          contentContainer, contentOverlayContainer, descriptionOverlayContainer, feedContainer,
+          miniBtnClose, miniBtnNext, miniBtnPlayPause, miniBtnPrev, miniControls,
+          miniPlayerContainer, miniPlayerView, miniWrap, overlayContainer, playerContainer,
+          splashLogo, splashOverlay, splashRipple);
     }
-
-    FrameLayout fragmentContainer = (FrameLayout) rootView;
-
-    return new ActivityMainBinding((FrameLayout) rootView, fragmentContainer);
+    String missingId = rootView.getResources().getResourceName(id);
+    throw new NullPointerException("Missing required view with ID: ".concat(missingId));
   }
 }
