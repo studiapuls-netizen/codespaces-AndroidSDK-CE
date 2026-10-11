@@ -31,6 +31,7 @@ import ru.asmr1.app.auth.AuthManager
 import ru.asmr1.app.auth.LoginFragment
 import ru.asmr1.app.auth.RegisterFragment
 import ru.asmr1.app.data.Video
+import ru.asmr1.app.data.Comment
 import ru.asmr1.app.download.PlaybackModeResolver
 import ru.asmr1.app.player.AudioBoost
 import ru.asmr1.app.player.CommentsFragment
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     internal var pendingExpandAnimation = false
 
     internal var lastAudioSessionId = 0
-
+    internal var pendingCommentFocus: Comment? = null
     internal val splashHandler = Handler(Looper.getMainLooper())
     internal var splashRippleRun: Runnable? = null
 
@@ -392,9 +393,13 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.nav_bell -> {
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.feed_container, StubFragment.newInstance("Уведомления — скоро"))
-                            .commit()
+                        if (authManager.isLoggedIn()) {
+                            supportFragmentManager.beginTransaction()
+                                .replace(R.id.feed_container, ru.asmr1.app.ui.NotificationsFragment())
+                                .commit()
+                        } else {
+                            showLoginScreen()
+                        }
                         true
                     }
                     R.id.nav_profile -> {
@@ -455,6 +460,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openPlayer(video: Video) {
+        android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — openPlayer START")
         currentVideo = video
 
         val mode = PlaybackModeResolver.resolve(this, video)
@@ -552,6 +558,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun openCommentsWithFocus(video: Video, focusComment: Comment) {
+        pendingCommentFocus = focusComment
+        openComments(video)
+    }
     fun closeComments() {
         commentsOverlayContainer.animate()
             .translationY(screenHeightPx)

@@ -10,6 +10,8 @@ import java.io.File
  * Хранилище метаданных о скачанных файлах.
  * Файлы — context.filesDir/downloads/
  * Метаданные — SharedPreferences (JSON).
+ *
+ * Кэш индекса в памяти — чтобы не парсить JSON на каждый вызов hasVideo()/hasAudio().
  */
 class DownloadStorage(context: Context) {
 
@@ -25,20 +27,41 @@ class DownloadStorage(context: Context) {
             if (!dir.exists()) dir.mkdirs()
             return dir
         }
+
+        // ===== КЭШ ИНДЕКСА В ПАМЯТИ (ОБЩИЙ ДЛЯ ВСЕХ ЭКЗЕМПЛЯРОВ) =====
+        @Volatile
+        private var cachedIndex: MutableMap<String, DownloadedFile>? = null
+
+        private fun invalidateCache() {
+            cachedIndex = null
+        }
     }
 
     private fun readIndex(): MutableMap<String, DownloadedFile> {
-        val json = prefs.getString(KEY_INDEX, null) ?: return mutableMapOf()
-        return try {
+        // Если кэш есть — возвращаем копию (чтобы не мутировали снаружи)
+        cachedIndex?.let { return HashMap(it) }
+
+        val json = prefs.getString(KEY_INDEX, null) ?: run {
+            val empty = mutableMapOf<String, DownloadedFile>()
+            cachedIndex = empty
+            return HashMap(empty)
+        }
+
+        val parsed = try {
             val type = object : TypeToken<MutableMap<String, DownloadedFile>>() {}.type
-            gson.fromJson(json, type) ?: mutableMapOf()
+            gson.fromJson<MutableMap<String, DownloadedFile>>(json, type) ?: mutableMapOf()
         } catch (e: Exception) {
             mutableMapOf()
         }
+
+        cachedIndex = parsed
+        return HashMap(parsed)
     }
 
     private fun writeIndex(index: Map<String, DownloadedFile>) {
         prefs.edit().putString(KEY_INDEX, gson.toJson(index)).apply()
+        // Обновляем кэш — теперь он актуален
+        cachedIndex = HashMap(index)
     }
 
     private fun key(videoId: Int, type: DownloadedFile.Type): String =
@@ -62,10 +85,6 @@ class DownloadStorage(context: Context) {
 
     fun hasAnyDownloads(): Boolean = readIndex().isNotEmpty()
 
-    /**
-     * Все скачанные файлы (для экрана «Скачано»).
-     * По умолчанию — сортировка по дате скачивания (свежие первыми).
-     */
     fun getAllDownloads(): List<DownloadedFile> {
         val all = readIndex().values.filter { entry ->
             val f = File(getDownloadsDir(appContext), entry.fileName)
@@ -74,10 +93,6 @@ class DownloadStorage(context: Context) {
         return all.sortedByDescending { it.downloadedAt }
     }
 
-    /**
-     * Скачанные файлы конкретного типа.
-     * null = все типы.
-     */
     fun getDownloads(type: DownloadedFile.Type? = null): List<DownloadedFile> {
         val all = getAllDownloads()
         return if (type == null) all else all.filter { it.type == type }

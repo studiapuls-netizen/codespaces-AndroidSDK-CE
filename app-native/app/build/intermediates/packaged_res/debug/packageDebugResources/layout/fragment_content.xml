@@ -228,6 +228,7 @@
                     app:tint="@color/text_primary" />
 
                 <TextView
+                    android:id="@+id/btn_watch_later_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -352,43 +353,63 @@
 
         </LinearLayout>
 
+        <!-- ===== СЛАЙДЕР КОММЕНТАРИЕВ (единый серый блок) ===== -->
         <LinearLayout
-            android:id="@+id/comments_row"
+            android:id="@+id/comments_slider_wrap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="14dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
+            android:orientation="vertical"
+            android:background="@drawable/bg_comment_preview"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/ic_player_comments"
-                android:contentDescription="Комментарии"
-                app:tint="@color/text_primary" />
-
-            <TextView
-                android:id="@+id/comments_count"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/comments_header_wrap"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Комментарии" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_player_arrow_right"
-                android:contentDescription="Открыть"
-                app:tint="@color/text_secondary" />
+                <TextView
+                    android:id="@+id/comments_title_preview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Комментарии"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/comments_count_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_player_arrow_right"
+                    android:contentDescription="Открыть комментарии"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/comments_preview_pager"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="12dp"
+                android:paddingBottom="8dp" />
 
         </LinearLayout>
 

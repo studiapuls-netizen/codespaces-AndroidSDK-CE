@@ -29,6 +29,7 @@ object PlaybackModeResolver {
      * @return Mode — как играть
      */
     fun resolve(context: Context, video: Video): Mode {
+        android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — resolver START")
         val storage = DownloadStorage(context)
 
         val hasVideo = storage.hasVideo(video.id)

@@ -157,9 +157,11 @@ class VideoAdapter(
             }
 
             binding.root.setOnClickListener {
+                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — tap")
                 val rect = android.graphics.Rect()
                 binding.thumbnail.getGlobalVisibleRect(rect)
                 onClick(video)
+                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — onClick returned")
             }
             binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
         }

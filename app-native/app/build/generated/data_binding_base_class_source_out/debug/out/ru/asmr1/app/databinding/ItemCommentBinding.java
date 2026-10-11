@@ -4,6 +4,7 @@ package ru.asmr1.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,13 +20,16 @@ import ru.asmr1.app.R;
 
 public final class ItemCommentBinding implements ViewBinding {
   @NonNull
-  private final LinearLayout rootView;
+  private final FrameLayout rootView;
 
   @NonNull
   public final TextView commentAuthor;
 
   @NonNull
   public final ShapeableImageView commentAvatar;
+
+  @NonNull
+  public final LinearLayout commentCard;
 
   @NonNull
   public final TextView commentDate;
@@ -40,39 +44,40 @@ public final class ItemCommentBinding implements ViewBinding {
   public final ImageView commentLikeIcon;
 
   @NonNull
-  public final LinearLayout commentRepliesContainer;
-
-  @NonNull
   public final TextView commentReplyBtn;
 
   @NonNull
   public final TextView commentShowReplies;
 
   @NonNull
+  public final LinearLayout commentShowRepliesRow;
+
+  @NonNull
   public final TextView commentText;
 
-  private ItemCommentBinding(@NonNull LinearLayout rootView, @NonNull TextView commentAuthor,
-      @NonNull ShapeableImageView commentAvatar, @NonNull TextView commentDate,
-      @NonNull LinearLayout commentLikeBtn, @NonNull TextView commentLikeCount,
-      @NonNull ImageView commentLikeIcon, @NonNull LinearLayout commentRepliesContainer,
+  private ItemCommentBinding(@NonNull FrameLayout rootView, @NonNull TextView commentAuthor,
+      @NonNull ShapeableImageView commentAvatar, @NonNull LinearLayout commentCard,
+      @NonNull TextView commentDate, @NonNull LinearLayout commentLikeBtn,
+      @NonNull TextView commentLikeCount, @NonNull ImageView commentLikeIcon,
       @NonNull TextView commentReplyBtn, @NonNull TextView commentShowReplies,
-      @NonNull TextView commentText) {
+      @NonNull LinearLayout commentShowRepliesRow, @NonNull TextView commentText) {
     this.rootView = rootView;
     this.commentAuthor = commentAuthor;
     this.commentAvatar = commentAvatar;
+    this.commentCard = commentCard;
     this.commentDate = commentDate;
     this.commentLikeBtn = commentLikeBtn;
     this.commentLikeCount = commentLikeCount;
     this.commentLikeIcon = commentLikeIcon;
-    this.commentRepliesContainer = commentRepliesContainer;
     this.commentReplyBtn = commentReplyBtn;
     this.commentShowReplies = commentShowReplies;
+    this.commentShowRepliesRow = commentShowRepliesRow;
     this.commentText = commentText;
   }
 
   @Override
   @NonNull
-  public LinearLayout getRoot() {
+  public FrameLayout getRoot() {
     return rootView;
   }
 
@@ -109,6 +114,12 @@ public final class ItemCommentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.comment_card;
+      LinearLayout commentCard = ViewBindings.findChildViewById(rootView, id);
+      if (commentCard == null) {
+        break missingId;
+      }
+
       id = R.id.comment_date;
       TextView commentDate = ViewBindings.findChildViewById(rootView, id);
       if (commentDate == null) {
@@ -133,12 +144,6 @@ public final class ItemCommentBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.comment_replies_container;
-      LinearLayout commentRepliesContainer = ViewBindings.findChildViewById(rootView, id);
-      if (commentRepliesContainer == null) {
-        break missingId;
-      }
-
       id = R.id.comment_reply_btn;
       TextView commentReplyBtn = ViewBindings.findChildViewById(rootView, id);
       if (commentReplyBtn == null) {
@@ -151,15 +156,21 @@ public final class ItemCommentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.comment_show_replies_row;
+      LinearLayout commentShowRepliesRow = ViewBindings.findChildViewById(rootView, id);
+      if (commentShowRepliesRow == null) {
+        break missingId;
+      }
+
       id = R.id.comment_text;
       TextView commentText = ViewBindings.findChildViewById(rootView, id);
       if (commentText == null) {
         break missingId;
       }
 
-      return new ItemCommentBinding((LinearLayout) rootView, commentAuthor, commentAvatar,
-          commentDate, commentLikeBtn, commentLikeCount, commentLikeIcon, commentRepliesContainer,
-          commentReplyBtn, commentShowReplies, commentText);
+      return new ItemCommentBinding((FrameLayout) rootView, commentAuthor, commentAvatar,
+          commentCard, commentDate, commentLikeBtn, commentLikeCount, commentLikeIcon,
+          commentReplyBtn, commentShowReplies, commentShowRepliesRow, commentText);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

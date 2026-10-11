@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- КРАСНЫЙ ФОН ДЛЯ СВАЙПА -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="end|center_vertical"
+        android:background="@color/accent_red"
+        android:paddingEnd="24dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_download_delete"
+            android:contentDescription="Удалить"
+            app:tint="#FFFFFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Удалить"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- КАРТОЧКА -->
+    <LinearLayout
+        android:id="@+id/pl_video_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/bg_dark"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
+
+        <!-- DRAG HANDLE -->
+        <ImageView
+            android:id="@+id/drag_handle"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_drag_handle"
+            android:contentDescription="Перетащить"
+            app:tint="@color/text_secondary" />
+
+        <!-- ПРЕВЬЮ -->
+        <FrameLayout
+            android:layout_width="160dp"
+            android:layout_height="90dp"
+            android:layout_marginStart="4dp"
+            android:background="@color/card_bg">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/plv_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Превью"
+                app:shapeAppearanceOverlay="@style/RoundedImage" />
+
+            <TextView
+                android:id="@+id/plv_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_video_badge"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:text="5:30"
+                tools:visibility="visible" />
+        </FrameLayout>
+
+        <!-- ИНФО -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/plv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingMultiplier="1.15"
+                tools:text="ASMR тишина для сна" />
+
+            <TextView
+                android:id="@+id/plv_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Serovwa" />
+
+            <TextView
+                android:id="@+id/plv_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="1.2K просмотров" />
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

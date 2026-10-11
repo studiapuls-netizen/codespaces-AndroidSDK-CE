@@ -75,6 +75,8 @@
                 android:layout_height="14dp"
                 android:src="@drawable/ic_player_like"
                 android:contentDescription="Лайк"
+                android:clickable="false"
+                android:focusable="false"
                 app:tint="@color/text_secondary" />
 
             <TextView
@@ -84,6 +86,8 @@
                 android:layout_marginStart="4dp"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp"
+                android:clickable="false"
+                android:focusable="false"
                 android:text="0" />
         </LinearLayout>
 

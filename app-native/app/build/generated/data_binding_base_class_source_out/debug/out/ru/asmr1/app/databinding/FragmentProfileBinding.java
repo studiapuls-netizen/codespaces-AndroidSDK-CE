@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -23,38 +24,60 @@ public final class FragmentProfileBinding implements ViewBinding {
   private final FrameLayout rootView;
 
   @NonNull
-  public final MaterialButton btnLogout;
+  public final ImageButton btnAddPlaylist;
 
   @NonNull
-  public final ShapeableImageView ivAvatar;
+  public final TextView historyAll;
 
   @NonNull
-  public final LinearLayout rowHistory;
+  public final RecyclerView historyRecycler;
 
   @NonNull
-  public final LinearLayout rowMyVideos;
+  public final LinearLayout historyWrap;
 
   @NonNull
-  public final LinearLayout rowPlaylists;
+  public final RecyclerView playlistsRecycler;
 
   @NonNull
-  public final TextView tvDisplayName;
+  public final LinearLayout playlistsWrap;
 
   @NonNull
-  public final TextView tvEmail;
+  public final ShapeableImageView profileAvatar;
 
-  private FragmentProfileBinding(@NonNull FrameLayout rootView, @NonNull MaterialButton btnLogout,
-      @NonNull ShapeableImageView ivAvatar, @NonNull LinearLayout rowHistory,
-      @NonNull LinearLayout rowMyVideos, @NonNull LinearLayout rowPlaylists,
-      @NonNull TextView tvDisplayName, @NonNull TextView tvEmail) {
+  @NonNull
+  public final TextView profileEmail;
+
+  @NonNull
+  public final TextView profileName;
+
+  @NonNull
+  public final LinearLayout rowFaq;
+
+  @NonNull
+  public final LinearLayout rowLogout;
+
+  @NonNull
+  public final LinearLayout rowSettings;
+
+  private FragmentProfileBinding(@NonNull FrameLayout rootView, @NonNull ImageButton btnAddPlaylist,
+      @NonNull TextView historyAll, @NonNull RecyclerView historyRecycler,
+      @NonNull LinearLayout historyWrap, @NonNull RecyclerView playlistsRecycler,
+      @NonNull LinearLayout playlistsWrap, @NonNull ShapeableImageView profileAvatar,
+      @NonNull TextView profileEmail, @NonNull TextView profileName, @NonNull LinearLayout rowFaq,
+      @NonNull LinearLayout rowLogout, @NonNull LinearLayout rowSettings) {
     this.rootView = rootView;
-    this.btnLogout = btnLogout;
-    this.ivAvatar = ivAvatar;
-    this.rowHistory = rowHistory;
-    this.rowMyVideos = rowMyVideos;
-    this.rowPlaylists = rowPlaylists;
-    this.tvDisplayName = tvDisplayName;
-    this.tvEmail = tvEmail;
+    this.btnAddPlaylist = btnAddPlaylist;
+    this.historyAll = historyAll;
+    this.historyRecycler = historyRecycler;
+    this.historyWrap = historyWrap;
+    this.playlistsRecycler = playlistsRecycler;
+    this.playlistsWrap = playlistsWrap;
+    this.profileAvatar = profileAvatar;
+    this.profileEmail = profileEmail;
+    this.profileName = profileName;
+    this.rowFaq = rowFaq;
+    this.rowLogout = rowLogout;
+    this.rowSettings = rowSettings;
   }
 
   @Override
@@ -84,50 +107,81 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btn_logout;
-      MaterialButton btnLogout = ViewBindings.findChildViewById(rootView, id);
-      if (btnLogout == null) {
+      id = R.id.btn_add_playlist;
+      ImageButton btnAddPlaylist = ViewBindings.findChildViewById(rootView, id);
+      if (btnAddPlaylist == null) {
         break missingId;
       }
 
-      id = R.id.iv_avatar;
-      ShapeableImageView ivAvatar = ViewBindings.findChildViewById(rootView, id);
-      if (ivAvatar == null) {
+      id = R.id.history_all;
+      TextView historyAll = ViewBindings.findChildViewById(rootView, id);
+      if (historyAll == null) {
         break missingId;
       }
 
-      id = R.id.row_history;
-      LinearLayout rowHistory = ViewBindings.findChildViewById(rootView, id);
-      if (rowHistory == null) {
+      id = R.id.history_recycler;
+      RecyclerView historyRecycler = ViewBindings.findChildViewById(rootView, id);
+      if (historyRecycler == null) {
         break missingId;
       }
 
-      id = R.id.row_my_videos;
-      LinearLayout rowMyVideos = ViewBindings.findChildViewById(rootView, id);
-      if (rowMyVideos == null) {
+      id = R.id.history_wrap;
+      LinearLayout historyWrap = ViewBindings.findChildViewById(rootView, id);
+      if (historyWrap == null) {
         break missingId;
       }
 
-      id = R.id.row_playlists;
-      LinearLayout rowPlaylists = ViewBindings.findChildViewById(rootView, id);
-      if (rowPlaylists == null) {
+      id = R.id.playlists_recycler;
+      RecyclerView playlistsRecycler = ViewBindings.findChildViewById(rootView, id);
+      if (playlistsRecycler == null) {
         break missingId;
       }
 
-      id = R.id.tv_display_name;
-      TextView tvDisplayName = ViewBindings.findChildViewById(rootView, id);
-      if (tvDisplayName == null) {
+      id = R.id.playlists_wrap;
+      LinearLayout playlistsWrap = ViewBindings.findChildViewById(rootView, id);
+      if (playlistsWrap == null) {
         break missingId;
       }
 
-      id = R.id.tv_email;
-      TextView tvEmail = ViewBindings.findChildViewById(rootView, id);
-      if (tvEmail == null) {
+      id = R.id.profile_avatar;
+      ShapeableImageView profileAvatar = ViewBindings.findChildViewById(rootView, id);
+      if (profileAvatar == null) {
         break missingId;
       }
 
-      return new FragmentProfileBinding((FrameLayout) rootView, btnLogout, ivAvatar, rowHistory,
-          rowMyVideos, rowPlaylists, tvDisplayName, tvEmail);
+      id = R.id.profile_email;
+      TextView profileEmail = ViewBindings.findChildViewById(rootView, id);
+      if (profileEmail == null) {
+        break missingId;
+      }
+
+      id = R.id.profile_name;
+      TextView profileName = ViewBindings.findChildViewById(rootView, id);
+      if (profileName == null) {
+        break missingId;
+      }
+
+      id = R.id.row_faq;
+      LinearLayout rowFaq = ViewBindings.findChildViewById(rootView, id);
+      if (rowFaq == null) {
+        break missingId;
+      }
+
+      id = R.id.row_logout;
+      LinearLayout rowLogout = ViewBindings.findChildViewById(rootView, id);
+      if (rowLogout == null) {
+        break missingId;
+      }
+
+      id = R.id.row_settings;
+      LinearLayout rowSettings = ViewBindings.findChildViewById(rootView, id);
+      if (rowSettings == null) {
+        break missingId;
+      }
+
+      return new FragmentProfileBinding((FrameLayout) rootView, btnAddPlaylist, historyAll,
+          historyRecycler, historyWrap, playlistsRecycler, playlistsWrap, profileAvatar,
+          profileEmail, profileName, rowFaq, rowLogout, rowSettings);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.lang.NullPointerException;
@@ -83,13 +84,25 @@ public final class FragmentContentBinding implements ViewBinding {
   public final ImageView btnWatchLaterIcon;
 
   @NonNull
+  public final TextView btnWatchLaterText;
+
+  @NonNull
   public final LinearLayout buttonsRow;
 
   @NonNull
-  public final TextView commentsCount;
+  public final TextView commentsCountPreview;
 
   @NonNull
-  public final LinearLayout commentsRow;
+  public final LinearLayout commentsHeaderWrap;
+
+  @NonNull
+  public final ViewPager2 commentsPreviewPager;
+
+  @NonNull
+  public final LinearLayout commentsSliderWrap;
+
+  @NonNull
+  public final TextView commentsTitlePreview;
 
   @NonNull
   public final ScrollView contentRoot;
@@ -121,8 +134,10 @@ public final class FragmentContentBinding implements ViewBinding {
       @NonNull LinearLayout btnReport, @NonNull ImageView btnReportIcon,
       @NonNull LinearLayout btnShare, @NonNull ImageView btnShareIcon,
       @NonNull MaterialButton btnSubscribe, @NonNull LinearLayout btnWatchLater,
-      @NonNull ImageView btnWatchLaterIcon, @NonNull LinearLayout buttonsRow,
-      @NonNull TextView commentsCount, @NonNull LinearLayout commentsRow,
+      @NonNull ImageView btnWatchLaterIcon, @NonNull TextView btnWatchLaterText,
+      @NonNull LinearLayout buttonsRow, @NonNull TextView commentsCountPreview,
+      @NonNull LinearLayout commentsHeaderWrap, @NonNull ViewPager2 commentsPreviewPager,
+      @NonNull LinearLayout commentsSliderWrap, @NonNull TextView commentsTitlePreview,
       @NonNull ScrollView contentRoot, @NonNull DownloadProgressView downloadProgressOverlay,
       @NonNull TextView meta, @NonNull ImageView metaArrow, @NonNull FrameLayout subscribeContainer,
       @NonNull TextView title, @NonNull LinearLayout titleBlock) {
@@ -146,9 +161,13 @@ public final class FragmentContentBinding implements ViewBinding {
     this.btnSubscribe = btnSubscribe;
     this.btnWatchLater = btnWatchLater;
     this.btnWatchLaterIcon = btnWatchLaterIcon;
+    this.btnWatchLaterText = btnWatchLaterText;
     this.buttonsRow = buttonsRow;
-    this.commentsCount = commentsCount;
-    this.commentsRow = commentsRow;
+    this.commentsCountPreview = commentsCountPreview;
+    this.commentsHeaderWrap = commentsHeaderWrap;
+    this.commentsPreviewPager = commentsPreviewPager;
+    this.commentsSliderWrap = commentsSliderWrap;
+    this.commentsTitlePreview = commentsTitlePreview;
     this.contentRoot = contentRoot;
     this.downloadProgressOverlay = downloadProgressOverlay;
     this.meta = meta;
@@ -299,21 +318,45 @@ public final class FragmentContentBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btn_watch_later_text;
+      TextView btnWatchLaterText = ViewBindings.findChildViewById(rootView, id);
+      if (btnWatchLaterText == null) {
+        break missingId;
+      }
+
       id = R.id.buttons_row;
       LinearLayout buttonsRow = ViewBindings.findChildViewById(rootView, id);
       if (buttonsRow == null) {
         break missingId;
       }
 
-      id = R.id.comments_count;
-      TextView commentsCount = ViewBindings.findChildViewById(rootView, id);
-      if (commentsCount == null) {
+      id = R.id.comments_count_preview;
+      TextView commentsCountPreview = ViewBindings.findChildViewById(rootView, id);
+      if (commentsCountPreview == null) {
         break missingId;
       }
 
-      id = R.id.comments_row;
-      LinearLayout commentsRow = ViewBindings.findChildViewById(rootView, id);
-      if (commentsRow == null) {
+      id = R.id.comments_header_wrap;
+      LinearLayout commentsHeaderWrap = ViewBindings.findChildViewById(rootView, id);
+      if (commentsHeaderWrap == null) {
+        break missingId;
+      }
+
+      id = R.id.comments_preview_pager;
+      ViewPager2 commentsPreviewPager = ViewBindings.findChildViewById(rootView, id);
+      if (commentsPreviewPager == null) {
+        break missingId;
+      }
+
+      id = R.id.comments_slider_wrap;
+      LinearLayout commentsSliderWrap = ViewBindings.findChildViewById(rootView, id);
+      if (commentsSliderWrap == null) {
+        break missingId;
+      }
+
+      id = R.id.comments_title_preview;
+      TextView commentsTitlePreview = ViewBindings.findChildViewById(rootView, id);
+      if (commentsTitlePreview == null) {
         break missingId;
       }
 
@@ -358,8 +401,10 @@ public final class FragmentContentBinding implements ViewBinding {
       return new FragmentContentBinding((ScrollView) rootView, authorAvatar, authorName, authorRow,
           authorSubs, bellIcon, btnBell, btnDownload, btnDownloadIcon, btnDownloadText, btnLike,
           btnLikeIcon, btnLikeText, btnReport, btnReportIcon, btnShare, btnShareIcon, btnSubscribe,
-          btnWatchLater, btnWatchLaterIcon, buttonsRow, commentsCount, commentsRow, contentRoot,
-          downloadProgressOverlay, meta, metaArrow, subscribeContainer, title, titleBlock);
+          btnWatchLater, btnWatchLaterIcon, btnWatchLaterText, buttonsRow, commentsCountPreview,
+          commentsHeaderWrap, commentsPreviewPager, commentsSliderWrap, commentsTitlePreview,
+          contentRoot, downloadProgressOverlay, meta, metaArrow, subscribeContainer, title,
+          titleBlock);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

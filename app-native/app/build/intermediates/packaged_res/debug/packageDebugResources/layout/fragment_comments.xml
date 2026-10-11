@@ -9,17 +9,20 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- ===== Handle (полоска для свайпа) ===== -->
-    <View
+    <FrameLayout
         android:id="@+id/handle"
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="#666666" />
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:clickable="true"
+        android:focusable="true">
 
-    <!-- ===== Заголовок + сортировка ===== -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center"
+            android:background="#666666" />
+    </FrameLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,7 +41,6 @@
             android:textSize="16sp"
             android:fontFamily="sans-serif-medium" />
 
-        <!-- Переключатель сортировки -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,13 +89,11 @@
 
     </LinearLayout>
 
-    <!-- ===== Разделитель ===== -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#1F1F1F" />
 
-    <!-- ===== Список комментариев ===== -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -107,7 +107,6 @@
             android:paddingBottom="8dp"
             android:scrollbars="vertical" />
 
-        <!-- Пустой экран -->
         <LinearLayout
             android:id="@+id/comments_empty"
             android:layout_width="match_parent"
@@ -132,15 +131,6 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Скелетон (при первой загрузке) -->
-        <LinearLayout
-            android:id="@+id/comments_skeleton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone" />
-
-        <!-- Индикатор загрузки следующей страницы -->
         <ProgressBar
             android:id="@+id/comments_loading_more"
             android:layout_width="32dp"
@@ -151,7 +141,6 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- ===== Поле ввода (внизу) ===== -->
     <LinearLayout
         android:id="@+id/comments_input_row"
         android:layout_width="match_parent"

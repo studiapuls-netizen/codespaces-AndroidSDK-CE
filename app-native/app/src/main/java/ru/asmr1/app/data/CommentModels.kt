@@ -66,3 +66,16 @@ data class CommentLikeResponse(
     @SerializedName("code")    val code: String? = null,
     @SerializedName("message") val message: String? = null
 )
+
+/**
+ * Ответ GET /yt/v1/comment/{id}/replies
+ */
+data class CommentRepliesResponse(
+    @SerializedName("success")   val success: Boolean,
+    @SerializedName("parent_id") val parentId: Int,
+    @SerializedName("total")     val total: Int,
+    @SerializedName("page")      val page: Int,
+    @SerializedName("per_page")  val perPage: Int,
+    @SerializedName("has_more")  val hasMore: Boolean,
+    @SerializedName("replies")   val replies: List<Comment>
+)

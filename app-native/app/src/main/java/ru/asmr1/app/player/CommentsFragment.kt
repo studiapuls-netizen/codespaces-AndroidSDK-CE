@@ -1,10 +1,11 @@
 package ru.asmr1.app.player
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -14,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.asmr1.app.MainActivity
@@ -25,12 +25,14 @@ import ru.asmr1.app.data.Comment
 import ru.asmr1.app.data.CommentCreateRequest
 import ru.asmr1.app.data.Video
 import ru.asmr1.app.databinding.FragmentCommentsBinding
+import kotlin.math.abs
 
 class CommentsFragment : Fragment() {
 
     companion object {
         const val ARG_VIDEO = "video"
         private const val PER_PAGE = 20
+        private const val DRAG_THRESHOLD = 150f
 
         fun newInstance(video: Video) = CommentsFragment().apply {
             arguments = Bundle().apply { putParcelable(ARG_VIDEO, video) }
@@ -49,9 +51,7 @@ class CommentsFragment : Fragment() {
     private var isLoading = false
     private var hasMore = true
     private var order: String = "new"
-    private var totalComments = 0
 
-    // Ответ на комментарий (если задан — отправим как ответ)
     private var replyToComment: Comment? = null
 
     private var loadJob: Job? = null
@@ -76,13 +76,74 @@ class CommentsFragment : Fragment() {
         setupSortButtons()
         setupInput()
         setupClose()
+        setupDragHandle()
 
         loadComments(reset = true)
     }
 
-    // ============================================================
-    // RECYCLER
-    // ============================================================
+    private fun applyPendingFocus() {
+        val activity = activity as? MainActivity ?: return
+        val focus = activity.pendingCommentFocus ?: return
+        activity.pendingCommentFocus = null
+
+        val comments = adapter.getComments()
+        val idx = comments.indexOfFirst { it.id == focus.id }
+        if (idx >= 0) {
+            binding.commentsRecycler.postDelayed({
+                binding.commentsRecycler.smoothScrollToPosition(idx)
+            }, 150)
+        }
+
+        binding.commentInput.postDelayed({
+            onReplyClick(focus)
+        }, 250)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupDragHandle() {
+        val container = (requireActivity() as MainActivity).findViewById<View>(
+            R.id.comments_overlay_container
+        ) ?: return
+
+        var startY = 0f
+        var startTranslation = 0f
+        var isDragging = false
+
+        binding.handle.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startY = event.rawY
+                    startTranslation = container.translationY
+                    isDragging = false
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = event.rawY - startY
+                    if (!isDragging && abs(dy) > 10f) isDragging = true
+                    if (isDragging) {
+                        val newTranslation = (startTranslation + dy).coerceAtLeast(0f)
+                        container.translationY = newTranslation
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> {
+                    val dy = event.rawY - startY
+                    if (isDragging && dy > DRAG_THRESHOLD) {
+                        (requireActivity() as MainActivity).closeComments()
+                    } else {
+                        container.animate()
+                            .translationY(0f)
+                            .setDuration(200)
+                            .start()
+                    }
+                    isDragging = false
+                    true
+                }
+                else -> false
+            }
+        }
+    }
 
     private fun setupRecycler() {
         adapter = CommentsAdapter(
@@ -95,6 +156,14 @@ class CommentsFragment : Fragment() {
         binding.commentsRecycler.adapter = adapter
         binding.commentsRecycler.setHasFixedSize(false)
         binding.commentsRecycler.itemAnimator = null
+
+        // Свайп вправо = Ответить
+        binding.commentsRecycler.addOnItemTouchListener(
+            SwipeReplyHelper(binding.commentsRecycler) { position ->
+                val comment = adapter.getCommentAt(position)
+                if (comment != null) onReplyClick(comment)
+            }
+        )
 
         binding.commentsRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
@@ -112,10 +181,6 @@ class CommentsFragment : Fragment() {
             }
         })
     }
-
-    // ============================================================
-    // СОРТИРОВКА
-    // ============================================================
 
     private fun setupSortButtons() {
         updateSortButtons()
@@ -143,14 +208,9 @@ class CommentsFragment : Fragment() {
         binding.sortTop.setTextColor(if (order == "top") activeColor else inactiveColor)
     }
 
-    // ============================================================
-    // ПОЛЕ ВВОДА
-    // ============================================================
-
     private fun setupInput() {
         binding.commentSendBtn.setOnClickListener { sendComment() }
 
-        // Многострочный: Enter = перенос, кнопка = отправка
         binding.commentInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {
@@ -174,13 +234,56 @@ class CommentsFragment : Fragment() {
         }
 
         val v = video ?: return
-        val parentId = replyToComment?.id ?: 0
+        val parent = replyToComment
+        val parentId = parent?.id ?: 0
+
+        val draft = Comment(
+            id = -System.currentTimeMillis().toInt(),
+            content = text,
+            authorId = authManager.getUserId(),
+            authorName = authManager.getDisplayName() ?: "Вы",
+            authorAvatar = "",
+            date = "",
+            dateGmt = "",
+            likes = 0,
+            liked = false,
+            parentId = parentId,
+            repliesCount = 0,
+            replies = emptyList()
+        )
+
+        if (parent == null) {
+            adapter.setComments(listOf(draft) + adapter.getComments())
+        } else {
+            val parentInList = adapter.getComments().firstOrNull { it.id == parent.id }
+            if (parentInList != null) {
+                val updatedParent = parentInList.copy(
+                    replies = parentInList.replies + draft,
+                    repliesCount = parentInList.repliesCount + 1
+                )
+                adapter.updateComment(updatedParent)
+            }
+        }
+
+        binding.commentInput.text?.clear()
+        replyToComment = null
+        binding.commentInput.hint = "Написать комментарий..."
+        binding.commentSendBtn.isEnabled = false
+        binding.commentSendBtn.alpha = 0.5f
+
+        val imm = ContextCompat.getSystemService(
+            requireContext(),
+            InputMethodManager::class.java
+        )
+        imm?.hideSoftInputFromWindow(binding.commentInput.windowToken, 0)
 
         sendJob?.cancel()
         sendJob = viewLifecycleOwner.lifecycleScope.launch {
-            binding.commentSendBtn.isEnabled = false
             try {
-                val token = authManager.getToken() ?: return@launch
+                val token = authManager.getToken() ?: run {
+                    removeDraft(draft)
+                    return@launch
+                }
                 val response = ApiClient.createJwtService(token).postComment(
                     v.id,
                     CommentCreateRequest(content = text, parentId = parentId)
@@ -189,22 +292,9 @@ class CommentsFragment : Fragment() {
                 if (_binding == null) return@launch
 
                 if (response.success && response.comment != null) {
-                    binding.commentInput.text?.clear()
-                    replyToComment = null
-                    binding.commentInput.hint = "Написать комментарий..."
-
-                    // Перезагружаем список с первой страницы — новый комментарий будет виден
-                    loadComments(reset = true)
-
-                    Toast.makeText(requireContext(), "Комментарий отправлен", Toast.LENGTH_SHORT).show()
-
-                    // Прячем клавиатуру
-                    val imm = ContextCompat.getSystemService(
-                        requireContext(),
-                        InputMethodManager::class.java
-                    )
-                    imm?.hideSoftInputFromWindow(binding.commentInput.windowToken, 0)
+                    replaceDraft(draft, response.comment)
                 } else {
+                    removeDraft(draft)
                     Toast.makeText(
                         requireContext(),
                         response.message ?: "Не удалось отправить",
@@ -213,11 +303,51 @@ class CommentsFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 if (_binding == null) return@launch
-                Toast.makeText(requireContext(), "Ошибка сети", Toast.LENGTH_SHORT).show()
-            } finally {
-                if (_binding != null) {
-                    binding.commentSendBtn.isEnabled = true
+                removeDraft(draft)
+                Toast.makeText(
+                    requireContext(),
+                    "Ошибка: ${e.javaClass.simpleName}: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun removeDraft(draft: Comment) {
+        if (draft.parentId == 0) {
+            val newList = adapter.getComments().filterNot { it.id == draft.id }
+            adapter.setComments(newList)
+        } else {
+            val parentInList = adapter.getComments().firstOrNull { it.id == draft.parentId }
+            if (parentInList != null) {
+                val updatedParent = parentInList.copy(
+                    replies = parentInList.replies.filterNot { it.id == draft.id },
+                    repliesCount = (parentInList.repliesCount - 1).coerceAtLeast(0)
+                )
+                adapter.updateComment(updatedParent)
+            }
+        }
+    }
+
+    private fun replaceDraft(draft: Comment, real: Comment) {
+        if (draft.parentId == 0) {
+            val idx = adapter.getComments().indexOfFirst { it.id == draft.id }
+            if (idx >= 0) {
+                val newList = adapter.getComments().toMutableList()
+                newList[idx] = real
+                adapter.setComments(newList)
+            }
+        } else {
+            val parentInList = adapter.getComments().firstOrNull { it.id == draft.parentId }
+            if (parentInList != null) {
+                val updatedReplies = parentInList.replies.map {
+                    if (it.id == draft.id) real else it
                 }
+                val updatedParent = parentInList.copy(
+                    replies = updatedReplies,
+                    repliesCount = updatedReplies.size
+                )
+                adapter.updateComment(updatedParent)
             }
         }
     }
@@ -235,10 +365,6 @@ class CommentsFragment : Fragment() {
         imm?.showSoftInput(binding.commentInput, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    // ============================================================
-    // ЗАГРУЗКА КОММЕНТАРИЕВ
-    // ============================================================
-
     private fun loadComments(reset: Boolean) {
         if (isLoading) return
         if (!hasMore && !reset) return
@@ -248,7 +374,6 @@ class CommentsFragment : Fragment() {
             currentPage = 1
             hasMore = true
             adapter.setComments(emptyList())
-            showSkeleton(true)
         } else {
             binding.commentsLoadingMore.visibility = View.VISIBLE
         }
@@ -273,11 +398,11 @@ class CommentsFragment : Fragment() {
                 if (_binding == null) return@launch
 
                 if (response.success) {
-                    totalComments = response.total
                     if (reset) {
                         adapter.setComments(response.comments)
                         binding.commentsEmpty.visibility =
                             if (response.comments.isEmpty()) View.VISIBLE else View.GONE
+                        applyPendingFocus()
                     } else {
                         adapter.appendComments(response.comments)
                     }
@@ -297,23 +422,11 @@ class CommentsFragment : Fragment() {
             } finally {
                 if (_binding != null) {
                     isLoading = false
-                    showSkeleton(false)
                     binding.commentsLoadingMore.visibility = View.GONE
                 }
             }
         }
     }
-
-    private fun showSkeleton(show: Boolean) {
-        if (_binding == null) return
-        // Простой скелетон: прячем recycler, показываем пустой экран-заглушку
-        // (можно расширить: делать shimmer, но это опционально)
-        binding.commentsEmpty.visibility = if (show && adapter.itemCount == 0) View.GONE else binding.commentsEmpty.visibility
-    }
-
-    // ============================================================
-    // ЛАЙК
-    // ============================================================
 
     private fun onLikeClick(comment: Comment) {
         if (!authManager.isLoggedIn()) {
@@ -321,74 +434,43 @@ class CommentsFragment : Fragment() {
             return
         }
 
+        val wasLiked = comment.liked
+        val optimistic = comment.copy(
+            liked = !wasLiked,
+            likes = if (wasLiked) (comment.likes - 1).coerceAtLeast(0) else comment.likes + 1
+        )
+        adapter.updateComment(optimistic)
+
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val token = authManager.getToken() ?: return@launch
+                val token = authManager.getToken() ?: run {
+                    adapter.updateComment(comment)
+                    return@launch
+                }
                 val response = ApiClient.createJwtService(token).toggleCommentLike(comment.id)
                 if (_binding == null) return@launch
 
                 if (response.success) {
-                    val updated = comment.copy(
+                    val finalComment = comment.copy(
                         likes = response.likes,
                         liked = response.liked
                     )
-                    adapter.updateComment(updated)
+                    adapter.updateComment(finalComment)
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        response.message ?: "Ошибка",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    adapter.updateComment(comment)
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Ошибка сети", Toast.LENGTH_SHORT).show()
+                if (_binding == null) return@launch
+                adapter.updateComment(comment)
             }
         }
     }
-
-    // ============================================================
-    // ПОКАЗ ОТВЕТОВ (модалка)
-    // ============================================================
 
     private fun onShowRepliesClick(comment: Comment) {
-        // Простая реализация: загружаем через API и показываем в BottomSheetDialog
         val v = video ?: return
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val token = authManager.getToken()
-                val api = if (token != null) {
-                    ApiClient.createJwtService(token)
-                } else {
-                    ApiClient.service
-                }
-                // Переиспользуем getComments — но это корневые.
-                // Правильнее иметь отдельный эндпоинт /comments/{parent_id}/replies
-                // Сейчас — просто откроем шторку с текстом "скоро".
-                showRepliesSheet(comment)
-            } catch (_: Exception) {
-                showRepliesSheet(comment)
-            }
-        }
+        val dialog = RepliesDialogFragment.newInstance(comment, v.id)
+        dialog.show(childFragmentManager, "replies_dialog")
     }
-
-    private fun showRepliesSheet(parent: Comment) {
-        try {
-            val dialog = BottomSheetDialog(requireContext())
-            val view = layoutInflater.inflate(R.layout.fragment_comments, null)
-            // Не заморачиваемся пока: показываем заголовок + список уже загруженных первых 3
-            val tv = android.widget.TextView(requireContext()).apply {
-                text = "Ответы на комментарий «${parent.content.take(40)}...»\n\nВсего: ${parent.repliesCount}\n\n(полная загрузка будет в следующей итерации)"
-                setPadding(48, 48, 48, 48)
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
-            }
-            dialog.setContentView(tv)
-            dialog.show()
-        } catch (_: Exception) {}
-    }
-
-    // ============================================================
-    // ЗАКРЫТИЕ
-    // ============================================================
 
     private fun setupClose() {
         binding.btnCommentsClose.setOnClickListener {

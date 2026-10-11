@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -48,13 +49,10 @@ public final class FragmentCommentsBinding implements ViewBinding {
   public final LinearLayout commentsRoot;
 
   @NonNull
-  public final LinearLayout commentsSkeleton;
-
-  @NonNull
   public final TextView commentsTitle;
 
   @NonNull
-  public final View handle;
+  public final FrameLayout handle;
 
   @NonNull
   public final TextView sortNew;
@@ -67,8 +65,8 @@ public final class FragmentCommentsBinding implements ViewBinding {
       @NonNull ImageButton commentSendBtn, @NonNull LinearLayout commentsEmpty,
       @NonNull LinearLayout commentsInputRow, @NonNull ProgressBar commentsLoadingMore,
       @NonNull RecyclerView commentsRecycler, @NonNull LinearLayout commentsRoot,
-      @NonNull LinearLayout commentsSkeleton, @NonNull TextView commentsTitle, @NonNull View handle,
-      @NonNull TextView sortNew, @NonNull TextView sortTop) {
+      @NonNull TextView commentsTitle, @NonNull FrameLayout handle, @NonNull TextView sortNew,
+      @NonNull TextView sortTop) {
     this.rootView = rootView;
     this.btnCommentsClose = btnCommentsClose;
     this.commentInput = commentInput;
@@ -78,7 +76,6 @@ public final class FragmentCommentsBinding implements ViewBinding {
     this.commentsLoadingMore = commentsLoadingMore;
     this.commentsRecycler = commentsRecycler;
     this.commentsRoot = commentsRoot;
-    this.commentsSkeleton = commentsSkeleton;
     this.commentsTitle = commentsTitle;
     this.handle = handle;
     this.sortNew = sortNew;
@@ -156,12 +153,6 @@ public final class FragmentCommentsBinding implements ViewBinding {
 
       LinearLayout commentsRoot = (LinearLayout) rootView;
 
-      id = R.id.comments_skeleton;
-      LinearLayout commentsSkeleton = ViewBindings.findChildViewById(rootView, id);
-      if (commentsSkeleton == null) {
-        break missingId;
-      }
-
       id = R.id.comments_title;
       TextView commentsTitle = ViewBindings.findChildViewById(rootView, id);
       if (commentsTitle == null) {
@@ -169,7 +160,7 @@ public final class FragmentCommentsBinding implements ViewBinding {
       }
 
       id = R.id.handle;
-      View handle = ViewBindings.findChildViewById(rootView, id);
+      FrameLayout handle = ViewBindings.findChildViewById(rootView, id);
       if (handle == null) {
         break missingId;
       }
@@ -188,7 +179,7 @@ public final class FragmentCommentsBinding implements ViewBinding {
 
       return new FragmentCommentsBinding((LinearLayout) rootView, btnCommentsClose, commentInput,
           commentSendBtn, commentsEmpty, commentsInputRow, commentsLoadingMore, commentsRecycler,
-          commentsRoot, commentsSkeleton, commentsTitle, handle, sortNew, sortTop);
+          commentsRoot, commentsTitle, handle, sortNew, sortTop);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

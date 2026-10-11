@@ -2,6 +2,8 @@ package ru.asmr1.app.player
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,19 +50,23 @@ class ContentFragment : Fragment() {
 
     private var video: Video? = null
 
-    // Лайк
     private var isLiked: Boolean = false
     private var likesCount: Int = 0
     private var likeInFlight: Boolean = false
 
-    // Подписка
     private var subscriptionState = 0
     private var subscribersCount: Int = 0
     private var subscribeInFlight: Boolean = false
 
-    // Скачивание
     private var downloadJob: Job? = null
     private var isDownloading: Boolean = false
+
+    private var isSavedToPlaylist: Boolean = false
+
+    private lateinit var previewAdapter: CommentsPreviewAdapter
+
+    private val sliderHandler = Handler(Looper.getMainLooper())
+    private var sliderRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,7 +88,6 @@ class ContentFragment : Fragment() {
 
         binding.title.text = v.title
         binding.meta.text = "${formatViews(v.views)} • ${timeAgo(v.published)}"
-        binding.commentsCount.text = "Комментарии"
 
         binding.authorName.text = v.author.name
         binding.authorSubs.text = "0 подписчиков"
@@ -97,17 +102,16 @@ class ContentFragment : Fragment() {
         updateLikeUi()
         updateSubscriptionUi()
         updateDownloadUi()
+        setWatchLaterState(false)
 
         loadLikeStatus(v.id)
         loadSubscriptionStatus(v.author.id)
+        loadPlaylistState(v.id)
 
         binding.btnSubscribe.setOnClickListener { performSubscribe("sub") }
         binding.btnBell.setOnClickListener { showSubscriptionMenu() }
         binding.titleBlock.setOnClickListener {
             (requireActivity() as MainActivity).openDescription(v)
-        }
-        binding.commentsRow.setOnClickListener {
-            (requireActivity() as MainActivity).openComments(v)
         }
         binding.btnLike.setOnClickListener { performToggleLike() }
 
@@ -120,25 +124,135 @@ class ContentFragment : Fragment() {
         }
 
         binding.btnWatchLater.setOnClickListener {
-            Toast.makeText(requireContext(), "Смотреть позже — скоро", Toast.LENGTH_SHORT).show()
+            val sheet = AddToPlaylistSheet.newInstance(v.id)
+            sheet.onAdded = { _ -> setWatchLaterState(true) }
+            sheet.show(childFragmentManager, "add_to_playlist")
         }
+
         binding.btnShare.setOnClickListener {
             Toast.makeText(requireContext(), "Поделиться — скоро", Toast.LENGTH_SHORT).show()
         }
         binding.btnReport.setOnClickListener {
             Toast.makeText(requireContext(), "Репорт — скоро", Toast.LENGTH_SHORT).show()
         }
+
+        setupCommentsPreview(v)
     }
 
     // ============================================================
-    // СКАЧИВАНИЕ
+    // СОСТОЯНИЕ КНОПКИ «СОХРАНИТЬ»
     // ============================================================
+    private fun setWatchLaterState(saved: Boolean) {
+        isSavedToPlaylist = saved
+        _binding?.apply {
+            btnWatchLaterIcon.setImageResource(
+                if (saved) R.drawable.ic_player_bookmark_filled
+                else R.drawable.ic_player_bookmark
+            )
+            btnWatchLaterText.text = if (saved) "Сохранено" else "Позже"
+            btnWatchLaterText.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (saved) R.color.text_primary else R.color.text_secondary
+                )
+            )
+        }
+    }
 
-    /** Обновляет UI кнопки скачать — иконка, текст, overlay. */
+    private fun loadPlaylistState(videoId: Int) {
+        if (!authManager.isLoggedIn()) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val response = ApiClient.createJwtService(token).getVideoPlaylists(videoId)
+                if (_binding != null && response.success && response.playlistIds.isNotEmpty()) {
+                    setWatchLaterState(true)
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    // ============================================================
+    // ПРЕВЬЮ КОММЕНТАРИЕВ
+    // ============================================================
+    private fun setupCommentsPreview(v: Video) {
+        previewAdapter = CommentsPreviewAdapter { comment ->
+            (requireActivity() as MainActivity).openCommentsWithFocus(v, comment)
+        }
+        binding.commentsPreviewPager.adapter = previewAdapter
+        binding.commentsPreviewPager.offscreenPageLimit = 2
+        binding.commentsPreviewPager.setPageTransformer { page, position ->
+            val scale = 0.9f + (1 - kotlin.math.abs(position)) * 0.1f
+            page.scaleY = scale
+            page.scaleX = scale
+            page.alpha = 0.7f + (1 - kotlin.math.abs(position)) * 0.3f
+        }
+        binding.commentsHeaderWrap.setOnClickListener {
+            (requireActivity() as MainActivity).openComments(v)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken()
+                val api = if (token != null) {
+                    ApiClient.createJwtService(token)
+                } else {
+                    ApiClient.service
+                }
+                val response = api.getComments(
+                    videoId = v.id,
+                    page = 1,
+                    perPage = 10,
+                    order = "new"
+                )
+                if (_binding == null) return@launch
+
+                if (response.success && response.comments.isNotEmpty()) {
+                    binding.commentsSliderWrap.visibility = View.VISIBLE
+                    binding.commentsCountPreview.text = response.total.toString()
+                    previewAdapter.setItems(response.comments)
+                    startSliderAutoScroll()
+                } else {
+                    binding.commentsSliderWrap.visibility = View.GONE
+                }
+            } catch (_: Exception) {
+                if (_binding != null) {
+                    binding.commentsSliderWrap.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun startSliderAutoScroll() {
+        stopSliderAutoScroll()
+        if (previewAdapter.itemCount <= 1) return
+
+        val r = object : Runnable {
+            override fun run() {
+                if (_binding == null) return
+                val pager = binding.commentsPreviewPager
+                val count = pager.adapter?.itemCount ?: 0
+                if (count <= 1) return
+                val next = (pager.currentItem + 1) % count
+                pager.setCurrentItem(next, true)
+                sliderHandler.postDelayed(this, 7000L)
+            }
+        }
+        sliderRunnable = r
+        sliderHandler.postDelayed(r, 7000L)
+    }
+
+    private fun stopSliderAutoScroll() {
+        sliderRunnable?.let { sliderHandler.removeCallbacks(it) }
+        sliderRunnable = null
+    }
+
+    // ============================================================
+    // DOWNLOAD
+    // ============================================================
     private fun updateDownloadUi() {
         val v = video ?: return
         _binding?.apply {
-
             val hasVideo = downloadStorage.hasVideo(v.id)
             val hasAudio = downloadStorage.hasAudio(v.id)
 
@@ -175,7 +289,6 @@ class ContentFragment : Fragment() {
         }
     }
 
-    /** Формат размера: 1.5 ГБ / 300 МБ / 850 КБ. */
     private fun formatSize(bytes: Long): String {
         if (bytes <= 0) return ""
         val kb = bytes / 1024.0
@@ -188,7 +301,6 @@ class ContentFragment : Fragment() {
         }
     }
 
-    /** Открывает bottom sheet с опциями скачивания. */
     private fun showDownloadMenu() {
         val v = video ?: return
 
@@ -237,7 +349,6 @@ class ContentFragment : Fragment() {
             menuAudio.isClickable = false
         }
 
-        // HEAD-запросы на размер файла (в фоне)
         viewLifecycleOwner.lifecycleScope.launch {
             if (!hasVideo && !v.videoUrl.isNullOrEmpty()) {
                 val size = downloader.getRemoteFileSize(v.videoUrl)
@@ -284,7 +395,6 @@ class ContentFragment : Fragment() {
         dialog.show()
     }
 
-    /** Запускает загрузку и обновляет UI. */
     private fun startDownload(type: DownloadedFile.Type, url: String, extension: String) {
         val v = video ?: return
         if (isDownloading) return
@@ -328,7 +438,6 @@ class ContentFragment : Fragment() {
     // ============================================================
     // ЛАЙК
     // ============================================================
-
     private fun loadLikeStatus(videoId: Int) {
         if (!authManager.isLoggedIn()) return
         viewLifecycleOwner.lifecycleScope.launch {
@@ -410,7 +519,6 @@ class ContentFragment : Fragment() {
     // ============================================================
     // ПОДПИСКА
     // ============================================================
-
     private fun loadSubscriptionStatus(authorId: Int) {
         if (!authManager.isLoggedIn()) return
         viewLifecycleOwner.lifecycleScope.launch {
@@ -523,6 +631,7 @@ class ContentFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         downloadJob?.cancel()
+        stopSliderAutoScroll()
         _binding = null
     }
 }
