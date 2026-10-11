@@ -24,5 +24,11 @@
             </intent-filter>
         </activity>
 
+    
+        <activity
+            android:name=".author.AuthorPageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ASMR1" />
+
     </application>
 </manifest>

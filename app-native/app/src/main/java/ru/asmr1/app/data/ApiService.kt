@@ -158,4 +158,10 @@ interface ApiService {
     suspend fun deletePlaylist(
         @Path("id") playlistId: Int
     ): DeletePlaylistResponse
+
+    @GET("user/{id}")
+    suspend fun getUserPage(
+        @Path("id") userId: Int
+    ): AuthorPageResponse
+
 }
