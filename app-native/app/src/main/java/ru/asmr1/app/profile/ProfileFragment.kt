@@ -71,7 +71,10 @@ class ProfileFragment : Fragment() {
 
     private fun setupMenu() {
         binding.historyAll.setOnClickListener {
-            Toast.makeText(requireContext(), "Вся история — скоро", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.beginTransaction()
+                .replace(ru.asmr1.app.R.id.feed_container, HistoryFragment())
+                .addToBackStack(null)
+                .commit()
         }
         binding.rowSettings.setOnClickListener {
             Toast.makeText(requireContext(), "Настройки — скоро", Toast.LENGTH_SHORT).show()
@@ -108,11 +111,14 @@ class ProfileFragment : Fragment() {
                     }
 
                     // ===== История =====
+                    binding.historyWrap.visibility = View.VISIBLE
                     if (response.history.isNotEmpty()) {
-                        binding.historyWrap.visibility = View.VISIBLE
+                        binding.historyRecycler.visibility = View.VISIBLE
+                        binding.historyEmpty.visibility = View.GONE
                         historyAdapter.setItems(response.history)
                     } else {
-                        binding.historyWrap.visibility = View.GONE
+                        binding.historyRecycler.visibility = View.GONE
+                        binding.historyEmpty.visibility = View.VISIBLE
                     }
 
                     // ===== Плейлисты: системные + кастомные =====

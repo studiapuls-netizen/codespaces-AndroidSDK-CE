@@ -30,6 +30,9 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final TextView historyAll;
 
   @NonNull
+  public final LinearLayout historyEmpty;
+
+  @NonNull
   public final RecyclerView historyRecycler;
 
   @NonNull
@@ -60,14 +63,16 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final LinearLayout rowSettings;
 
   private FragmentProfileBinding(@NonNull FrameLayout rootView, @NonNull ImageButton btnAddPlaylist,
-      @NonNull TextView historyAll, @NonNull RecyclerView historyRecycler,
-      @NonNull LinearLayout historyWrap, @NonNull RecyclerView playlistsRecycler,
-      @NonNull LinearLayout playlistsWrap, @NonNull ShapeableImageView profileAvatar,
-      @NonNull TextView profileEmail, @NonNull TextView profileName, @NonNull LinearLayout rowFaq,
-      @NonNull LinearLayout rowLogout, @NonNull LinearLayout rowSettings) {
+      @NonNull TextView historyAll, @NonNull LinearLayout historyEmpty,
+      @NonNull RecyclerView historyRecycler, @NonNull LinearLayout historyWrap,
+      @NonNull RecyclerView playlistsRecycler, @NonNull LinearLayout playlistsWrap,
+      @NonNull ShapeableImageView profileAvatar, @NonNull TextView profileEmail,
+      @NonNull TextView profileName, @NonNull LinearLayout rowFaq, @NonNull LinearLayout rowLogout,
+      @NonNull LinearLayout rowSettings) {
     this.rootView = rootView;
     this.btnAddPlaylist = btnAddPlaylist;
     this.historyAll = historyAll;
+    this.historyEmpty = historyEmpty;
     this.historyRecycler = historyRecycler;
     this.historyWrap = historyWrap;
     this.playlistsRecycler = playlistsRecycler;
@@ -116,6 +121,12 @@ public final class FragmentProfileBinding implements ViewBinding {
       id = R.id.history_all;
       TextView historyAll = ViewBindings.findChildViewById(rootView, id);
       if (historyAll == null) {
+        break missingId;
+      }
+
+      id = R.id.history_empty;
+      LinearLayout historyEmpty = ViewBindings.findChildViewById(rootView, id);
+      if (historyEmpty == null) {
         break missingId;
       }
 
@@ -180,8 +191,8 @@ public final class FragmentProfileBinding implements ViewBinding {
       }
 
       return new FragmentProfileBinding((FrameLayout) rootView, btnAddPlaylist, historyAll,
-          historyRecycler, historyWrap, playlistsRecycler, playlistsWrap, profileAvatar,
-          profileEmail, profileName, rowFaq, rowLogout, rowSettings);
+          historyEmpty, historyRecycler, historyWrap, playlistsRecycler, playlistsWrap,
+          profileAvatar, profileEmail, profileName, rowFaq, rowLogout, rowSettings);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

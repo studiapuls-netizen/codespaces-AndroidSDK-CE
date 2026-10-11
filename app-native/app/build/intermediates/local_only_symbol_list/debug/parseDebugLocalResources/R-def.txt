@@ -197,8 +197,18 @@ id hist_meta
 id hist_thumb
 id hist_title
 id history_all
+id history_count
+id history_empty
+id history_loading
 id history_recycler
 id history_wrap
+id hv_author
+id hv_duration
+id hv_meta
+id hv_progress
+id hv_remove
+id hv_thumb
+id hv_title
 id iv_avatar
 id iv_check
 id iv_folder
@@ -356,6 +366,7 @@ layout fragment_content
 layout fragment_description
 layout fragment_downloads
 layout fragment_feed
+layout fragment_history
 layout fragment_login
 layout fragment_notifications
 layout fragment_notifications_tab
@@ -373,6 +384,7 @@ layout item_comment_reply
 layout item_comment_slider
 layout item_download
 layout item_history_card
+layout item_history_video
 layout item_notification
 layout item_playlist_big
 layout item_playlist_choice

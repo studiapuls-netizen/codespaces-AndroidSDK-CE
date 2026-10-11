@@ -107,6 +107,14 @@ interface ApiService {
         @Query("per_page") perPage: Int = 20
     ): MeHistoryResponse
 
+    @POST("me/history/remove/{id}")
+    suspend fun removeFromHistory(
+        @Path("id") videoId: Int
+    ): HistoryRemoveResponse
+
+    @POST("me/history/clear")
+    suspend fun clearHistory(): HistoryClearResponse
+
     @GET("playlist/{id}")
     suspend fun getPlaylist(
         @Path("id") playlistId: Int

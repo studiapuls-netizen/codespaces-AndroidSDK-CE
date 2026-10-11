@@ -58,3 +58,19 @@ data class MeHistoryResponse(
     @SerializedName("has_more") val hasMore: Boolean,
     @SerializedName("items")    val items: List<ProfileVideo>
 )
+/** POST /yt/v1/me/history/remove/{id} */
+data class HistoryRemoveResponse(
+    @SerializedName("success")  val success: Boolean,
+    @SerializedName("video_id") val videoId: Int? = null,
+    @SerializedName("total")    val total: Int = 0,
+    @SerializedName("code")     val code: String? = null,
+    @SerializedName("message")  val message: String? = null
+)
+
+/** POST /yt/v1/me/history/clear */
+data class HistoryClearResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("total")   val total: Int = 0,
+    @SerializedName("code")    val code: String? = null,
+    @SerializedName("message") val message: String? = null
+)

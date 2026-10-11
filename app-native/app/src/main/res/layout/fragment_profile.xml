@@ -109,6 +109,34 @@
                     android:scrollbars="none"
                     tools:itemCount="3" />
 
+                <!-- Заглушка, когда истории нет -->
+                <LinearLayout
+                    android:id="@+id/history_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="24dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_player_prev"
+                        android:contentDescription=""
+                        app:tint="@color/text_secondary"
+                        android:alpha="0.3"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Здесь будет ваша история"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <!-- ===== МОИ ПЛЕЙЛИСТЫ ===== -->
