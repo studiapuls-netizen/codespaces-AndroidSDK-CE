@@ -3396,6 +3396,7 @@ id audio_dim
 id audio_mode_icon
 id audio_preview
 id author_avatar
+id author_container
 id author_name
 id author_row
 id author_subs
@@ -3413,6 +3414,7 @@ id bottom
 id bottom_nav
 id bottom_to_top
 id bounce
+id btnBell
 id btnClose
 id btnMessage
 id btnSubscribe
@@ -3490,6 +3492,7 @@ id clip_vertical
 id clockwise
 id coil_request_manager
 id collapseActionView
+id collapsingToolbar
 id comment_author
 id comment_avatar
 id comment_card
@@ -3673,6 +3676,9 @@ id graph_wrap
 id group_divider
 id groups
 id handle
+id headerBlock
+id headerMetrics
+id headerNicknameRow
 id header_title
 id hide_ime_id
 id hideable
@@ -4287,6 +4293,7 @@ layout exo_styled_settings_list_item
 layout exo_styled_sub_settings_list_item
 layout exo_track_selection_dialog
 layout fragment_author_about
+layout fragment_author_page
 layout fragment_author_playlists
 layout fragment_author_videos
 layout fragment_comments

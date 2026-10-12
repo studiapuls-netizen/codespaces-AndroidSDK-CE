@@ -38,13 +38,21 @@ class AuthorVideosFragment : Fragment() {
         adapter = VideoAdapter(
             videos = data.tabs?.videos ?: emptyList(),
             onClick = { video ->
-                (requireActivity() as MainActivity).openPlayer(video)
+                (requireActivity() as? ru.asmr1.app.MainActivity)?.openPlayer(video)
             },
             onMoreClick = { _, _ -> }
         )
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
+
+        // COLLAPSE-HEADER-LISTENER
+        binding.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val header = parentFragment as? AuthorPageFragment ?: return
+                header.scrollAppBar(dy)
+            }
+        })
         binding.swipeRefresh.isEnabled = false
     }
 

@@ -24,20 +24,20 @@
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_folder_private.xml"
     },
     {
-        "merged": "ru.asmr1.app-debug-47:/layout_activity_author_page.xml.flat",
-        "source": "ru.asmr1.app-main-49:/layout/activity_author_page.xml"
+        "merged": "ru.asmr1.app-debug-47:/layout_fragment_author_page.xml.flat",
+        "source": "ru.asmr1.app-main-49:/layout/fragment_author_page.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_player_seek_back.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_player_seek_back.xml"
     },
     {
-        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_item_subscribed_author.xml.flat",
-        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/item_subscribed_author.xml"
-    },
-    {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_bg_skeleton.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/bg_skeleton.xml"
+    },
+    {
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_item_subscribed_author.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/item_subscribed_author.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_nav_profile.xml.flat",
@@ -92,12 +92,12 @@
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/item_download.xml"
     },
     {
-        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_seekbar_progress_thin.xml.flat",
-        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/seekbar_progress_thin.xml"
-    },
-    {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_player_fullscreen.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_player_fullscreen.xml"
+    },
+    {
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_seekbar_progress_thin.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/seekbar_progress_thin.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/color_bottom_nav_item.xml.flat",
@@ -112,16 +112,16 @@
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_edit_pencil.xml"
     },
     {
-        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_nav_bell.xml.flat",
-        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_nav_bell.xml"
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/anim_slide_up.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/anim/slide_up.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_download_delete.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_download_delete.xml"
     },
     {
-        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/anim_slide_up.xml.flat",
-        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/anim/slide_up.xml"
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_nav_bell.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/ic_nav_bell.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/drawable_ic_player_like.xml.flat",
@@ -184,12 +184,12 @@
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/drawable/bg_comment_preview.xml"
     },
     {
-        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_fragment_profile.xml.flat",
-        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/fragment_profile.xml"
-    },
-    {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_item_history_card.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/item_history_card.xml"
+    },
+    {
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_fragment_profile.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/fragment_profile.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_dialog_replies.xml.flat",
@@ -370,6 +370,10 @@
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_sheet_edit_playlist.xml.flat",
         "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/sheet_edit_playlist.xml"
+    },
+    {
+        "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_fragment_author_page.xml.flat",
+        "source": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-main-49:/layout/fragment_author_page.xml"
     },
     {
         "merged": "/Users/a1234/.gradle/daemon/8.14.3/ru.asmr1.app-debug-47:/layout_activity_author_page.xml.flat",

@@ -96,6 +96,17 @@ class ContentFragment : Fragment() {
                 crossfade(true)
                 placeholder(R.color.card_bg)
             }
+
+            // Клик по аватору автора → страница автора
+            val goToAuthor = {
+                val act = requireActivity() as? ru.asmr1.app.MainActivity
+                if (act != null) {
+                    act.collapseToMini()
+                    act.openAuthorPage(v.author.id)
+                }
+            }
+            binding.authorAvatar.setOnClickListener { goToAuthor() }
+            binding.authorName.setOnClickListener { goToAuthor() }
         }
 
         likesCount = v.likes

@@ -2,6 +2,7 @@ package ru.asmr1.app
 
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     // ===== Поля, доступные extension-функциям =====
 
     internal lateinit var feedContainer: View
+    internal lateinit var authorContainer: View
     internal lateinit var overlayContainer: View
     internal lateinit var playerContainer: View
     internal lateinit var contentContainer: View
@@ -119,6 +121,7 @@ class MainActivity : AppCompatActivity() {
         authManager = AuthManager(this)
 
         feedContainer = findViewById(R.id.feed_container)
+        authorContainer = findViewById(R.id.author_container)
         overlayContainer = findViewById(R.id.overlay_container)
         playerContainer = findViewById(R.id.player_container)
         contentContainer = findViewById(R.id.content_container)
@@ -212,6 +215,11 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // Страница автора — закрываем первой
+                if (isAuthorPageOpen()) {
+                    closeAuthorPage()
+                    return
+                }
                 val loginFrag = supportFragmentManager.findFragmentByTag(TAG_LOGIN)
                 if (loginFrag != null && loginFrag.isVisible) {
                     supportFragmentManager.popBackStack()
@@ -425,6 +433,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // ============================================================
+    // СТРАНИЦА АВТОРА (как фрагмент поверх feed_container)
+    // ============================================================
+
+    fun openAuthorPage(authorId: Int) {
+        if (authorId <= 0) return
+        authorContainer.visibility = View.VISIBLE
+        authorContainer.translationY = screenHeightPx
+        authorContainer.alpha = 1f
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.author_container, ru.asmr1.app.author.AuthorPageFragment.newInstance(authorId))
+            .commit()
+        authorContainer.post {
+            authorContainer.animate()
+                .translationY(0f)
+                .setDuration(260)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    fun closeAuthorPage() {
+        authorContainer.animate()
+            .translationY(screenHeightPx)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                supportFragmentManager.findFragmentById(R.id.author_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+                authorContainer.visibility = View.GONE
+                authorContainer.translationY = 0f
+            }
+            .start()
+    }
+
+    internal fun isAuthorPageOpen(): Boolean {
+        return ::authorContainer.isInitialized && authorContainer.visibility == View.VISIBLE
+    }
+
     // ============================================================
     // PLAYER
     // ============================================================
@@ -460,7 +509,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openPlayer(video: Video) {
-        android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — openPlayer START")
         currentVideo = video
 
         val mode = PlaybackModeResolver.resolve(this, video)
@@ -763,6 +811,12 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.visibility = View.VISIBLE
 
+        // Если страница автора была открыта — показываем снова
+        if (::authorContainer.isInitialized && 
+            supportFragmentManager.findFragmentById(R.id.author_container) != null) {
+            authorContainer.visibility = View.VISIBLE
+        }
+
         disablePip()
     }
 
@@ -995,8 +1049,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     override fun onDestroy() {
+
         super.onDestroy()
         splashRippleRun?.let { splashHandler.removeCallbacks(it) }
         splashHandler.removeCallbacksAndMessages(null)

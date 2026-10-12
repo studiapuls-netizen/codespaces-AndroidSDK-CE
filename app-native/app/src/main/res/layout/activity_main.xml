@@ -29,12 +29,23 @@
 
     </LinearLayout>
 
+        
+
+<FrameLayout
+        android:id="@+id/author_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/overlay_container"
         android:clipChildren="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
+
 
         <FrameLayout
             android:id="@+id/content_container"
@@ -192,5 +203,8 @@
             android:alpha="0" />
 
     </FrameLayout>
+
+
+    
 
 </FrameLayout>

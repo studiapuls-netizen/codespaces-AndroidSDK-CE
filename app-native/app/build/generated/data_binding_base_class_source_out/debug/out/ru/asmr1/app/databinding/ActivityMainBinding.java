@@ -26,6 +26,9 @@ public final class ActivityMainBinding implements ViewBinding {
   private final FrameLayout rootView;
 
   @NonNull
+  public final FrameLayout authorContainer;
+
+  @NonNull
   public final BottomNavigationView bottomNav;
 
   @NonNull
@@ -82,7 +85,7 @@ public final class ActivityMainBinding implements ViewBinding {
   @NonNull
   public final RippleView splashRipple;
 
-  private ActivityMainBinding(@NonNull FrameLayout rootView,
+  private ActivityMainBinding(@NonNull FrameLayout rootView, @NonNull FrameLayout authorContainer,
       @NonNull BottomNavigationView bottomNav, @NonNull FrameLayout commentsOverlayContainer,
       @NonNull FrameLayout contentContainer, @NonNull FrameLayout contentOverlayContainer,
       @NonNull FrameLayout descriptionOverlayContainer, @NonNull FrameLayout feedContainer,
@@ -94,6 +97,7 @@ public final class ActivityMainBinding implements ViewBinding {
       @NonNull ImageView splashLogo, @NonNull FrameLayout splashOverlay,
       @NonNull RippleView splashRipple) {
     this.rootView = rootView;
+    this.authorContainer = authorContainer;
     this.bottomNav = bottomNav;
     this.commentsOverlayContainer = commentsOverlayContainer;
     this.contentContainer = contentContainer;
@@ -142,6 +146,12 @@ public final class ActivityMainBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.author_container;
+      FrameLayout authorContainer = ViewBindings.findChildViewById(rootView, id);
+      if (authorContainer == null) {
+        break missingId;
+      }
+
       id = R.id.bottom_nav;
       BottomNavigationView bottomNav = ViewBindings.findChildViewById(rootView, id);
       if (bottomNav == null) {
@@ -256,11 +266,11 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityMainBinding((FrameLayout) rootView, bottomNav, commentsOverlayContainer,
-          contentContainer, contentOverlayContainer, descriptionOverlayContainer, feedContainer,
-          miniBtnClose, miniBtnNext, miniBtnPlayPause, miniBtnPrev, miniControls,
-          miniPlayerContainer, miniPlayerView, miniWrap, overlayContainer, playerContainer,
-          splashLogo, splashOverlay, splashRipple);
+      return new ActivityMainBinding((FrameLayout) rootView, authorContainer, bottomNav,
+          commentsOverlayContainer, contentContainer, contentOverlayContainer,
+          descriptionOverlayContainer, feedContainer, miniBtnClose, miniBtnNext, miniBtnPlayPause,
+          miniBtnPrev, miniControls, miniPlayerContainer, miniPlayerView, miniWrap,
+          overlayContainer, playerContainer, splashLogo, splashOverlay, splashRipple);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

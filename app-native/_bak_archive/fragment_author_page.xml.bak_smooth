@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_author_gradient"
+        app:elevation="0dp">
+
+        <!-- ===== ШАПКА ===== -->
+        <LinearLayout
+            android:id="@+id/headerBlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
+            <LinearLayout
+                android:id="@+id/headerExpanded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+            <!-- ===== Крестик в правом верхнем углу (поверх всего) ===== -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Строка: аватар + статистика -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="44dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="#33FFFFFF"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                    <!-- Статистика в ряд, справа от аватара -->
+                    <LinearLayout
+                        android:id="@+id/headerMetrics"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- 1. Просмотры -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvViews"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Просмотры" />
+                        </LinearLayout>
+
+                        <!-- 2. Подписчики -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvSubscribers"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Подписчики" />
+                        </LinearLayout>
+
+                        <!-- 3. Видео -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvVideos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Видео" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Крестик поверх, справа сверху -->
+                <ImageButton
+                    android:id="@+id/btnClose"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="top|end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_close"
+                    android:contentDescription="Закрыть"
+                    android:scaleType="centerInside"
+                    android:padding="6dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <!-- ===== Ник (жирный) ===== -->
+            <LinearLayout
+                android:id="@+id/headerNicknameRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvNickname"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="Автор" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSubscribe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="140dp"
+                    android:minHeight="42dp"
+                    android:text="Подписаться"
+                    android:textAllCaps="false"
+                    android:textColor="#6A0DAD"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#FFFFFF"
+                    app:cornerRadius="21dp" />
+
+                <FrameLayout
+                    android:id="@+id/btnBell"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_subscribe_bell"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/bell_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_bell"
+                        android:contentDescription="Уведомления"
+                        app:tint="@color/text_primary" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <!-- ===== @username ===== -->
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp"
+                android:text="@username" />
+
+            <!-- ===== Описание (2 строки) ===== -->
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#E6E6E6"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="" />
+
+            <!-- ===== Кнопки Follow + ··· ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+</LinearLayout>
+        
+            </LinearLayout>
+
+            <!-- ===== СВЁРНУТАЯ ШАПКА (показывается при скролле) ===== -->
+            <LinearLayout
+                android:id="@+id/headerCollapsed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivAvatarSmall"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="#33FFFFFF"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvNicknameSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-black"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="Автор" />
+
+                    <TextView
+                        android:id="@+id/tvUsernameSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="13sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="@username" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSubscribeSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="100dp"
+                    android:minHeight="36dp"
+                    android:text="Подписаться"
+                    android:textAllCaps="false"
+                    android:textColor="#6A0DAD"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#FFFFFF"
+                    app:cornerRadius="18dp" />
+
+                <FrameLayout
+                    android:id="@+id/btnBellSmall"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_subscribe_bell"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/bellIconSmall"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_bell"
+                        android:contentDescription="Уведомления"
+                        app:tint="@color/text_primary" />
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/btnCloseSmall"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_close"
+                    android:contentDescription="Закрыть"
+                    android:scaleType="centerInside"
+                    android:padding="6dp"
+                    app:tint="#FFFFFF" />
+            </LinearLayout>
+</LinearLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#22000000"
+            app:tabIndicatorColor="#FFFFFF"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="#FFFFFF"
+            app:tabTextColor="#AAFFFFFF"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -84,11 +84,13 @@ id audio_dim
 id audio_mode_icon
 id audio_preview
 id author_avatar
+id author_container
 id author_name
 id author_row
 id author_subs
 id bell_icon
 id bottom_nav
+id btnBell
 id btnClose
 id btnMessage
 id btnSubscribe
@@ -146,6 +148,7 @@ id chip_unread
 id chip_video
 id chip_views
 id chip_weight
+id collapsingToolbar
 id comment_author
 id comment_avatar
 id comment_card
@@ -198,6 +201,9 @@ id et_search
 id et_username
 id feed_container
 id handle
+id headerBlock
+id headerMetrics
+id headerNicknameRow
 id hist_duration
 id hist_meta
 id hist_thumb
@@ -382,6 +388,7 @@ layout activity_player
 layout custom_player_controls
 layout dialog_replies
 layout fragment_author_about
+layout fragment_author_page
 layout fragment_author_playlists
 layout fragment_author_videos
 layout fragment_comments

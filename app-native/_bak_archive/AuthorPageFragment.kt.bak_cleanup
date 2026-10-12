@@ -1,0 +1,379 @@
+package ru.asmr1.app.author
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import coil.load
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.data.SubscribeRequest
+import ru.asmr1.app.databinding.FragmentAuthorPageBinding
+import ru.asmr1.app.auth.AuthManager
+import ru.asmr1.app.utils.formatViewsShort
+
+class AuthorPageFragment : Fragment() {
+
+    companion object {
+        const val ARG_AUTHOR_ID = "AUTHOR_ID"
+        fun newInstance(authorId: Int) = AuthorPageFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_AUTHOR_ID, authorId) }
+        }
+    }
+
+    private var _binding: FragmentAuthorPageBinding? = null
+    private val binding get() = _binding!!
+
+    private var authorId: Int = -1
+    private var authorData: AuthorPageResponse? = null
+
+    private var subscriptionState: Int = 0
+    private var subscribersCount: Int = 0
+    private var subscribeInFlight: Boolean = false
+
+    private lateinit var authManager: AuthManager
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorPageBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        android.util.Log.e("AuthorPage", "onViewCreated, args=${arguments?.getInt(ARG_AUTHOR_ID, -999)}")
+        authManager = AuthManager(requireContext())
+
+        authorId = arguments?.getInt(ARG_AUTHOR_ID, -1) ?: -1
+        if (authorId <= 0) {
+            android.util.Log.e("AuthorPage", "authorId <= 0, закрываем через MainActivity")
+            (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+            return
+        }
+
+        binding.btnClose.setOnClickListener {
+            (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+        }
+
+        setupSwipeToClose()
+
+        binding.btnSubscribe.setOnClickListener {
+            if (subscriptionState == 0) performSubscribe("sub")
+            else performSubscribe("unsub")
+        }
+        binding.btnBell.setOnClickListener { showSubscriptionMenu() }
+        loadAuthor()
+    }
+
+    private fun loadAuthor() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getUserPage(authorId)
+                if (_binding == null) return@launch
+                authorData = response
+                bindAuthor(response)
+                loadSubscriptionStatus()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (_binding == null) return@launch
+                android.util.Log.e("AuthorPage", "loadAuthor failed", e)
+                Toast.makeText(requireContext(), "Ошибка загрузки: ${e.message}", Toast.LENGTH_SHORT).show()
+                (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+            }
+        }
+    }
+
+    private fun bindAuthor(data: AuthorPageResponse) {
+        binding.tvNickname.text = data.nickname
+        binding.tvUsername.text = "@" + data.nickname.lowercase().replace(" ", "_").replace("[^a-z0-9_]".toRegex(), "")
+        binding.tvSubscribers.text = formatViewsShort(data.subscribersCount)
+        binding.tvVideos.text = data.videoCount.toString()
+        binding.tvViews.text = formatViewsShort(data.totalViews)
+
+        if (data.avatar.isNotEmpty()) {
+            binding.ivAvatar.load(data.avatar) {
+                crossfade(true)
+                placeholder(R.color.card_bg)
+                error(R.color.card_bg)
+            }
+        }
+
+        if (!data.description.isNullOrEmpty()) {
+            binding.tvDescription.text = data.description
+        } else {
+            binding.tvDescription.visibility = View.GONE
+        }
+
+        subscriptionState = if (data.followStatus) 1 else 0
+        subscribersCount = data.subscribersCount
+        updateSubscriptionUi()
+
+        setupPager(data)
+    }
+
+    private fun setupPager(data: AuthorPageResponse) {
+        val adapter = AuthorPagerAdapter(requireActivity(), data)
+        binding.viewPager.adapter = adapter
+
+        com.google.android.material.tabs.TabLayoutMediator(
+            binding.tabLayout,
+            binding.viewPager
+        ) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Главная"
+                1 -> "Видео"
+                2 -> "Плейлисты"
+                3 -> "Об авторе"
+                else -> ""
+            }
+        }.attach()
+    }
+
+    // ============================================================
+    // ПОДПИСКА
+    // ============================================================
+
+    private fun loadSubscriptionStatus() {
+        if (authorId <= 0) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val response = ApiClient.createJwtService(token).getSubscriptionStatus(authorId)
+                if (_binding == null) return@launch
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun performSubscribe(action: String) {
+        if (subscribeInFlight) return
+        if (!authManager.isLoggedIn()) {
+            Toast.makeText(requireContext(), "Войдите чтобы подписаться", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (authorId <= 0) return
+
+        subscribeInFlight = true
+        val oldState = subscriptionState
+        val oldCount = subscribersCount
+
+        when (action) {
+            "sub"    -> { subscriptionState = 1; subscribersCount = oldCount + 1 }
+            "unsub"  -> { subscriptionState = 0; subscribersCount = (oldCount - 1).coerceAtLeast(0) }
+            "notify" -> subscriptionState = 1
+            "mute"   -> subscriptionState = 2
+        }
+        updateSubscriptionUi()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val response = ApiClient.createJwtService(token)
+                    .subscribe(authorId, SubscribeRequest(action))
+                if (_binding == null) return@launch
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                } else {
+                    subscriptionState = oldState
+                    subscribersCount = oldCount
+                    updateSubscriptionUi()
+                    Toast.makeText(requireContext(), response.message ?: "Ошибка", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                if (_binding == null) return@launch
+                subscriptionState = oldState
+                subscribersCount = oldCount
+                updateSubscriptionUi()
+                Toast.makeText(requireContext(), "Ошибка сети", Toast.LENGTH_SHORT).show()
+            } finally {
+                subscribeInFlight = false
+            }
+        }
+    }
+
+    private fun updateSubscriptionUi() {
+        if (_binding == null) return
+        when (subscriptionState) {
+            0 -> {
+                // Не подписан — видна только кнопка «Подписаться», колокольчик скрыт
+                binding.btnSubscribe.visibility = View.VISIBLE
+                binding.btnSubscribe.text = "Подписаться"
+                binding.btnBell.visibility = View.GONE
+            }
+            else -> {
+                // Подписан — кнопка «Подписаться»/«Отписаться» скрыта, показан колокольчик
+                binding.btnSubscribe.visibility = View.GONE
+                binding.btnBell.visibility = View.VISIBLE
+                binding.bellIcon.setImageResource(
+                    if (subscriptionState == 1) R.drawable.ic_nav_bell
+                    else R.drawable.ic_bell_off
+                )
+            }
+        }
+    }
+
+    private fun showSubscriptionMenu() {
+        try {
+            val sheetView = layoutInflater.inflate(R.layout.sheet_subscription_menu, null)
+            val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+            dialog.setContentView(sheetView)
+            sheetView.findViewById<View>(R.id.subs_menu_notify)?.setOnClickListener {
+                performSubscribe("notify"); dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_mute)?.setOnClickListener {
+                performSubscribe("mute"); dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_unsubscribe)?.setOnClickListener {
+                performSubscribe("unsub"); dialog.dismiss()
+            }
+            dialog.show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Ошибка меню", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    // ============================================================
+    // СВАЙП ВНИЗ ПО ШАПКЕ = ЗАКРЫТИЕ СТРАНИЦЫ АВТОРА
+    // ============================================================
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupSwipeToClose() {
+        val activity = activity as? ru.asmr1.app.MainActivity ?: return
+        val container = activity.findViewById<android.view.View>(R.id.author_container) ?: return
+        val appBar = binding.headerBlock
+
+        var startY = 0f
+        var isDragging = false
+        val thresholdPx = 150 * resources.displayMetrics.density
+
+        appBar.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startY = event.rawY
+                    isDragging = false
+                    false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = event.rawY - startY
+                    if (dy > 20f) {
+                        isDragging = true
+                        // Только вниз, не вверх
+                        container.translationY = dy.coerceAtLeast(0f)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val dy = event.rawY - startY
+                    if (isDragging && dy > thresholdPx) {
+                        // Закрываем
+                        container.translationY = 0f
+                        activity.closeAuthorPage()
+                    } else {
+                        // Возвращаем
+                        container.animate()
+                            .translationY(0f)
+                            .setDuration(180)
+                            .start()
+                    }
+                    isDragging = false
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+
+    // ============================================================
+    // COLLAPSING HEADER (сжатие шапки при скролле)
+    // ============================================================
+
+    private var isCollapsed = false
+    private val collapseThresholdPx = 50 * resources.displayMetrics.density
+
+    fun onChildScrolled(verticalOffset: Int) {
+        if (_binding == null) return
+        val shouldCollapse = verticalOffset > collapseThresholdPx
+        if (shouldCollapse == isCollapsed) return
+        isCollapsed = shouldCollapse
+        applyCollapsedState(shouldCollapse)
+    }
+
+    private fun applyCollapsedState(collapsed: Boolean) {
+        if (_binding == null) return
+        val b = binding
+        val dm = resources.displayMetrics
+        val avatarSize = if (collapsed) (40 * dm.density).toInt() else (72 * dm.density).toInt()
+
+        // Аватар
+        b.ivAvatar.layoutParams = b.ivAvatar.layoutParams.apply {
+            width = avatarSize
+            height = avatarSize
+        }
+        b.ivAvatar.requestLayout()
+
+        // Метрики
+        b.headerMetrics.visibility = if (collapsed) android.view.View.GONE else android.view.View.VISIBLE
+
+        // Описание
+        b.tvDescription.visibility = if (collapsed || b.tvDescription.text.isNullOrEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+
+        // Кнопка «Подписаться» — скрываем только когда свёрнуто И уже подписан
+        // (логика updateSubscriptionUi() всё равно управляет видимостью)
+        if (collapsed) {
+            b.btnSubscribe.visibility = android.view.View.GONE
+        } else {
+            // пусть updateSubscriptionUi решает
+            updateSubscriptionUi()
+        }
+
+        // В свёрнутом виде — убираем верхний отступ у строки с ником
+        val nlp = b.headerNicknameRow.layoutParams
+        if (nlp is android.view.ViewGroup.MarginLayoutParams) {
+            nlp.topMargin = if (collapsed) 0 else (14 * dm.density).toInt()
+            b.headerNicknameRow.layoutParams = nlp
+        }
+        b.headerNicknameRow.requestLayout()
+
+        // Уменьшаем вертикальные паддинги шапки
+        b.headerBlock.setPadding(
+            b.headerBlock.paddingLeft,
+            if (collapsed) (4 * dm.density).toInt() else (8 * dm.density).toInt(),
+            b.headerBlock.paddingRight,
+            if (collapsed) (8 * dm.density).toInt() else (16 * dm.density).toInt(),
+        )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

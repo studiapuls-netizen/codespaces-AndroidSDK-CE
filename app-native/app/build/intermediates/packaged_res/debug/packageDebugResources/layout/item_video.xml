@@ -93,6 +93,8 @@
             android:background="@color/card_bg"
             android:contentDescription="Аватар"
             android:scaleType="centerCrop"
+            android:clickable="true"
+            android:focusable="true"
             app:shapeAppearanceOverlay="@style/CircleImage" />
 
         <!-- Столбик title+meta с фиксированной минимальной высотой = 2 строки title + meta -->
@@ -124,7 +126,9 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 

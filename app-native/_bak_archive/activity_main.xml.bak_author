@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/feed_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/card_bg"
+            app:itemActiveIndicatorStyle="@null"
+            app:itemIconTint="@color/bottom_nav_item"
+            app:itemTextColor="@color/bottom_nav_item"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/overlay_container"
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:clipChildren="false"
+            android:elevation="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/content_overlay_container"
+            android:elevation="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <FrameLayout
+            android:id="@+id/description_overlay_container"
+            android:elevation="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/comments_overlay_container"
+            android:elevation="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/mini_wrap"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:elevation="60dp">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/mini_player_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="#000000">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.media3.ui.PlayerView
+                        android:id="@+id/mini_player_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:use_controller="false"
+                        app:resize_mode="fit"
+                        app:surface_type="texture_view" />
+
+                    <ImageButton
+                        android:id="@+id/mini_btn_close"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/bg_player_circle"
+                        android:src="@drawable/ic_player_close"
+                        android:contentDescription="Закрыть"
+                        android:scaleType="centerInside"
+                        android:padding="4dp"
+                        app:tint="#FFFFFF" />
+
+                </FrameLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:id="@+id/mini_controls"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_mini_controls"
+                android:paddingHorizontal="4dp">
+
+                <ImageButton
+                    android:id="@+id/mini_btn_prev"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_prev"
+                    android:contentDescription="Предыдущее"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/mini_btn_play_pause"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_play"
+                    android:contentDescription="Play/Pause"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/mini_btn_next"
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_next"
+                    android:contentDescription="Следующее"
+                    android:scaleType="centerInside"
+                    android:padding="4dp"
+                    app:tint="#FFFFFF" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/splash_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_dark"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="999dp">
+
+        <ru.asmr1.app.player.RippleView
+            android:id="@+id/splash_ripple"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/splash_logo"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:src="@drawable/app_logo"
+            android:contentDescription="ASMR1"
+            android:alpha="0" />
+
+    </FrameLayout>
+
+</FrameLayout>

@@ -84,6 +84,8 @@
                 android:background="@color/card_bg"
                 android:contentDescription="Аватар автора"
                 android:scaleType="centerCrop"
+                android:clickable="true"
+                android:focusable="true"
                 app:shapeAppearanceOverlay="@style/CircleImage" />
 
             <LinearLayout
@@ -100,6 +102,8 @@
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:fontFamily="sans-serif-medium"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:maxLines="1"
                     android:ellipsize="end" />
 

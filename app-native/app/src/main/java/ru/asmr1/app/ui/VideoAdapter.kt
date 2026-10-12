@@ -157,37 +157,21 @@ class VideoAdapter(
             }
 
             binding.root.setOnClickListener {
-                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — tap")
                 val rect = android.graphics.Rect()
                 binding.thumbnail.getGlobalVisibleRect(rect)
                 onClick(video)
-                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — onClick returned")
             }
             binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
             // Аватар автора → страница автора
             binding.authorAvatar.setOnClickListener {
-                val intent = android.content.Intent(
-                    itemView.context,
-                    ru.asmr1.app.author.AuthorPageActivity::class.java
-                )
-                intent.putExtra(
-                    ru.asmr1.app.author.AuthorPageActivity.EXTRA_AUTHOR_ID,
-                    video.author.id
-                )
-                itemView.context.startActivity(intent)
+                val act = itemView.context as? ru.asmr1.app.MainActivity
+                act?.openAuthorPage(video.author.id)
             }
 
             // Ник автора → страница автора
             binding.meta.setOnClickListener {
-                val intent = android.content.Intent(
-                    itemView.context,
-                    ru.asmr1.app.author.AuthorPageActivity::class.java
-                )
-                intent.putExtra(
-                    ru.asmr1.app.author.AuthorPageActivity.EXTRA_AUTHOR_ID,
-                    video.author.id
-                )
-                itemView.context.startActivity(intent)
+                val act = itemView.context as? ru.asmr1.app.MainActivity
+                act?.openAuthorPage(video.author.id)
             }
 
         }
