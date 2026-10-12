@@ -39,6 +39,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="ru.asmr1.app.author.AuthorPageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ASMR1" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

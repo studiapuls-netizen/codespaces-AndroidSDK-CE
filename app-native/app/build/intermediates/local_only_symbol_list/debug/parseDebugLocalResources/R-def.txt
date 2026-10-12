@@ -10,6 +10,7 @@ color text_primary
 color text_secondary
 drawable app_logo
 drawable bg_all_circle
+drawable bg_author_gradient
 drawable bg_comment_preview
 drawable bg_login_input
 drawable bg_login_logo
@@ -49,6 +50,7 @@ drawable ic_player_arrow_right
 drawable ic_player_audio
 drawable ic_player_bookmark
 drawable ic_player_bookmark_filled
+drawable ic_player_check
 drawable ic_player_close
 drawable ic_player_comments
 drawable ic_player_download
@@ -76,6 +78,7 @@ drawable seekbar_progress_thin
 drawable seekbar_thumb
 drawable tab_active
 drawable tab_inactive
+id appBar
 id app_logo
 id audio_dim
 id audio_mode_icon
@@ -86,6 +89,9 @@ id author_row
 id author_subs
 id bell_icon
 id bottom_nav
+id btnClose
+id btnMessage
+id btnSubscribe
 id btn_add_playlist
 id btn_back
 id btn_back_to_login
@@ -209,6 +215,7 @@ id hv_progress
 id hv_remove
 id hv_thumb
 id hv_title
+id ivAvatar
 id iv_avatar
 id iv_check
 id iv_folder
@@ -290,6 +297,7 @@ id profile_name
 id progress_bar
 id rb_private
 id rb_public
+id recyclerView
 id recycler_view
 id replies_close
 id replies_empty
@@ -322,6 +330,7 @@ id slider_author
 id slider_avatar
 id slider_date
 id slider_text
+id socialsContainer
 id sort_new
 id sort_top
 id splash_logo
@@ -332,7 +341,9 @@ id subs_menu_mute
 id subs_menu_notify
 id subs_menu_unsubscribe
 id subscribe_container
+id swipeRefresh
 id swipe_refresh
+id tabLayout
 id tab_downloads
 id tab_latest
 id tab_recommended
@@ -342,6 +353,13 @@ id time_row
 id title
 id title_block
 id total_time
+id tvDescription
+id tvJoined
+id tvNickname
+id tvSubscribers
+id tvUsername
+id tvVideos
+id tvViews
 id tv_captcha_question
 id tv_count
 id tv_date
@@ -355,12 +373,17 @@ id tv_views
 id type_icon
 id v_new_ring
 id veil_layout
+id viewPager
 id view_pager
 id views_overlay
+layout activity_author_page
 layout activity_main
 layout activity_player
 layout custom_player_controls
 layout dialog_replies
+layout fragment_author_about
+layout fragment_author_playlists
+layout fragment_author_videos
 layout fragment_comments
 layout fragment_content
 layout fragment_description

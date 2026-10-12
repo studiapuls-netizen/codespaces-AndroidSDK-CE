@@ -11,6 +11,7 @@ import ru.asmr1.app.data.ApiClient
 import ru.asmr1.app.data.AuthorPageResponse
 import ru.asmr1.app.databinding.ActivityAuthorPageBinding
 import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.formatViewsShort
 
 class AuthorPageActivity : AppCompatActivity() {
 
@@ -28,17 +29,19 @@ class AuthorPageActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         authorId = intent.getIntExtra(EXTRA_AUTHOR_ID, -1)
+        android.util.Log.d("AuthorPage", "onCreate: authorId = $authorId")
         if (authorId <= 0) {
+            android.util.Log.e("AuthorPage", "authorId <= 0, finish()")
             finish()
             return
         }
 
-        setupToolbar()
+        setupCloseButton()
         loadAuthor()
     }
 
-    private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
+    private fun setupCloseButton() {
+        binding.btnClose.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
     }
@@ -50,6 +53,7 @@ class AuthorPageActivity : AppCompatActivity() {
                 authorData = response
                 bindAuthor(response)
             } catch (e: Exception) {
+                android.util.Log.e("AuthorPage", "loadAuthor FAILED", e)
                 Toast.makeText(
                     this@AuthorPageActivity,
                     "Ошибка загрузки: ${e.message}",
@@ -62,8 +66,10 @@ class AuthorPageActivity : AppCompatActivity() {
 
     private fun bindAuthor(data: AuthorPageResponse) {
         binding.tvNickname.text = data.nickname
-        binding.tvSubscribers.text = formatViews(data.subscribersCount)
+        binding.tvUsername.text = "@" + data.nickname.lowercase().replace(" ", "_").replace("[^a-z0-9_]".toRegex(), "")
+        binding.tvSubscribers.text = formatViewsShort(data.subscribersCount)
         binding.tvVideos.text = data.videoCount.toString()
+        binding.tvViews.text = formatViewsShort(data.totalViews)
 
         if (data.avatar.isNotEmpty()) {
             binding.ivAvatar.load(data.avatar) {
@@ -80,6 +86,14 @@ class AuthorPageActivity : AppCompatActivity() {
         }
 
         binding.btnSubscribe.text = if (data.followStatus) "Отписаться" else "Подписаться"
+
+        binding.btnMessage.setOnClickListener {
+            android.widget.Toast.makeText(
+                this@AuthorPageActivity,
+                "Скоро",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
 
         setupPager(data)
     }

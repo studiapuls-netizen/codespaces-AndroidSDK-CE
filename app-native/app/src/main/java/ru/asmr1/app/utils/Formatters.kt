@@ -37,3 +37,14 @@ fun timeAgo(dateStr: String): String {
         ""
     }
 }
+
+
+/**
+ * Короткий формат БЕЗ слова "просмотров" — для мест, где рядом уже есть подпись.
+ * Пример: 1500 -> "1.5K", 1500000 -> "1.5M", 42 -> "42"
+ */
+fun formatViewsShort(n: Int): String = when {
+    n >= 1_000_000 -> String.format(java.util.Locale.US, "%.1fM", n / 1_000_000.0)
+    n >= 1_000 -> String.format(java.util.Locale.US, "%.1fK", n / 1_000.0)
+    else -> n.toString()
+}

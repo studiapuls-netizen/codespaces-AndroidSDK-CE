@@ -3055,6 +3055,7 @@ drawable app_logo
 drawable avd_hide_password
 drawable avd_show_password
 drawable bg_all_circle
+drawable bg_author_gradient
 drawable bg_comment_preview
 drawable bg_login_input
 drawable bg_login_logo
@@ -3205,6 +3206,7 @@ drawable ic_player_arrow_right
 drawable ic_player_audio
 drawable ic_player_bookmark
 drawable ic_player_bookmark_filled
+drawable ic_player_check
 drawable ic_player_close
 drawable ic_player_comments
 drawable ic_player_download
@@ -3385,6 +3387,7 @@ id all
 id always
 id animateToEnd
 id animateToStart
+id appBar
 id app_logo
 id arc
 id asConfigured
@@ -3410,6 +3413,9 @@ id bottom
 id bottom_nav
 id bottom_to_top
 id bounce
+id btnClose
+id btnMessage
+id btnSubscribe
 id btn_add_playlist
 id btn_back
 id btn_back_to_login
@@ -3704,6 +3710,7 @@ id is_pooling_container_tag
 id italic
 id item_touch_helper_previous_elevation
 id item_veilLayout_main
+id ivAvatar
 id iv_avatar
 id iv_check
 id iv_folder
@@ -3914,6 +3921,7 @@ id ratio
 id rb_private
 id rb_public
 id rectangles
+id recyclerView
 id recycler_view
 id replies_close
 id replies_empty
@@ -3991,6 +3999,7 @@ id snackbar_action
 id snackbar_text
 id snap
 id snapMargins
+id socialsContainer
 id sort_new
 id sort_top
 id spacer
@@ -4025,7 +4034,9 @@ id subs_menu_notify
 id subs_menu_unsubscribe
 id subscribe_container
 id surface_view
+id swipeRefresh
 id swipe_refresh
+id tabLayout
 id tabMode
 id tab_downloads
 id tab_latest
@@ -4085,6 +4096,13 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id tvDescription
+id tvJoined
+id tvNickname
+id tvSubscribers
+id tvUsername
+id tvVideos
+id tvViews
 id tv_captcha_question
 id tv_count
 id tv_date
@@ -4104,6 +4122,7 @@ id useLogo
 id v_new_ring
 id veil_layout
 id video_decoder_gl_surface_view
+id viewPager
 id view_offset_helper
 id view_pager
 id view_tree_lifecycle_owner
@@ -4236,6 +4255,7 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_author_page
 layout activity_main
 layout activity_player
 layout custom_dialog
@@ -4266,6 +4286,9 @@ layout exo_styled_settings_list
 layout exo_styled_settings_list_item
 layout exo_styled_sub_settings_list_item
 layout exo_track_selection_dialog
+layout fragment_author_about
+layout fragment_author_playlists
+layout fragment_author_videos
 layout fragment_comments
 layout fragment_content
 layout fragment_description

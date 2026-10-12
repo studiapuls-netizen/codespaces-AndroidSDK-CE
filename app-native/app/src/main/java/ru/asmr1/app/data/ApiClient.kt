@@ -11,6 +11,17 @@ object ApiClient {
 
     private const val BASE_URL = "https://asmr1.ru/"
 
+    private fun createCustomGson(): com.google.gson.Gson {
+        return com.google.gson.GsonBuilder()
+            .registerTypeAdapter(
+                ru.asmr1.app.data.Socials::class.java,
+                ru.asmr1.app.data.SocialsDeserializer
+            )
+            .create()
+    }
+
+    private val customGson by lazy { createCustomGson() }
+
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
@@ -25,7 +36,7 @@ object ApiClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL + "wp-json/yt/v1/")
             .client(baseClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(ApiService::class.java)
     }
@@ -34,7 +45,7 @@ object ApiClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(baseClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(AuthApiService::class.java)
     }
@@ -46,7 +57,7 @@ object ApiClient {
         return Retrofit.Builder()
             .baseUrl(BASE_URL + "wp-json/yt/v1/")
             .client(jwtClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(ApiService::class.java)
     }
@@ -58,7 +69,7 @@ object ApiClient {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(jwtClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(AuthApiService::class.java)
     }
