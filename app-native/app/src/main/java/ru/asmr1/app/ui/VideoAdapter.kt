@@ -21,7 +21,8 @@ import java.util.TimeZone
 class VideoAdapter(
     private var videos: List<Video> = emptyList(),
     private val onClick: (Video) -> Unit = {},
-    private val onMoreClick: (Video, View) -> Unit = { _, _ -> }
+    private val onMoreClick: (Video, View) -> Unit = { _, _ -> },
+    private val hideAuthor: Boolean = false
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -83,15 +84,25 @@ class VideoAdapter(
             TYPE_SKELETON -> SkeletonViewHolder(
                 ItemVideoSkeletonBinding.inflate(inflater, parent, false)
             )
-            else -> VideoViewHolder(
-                ItemVideoBinding.inflate(inflater, parent, false)
-            )
+            else -> {
+                if (hideAuthor) {
+                    HorizontalAuthorViewHolder(
+                        ru.asmr1.app.databinding.ItemVideoHorizontalAuthorBinding
+                            .inflate(inflater, parent, false)
+                    )
+                } else {
+                    VideoViewHolder(
+                        ItemVideoBinding.inflate(inflater, parent, false)
+                    )
+                }
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is VideoViewHolder -> holder.bind(videos[position])
+            is HorizontalAuthorViewHolder -> holder.bind(videos[position])
             is SkeletonViewHolder -> holder.bind()
         }
     }
@@ -121,6 +132,15 @@ class VideoAdapter(
         fun bind(video: Video) {
             binding.title.text = video.title
             binding.meta.text = video.author.name
+
+            // На странице автора скрываем аватар и ник автора — они лишние
+            if (hideAuthor) {
+                binding.authorAvatar.visibility = View.GONE
+                binding.meta.visibility = View.GONE
+            } else {
+                binding.authorAvatar.visibility = View.VISIBLE
+                binding.meta.visibility = View.VISIBLE
+            }
 
             binding.viewsOverlay.text = formatViewsShort(video.views)
             binding.dateOverlay.text = timeAgoShort(video.published)
@@ -182,6 +202,31 @@ class VideoAdapter(
 
         fun bind() {
             binding.veilLayout.veil()
+        }
+    }
+
+    inner class HorizontalAuthorViewHolder(
+        private val binding: ru.asmr1.app.databinding.ItemVideoHorizontalAuthorBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(video: Video) {
+            binding.title.text = video.title
+            binding.viewsOverlay.text = formatViewsShort(video.views)
+            binding.dateOverlay.text = timeAgoShort(video.published)
+
+            if (video.thumbnail.isNotEmpty()) {
+                binding.thumbnail.load(video.thumbnail) {
+                    crossfade(false)
+                    placeholder(R.color.card_bg)
+                    error(R.color.card_bg)
+                    memoryCachePolicy(CachePolicy.ENABLED)
+                    diskCachePolicy(CachePolicy.ENABLED)
+                    allowHardware(true)
+                }
+            }
+
+            binding.root.setOnClickListener { onClick(video) }
+            binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
         }
     }
 

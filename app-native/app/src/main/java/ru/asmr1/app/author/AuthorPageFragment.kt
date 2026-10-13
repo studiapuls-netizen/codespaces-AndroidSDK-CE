@@ -55,6 +55,8 @@ class AuthorPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         authManager = AuthManager(requireContext())
 
+        // Жёстко скрываем чипы при старте — они появятся только на вкладке "Видео"
+
         authorId = arguments?.getInt(ARG_AUTHOR_ID, -1) ?: -1
         if (authorId <= 0) {
             (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
@@ -77,6 +79,12 @@ class AuthorPageFragment : Fragment() {
             else performSubscribe("unsub")
         }
         binding.btnBell.setOnClickListener { showSubscriptionMenu() }
+
+        // Клик по аватару → модалка с увеличенным аватаром
+        binding.ivAvatar.setOnClickListener {
+            val url = authorData?.avatar ?: return@setOnClickListener
+            showAvatarPreview(url)
+        }
 
         loadAuthor()
     }
@@ -127,11 +135,73 @@ class AuthorPageFragment : Fragment() {
         updateSubscriptionUi()
 
         setupPager(data)
+        setupAuthorVideoChips()
+    }
+
+
+    // ============================================================
+    // ЧИПЫ СОРТИРОВКИ ВИДЕО (в activity_main.xml, внизу над меню)
+    // ============================================================
+
+    private fun setupAuthorVideoChips() {
+        val chips = activity?.findViewById<android.view.View>(R.id.author_video_chips) ?: return
+        val chipNew = activity?.findViewById<android.widget.TextView>(R.id.author_chip_new)
+        val chipOld = activity?.findViewById<android.widget.TextView>(R.id.author_chip_old)
+        val chipViews = activity?.findViewById<android.widget.TextView>(R.id.author_chip_views)
+
+        fun refresh(mode: String) {
+            fun setChip(chip: android.widget.TextView?, active: Boolean) {
+                chip?.isSelected = active
+                chip?.setTextColor(
+                    androidx.core.content.ContextCompat.getColor(
+                        requireContext(),
+                        if (active) android.R.color.white else R.color.text_secondary
+                    )
+                )
+            }
+            setChip(chipNew, mode == "new")
+            setChip(chipOld, mode == "old")
+            setChip(chipViews, mode == "views")
+        }
+
+        fun getVideosFragment(): AuthorVideosFragment? {
+            // ViewPager2 не даёт теги f0/f1 — ищем по типу рекурсивно
+            fun searchRecursive(fm: androidx.fragment.app.FragmentManager): AuthorVideosFragment? {
+                for (f in fm.fragments) {
+                    if (f is AuthorVideosFragment) return f
+                    val found = searchRecursive(f.childFragmentManager)
+                    if (found != null) return found
+                }
+                return null
+            }
+            return searchRecursive(childFragmentManager)
+        }
+
+        fun setChipsVisible(visible: Boolean) {
+            chips.animate().cancel()
+            chips.animate().alpha(if (visible) 1f else 0f).setDuration(150).start()
+        }
+
+        chipNew?.setOnClickListener { getVideosFragment()?.setSort("new"); refresh("new") }
+        chipOld?.setOnClickListener { getVideosFragment()?.setSort("old"); refresh("old") }
+        chipViews?.setOnClickListener { getVideosFragment()?.setSort("views"); refresh("views") }
+
+        binding.viewPager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                setChipsVisible(position == 1)
+                if (position == 1) refresh(getVideosFragment()?.getSortMode() ?: "new")
+            }
+        })
+
+        setChipsVisible(binding.viewPager.currentItem == 1)
+        refresh("new")
     }
 
     private fun setupPager(data: AuthorPageResponse) {
         val adapter = AuthorPagerAdapter(requireActivity(), data)
         binding.viewPager.adapter = adapter
+        // Предзагрузка всех 4 вкладок — убирает лаг при первом переключении
+        binding.viewPager.offscreenPageLimit = 4
 
         com.google.android.material.tabs.TabLayoutMediator(
             binding.tabLayout,
@@ -327,8 +397,49 @@ class AuthorPageFragment : Fragment() {
         binding.appBar.setExpanded(dy <= 0, true)
     }
 
+
+    // ============================================================
+    // МОДАЛКА С УВЕЛИЧЕННЫМ АВАТАРОМ
+    // ============================================================
+
+    private fun showAvatarPreview(url: String) {
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
+        val view = layoutInflater.inflate(R.layout.dialog_avatar_preview, null)
+        dialog.setContentView(view)
+
+        val img = view.findViewById<com.google.android.material.imageview.ShapeableImageView>(R.id.avatar_preview_image)
+        val closeBtn = view.findViewById<android.widget.ImageButton>(R.id.avatar_preview_close)
+        val root = view.findViewById<android.view.View>(R.id.avatar_preview_root)
+
+        img.load(url) {
+            crossfade(true)
+            placeholder(R.color.card_bg)
+            error(R.color.card_bg)
+        }
+
+        closeBtn.setOnClickListener { dialog.dismiss() }
+        root.setOnClickListener { dialog.dismiss() }
+        img.setOnClickListener { /* не закрываем при клике на аватар */ }
+
+        dialog.setOnShowListener {
+            val window = dialog.window
+            if (window != null) {
+                window.setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                window.setBackgroundDrawableResource(android.R.color.transparent)
+                window.setDimAmount(0f)
+            }
+        }
+
+        dialog.show()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        activity?.findViewById<android.view.View>(R.id.author_video_chips)
+            ?.animate()?.alpha(0f)?.setDuration(120)?.start()
         _binding = null
     }
 }

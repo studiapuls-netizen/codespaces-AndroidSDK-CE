@@ -50,6 +50,15 @@ class AuthorPlaylistsFragment : Fragment() {
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
+
+        // Заглушка, если плейлистов нет
+        if (playlists.isEmpty()) {
+            binding.recyclerView.visibility = View.GONE
+            binding.playlistsEmpty.visibility = View.VISIBLE
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.playlistsEmpty.visibility = View.GONE
+        }
     }
 
     override fun onDestroyView() {

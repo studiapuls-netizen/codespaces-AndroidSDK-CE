@@ -679,6 +679,18 @@ dependencies {
     <corners android:radius="12dp" />
 </shape>
 
+===== FILE: ./app/src/main/res/drawable/ic_player_check.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M232,56a16,16 0 0 0 -22.63,0L112,153.37L46.63,88A16,16 0 0 0 24,110.63l76.69,76.68a16,16 0 0 0 22.62,0l121.69,-121.68A16,16 0 0 0 232,56Z" />
+</vector>
+
 ===== FILE: ./app/src/main/res/drawable/ic_add_circle.xml =====
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -845,6 +857,17 @@ dependencies {
         android:fillColor="#FFFFFF"
         android:pathData="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Z" />
 </vector>
+
+===== FILE: ./app/src/main/res/drawable/bg_author_gradient.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#7B2FBE"
+        android:centerColor="#5B1FA3"
+        android:endColor="@color/bg_dark"
+        android:angle="270" />
+</shape>
 
 ===== FILE: ./app/src/main/res/drawable/seekbar_progress_thin.xml =====
 <?xml version="1.0" encoding="utf-8"?>
@@ -2215,6 +2238,140 @@ dependencies {
 
 </LinearLayout>
 
+===== FILE: ./app/src/main/res/layout/fragment_author_about.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvNickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:text="Автор" />
+
+        <TextView
+            android:id="@+id/tvJoined"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.3"
+            android:text="" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/tvSubscribers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:text="0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:text="Подписчиков" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/tvVideos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:text="0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:text="Видео" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/tvViews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:text="0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:text="Просмотров" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="Соцсети" />
+
+        <LinearLayout
+            android:id="@+id/socialsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+</ScrollView>
+
 ===== FILE: ./app/src/main/res/layout/fragment_feed.xml =====
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -2730,6 +2887,8 @@ dependencies {
             android:background="@color/card_bg"
             android:contentDescription="Аватар"
             android:scaleType="centerCrop"
+            android:clickable="true"
+            android:focusable="true"
             app:shapeAppearanceOverlay="@style/CircleImage" />
 
         <!-- Столбик title+meta с фиксированной минимальной высотой = 2 строки title + meta -->
@@ -2761,7 +2920,9 @@ dependencies {
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 
@@ -2981,6 +3142,42 @@ dependencies {
     </FrameLayout>
 
 </LinearLayout>
+
+===== FILE: ./app/src/main/res/layout/dialog_avatar_preview.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/avatar_preview_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC000000"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/avatar_preview_image"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_gravity="center"
+        android:background="@color/card_bg"
+        android:contentDescription="Аватар"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/CircleImage" />
+
+    <ImageButton
+        android:id="@+id/avatar_preview_close"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_player_circle"
+        android:src="@drawable/ic_player_close"
+        android:contentDescription="Закрыть"
+        android:scaleType="centerInside"
+        android:padding="10dp"
+        app:tint="#FFFFFF" />
+
+</FrameLayout>
 
 ===== FILE: ./app/src/main/res/layout/sheet_download_menu.xml =====
 <?xml version="1.0" encoding="utf-8"?>
@@ -3401,6 +3598,8 @@ dependencies {
                 android:background="@color/card_bg"
                 android:contentDescription="Аватар автора"
                 android:scaleType="centerCrop"
+                android:clickable="true"
+                android:focusable="true"
                 app:shapeAppearanceOverlay="@style/CircleImage" />
 
             <LinearLayout
@@ -3417,6 +3616,8 @@ dependencies {
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:fontFamily="sans-serif-medium"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
@@ -3734,6 +3935,269 @@ dependencies {
 
 </ScrollView>
 
+===== FILE: ./app/src/main/res/layout/activity_author_page.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_author_gradient"
+        app:elevation="0dp">
+
+        <!-- ===== ШАПКА ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
+
+            <!-- ===== Крестик в правом верхнем углу (поверх всего) ===== -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Строка: аватар + статистика -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="44dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="#33FFFFFF"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                    <!-- Статистика в ряд, справа от аватара -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- 1. Просмотры -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvViews"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Просмотры" />
+                        </LinearLayout>
+
+                        <!-- 2. Подписчики -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvSubscribers"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Подписчики" />
+                        </LinearLayout>
+
+                        <!-- 3. Видео -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:id="@+id/tvVideos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:text="0" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#CCFFFFFF"
+                                android:textSize="11sp"
+                                android:text="Видео" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Крестик поверх, справа сверху -->
+                <ImageButton
+                    android:id="@+id/btnClose"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="top|end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_player_close"
+                    android:contentDescription="Закрыть"
+                    android:scaleType="centerInside"
+                    android:padding="6dp"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
+
+            <!-- ===== Ник (жирный) ===== -->
+            <TextView
+                android:id="@+id/tvNickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:text="Автор" />
+
+            <!-- ===== @username ===== -->
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp"
+                android:text="@username" />
+
+            <!-- ===== Описание (2 строки) ===== -->
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#E6E6E6"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="" />
+
+            <!-- ===== Кнопки Follow + ··· ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSubscribe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="140dp"
+                    android:minHeight="42dp"
+                    android:text="Подписаться"
+                    android:textAllCaps="false"
+                    android:textColor="#6A0DAD"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#FFFFFF"
+                    app:cornerRadius="21dp" />
+
+                <FrameLayout
+                    android:id="@+id/btnBell"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_subscribe_bell"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/bell_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_bell"
+                        android:contentDescription="Уведомления"
+                        app:tint="@color/text_primary" />
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMessage"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:minWidth="42dp"
+                    android:minHeight="42dp"
+                    android:text="···"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#33FFFFFF"
+                    app:cornerRadius="21dp"
+                    app:strokeColor="#66FFFFFF"
+                    app:strokeWidth="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#22000000"
+            app:tabIndicatorColor="#FFFFFF"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="#FFFFFF"
+            app:tabTextColor="#AAFFFFFF"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 ===== FILE: ./app/src/main/res/layout/item_video_search.xml =====
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -3749,16 +4213,17 @@ dependencies {
     <!-- ===== ПРЕВЬЮ ===== -->
     <FrameLayout
         android:layout_width="160dp"
-        android:layout_height="90dp"
+        android:layout_height="100dp"
         android:layout_marginEnd="12dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/card_bg"
             android:contentDescription="Превью"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/RoundedImage16" />
 
         <TextView
             android:id="@+id/duration"
@@ -4419,6 +4884,107 @@ dependencies {
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+===== FILE: ./app/src/main/res/layout/item_video_horizontal_author.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
+
+    <!-- Превью -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="160dp"
+        android:layout_height="100dp"
+        android:background="@color/card_bg"
+        android:contentDescription="Превью"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/RoundedImage16" />
+
+    <!-- Правая колонка: название + метрики -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.15"
+            tools:text="ASMR тишина для сна" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_eye"
+                android:contentDescription="Просмотры"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/views_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="1.2K" />
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_calendar"
+                android:contentDescription="Дата"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/date_overlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="2 дн" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btn_more"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/ripple_more"
+        android:src="@drawable/ic_more"
+        android:contentDescription="Ещё"
+        android:scaleType="centerInside"
+        app:tint="@color/text_secondary" />
+
+</LinearLayout>
+
 ===== FILE: ./app/src/main/res/layout/fragment_login.xml =====
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -5074,7 +5640,8 @@ dependencies {
         android:background="@color/bg_dark"
         android:scrollbars="none"
         android:visibility="gone"
-        android:paddingVertical="8dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="96dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -6145,6 +6712,60 @@ dependencies {
 
 </LinearLayout>
 
+===== FILE: ./app/src/main/res/layout/fragment_author_playlists.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        android:scrollbars="vertical" />
+
+    <LinearLayout
+        android:id="@+id/playlists_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_player_bookmark"
+            android:contentDescription=""
+            app:tint="@color/text_secondary"
+            android:alpha="0.3"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Тут пока пусто"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Автор пока не создал ни одного плейлиста"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:gravity="center" />
+    </LinearLayout>
+
+</FrameLayout>
+
 ===== FILE: ./app/src/main/res/layout/dialog_replies.xml =====
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -6282,6 +6903,95 @@ dependencies {
             android:padding="10dp"
             app:tint="@color/text_primary" />
     </LinearLayout>
+
+</LinearLayout>
+
+===== FILE: ./app/src/main/res/layout/fragment_author_videos.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/bg_dark">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Панель сортировки — прижата к низу фрагмента -->
+    <HorizontalScrollView
+        android:id="@+id/ll_sort_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_dark"
+        android:scrollbars="none"
+        android:paddingTop="8dp"
+        android:paddingBottom="80dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/chip_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="Новые"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/chip_old"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="Старые"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/chip_views"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="По просмотрам"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </LinearLayout>
 
@@ -6557,11 +7267,89 @@ dependencies {
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
+</LinearLayout>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
+        
+
+<FrameLayout
+        android:id="@+id/author_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone" />
+
+        <!-- Панель сортировки видео автора (видна только на вкладке "Видео") -->
+    <HorizontalScrollView
+        android:id="@+id/author_video_chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="80dp"
+        android:background="@color/bg_dark"
+        android:scrollbars="none"
+        android:alpha="0"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/author_chip_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="Новые"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/author_chip_old"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="Старые"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/author_chip_views"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_sort_chip"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="По просмотрам"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:background="@color/card_bg"
             app:itemActiveIndicatorStyle="@null"
             app:itemIconTint="@color/bottom_nav_item"
@@ -6569,14 +7357,13 @@ dependencies {
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
 
-    </LinearLayout>
-
     <FrameLayout
         android:id="@+id/overlay_container"
         android:clipChildren="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
+
 
         <FrameLayout
             android:id="@+id/content_container"
@@ -6735,7 +7522,96 @@ dependencies {
 
     </FrameLayout>
 
+
+    
+
 </FrameLayout>
+
+===== FILE: ./app/src/main/res/layout/sheet_author_video_menu.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card_bg"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="#666666" />
+
+    <TextView
+        android:id="@+id/menu_watch_later"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Смотреть позже"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_save_playlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Сохранить в плейлист"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Поделиться"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/menu_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Скачать видео"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="4dp"
+        android:background="#33FFFFFF" />
+
+    <TextView
+        android:id="@+id/menu_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_menu_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="Отмена"
+        android:textColor="@color/text_secondary"
+        android:textSize="15sp" />
+
+</LinearLayout>
 
 ===== FILE: ./app/src/main/res/layout/item_comment_reply.xml =====
 <?xml version="1.0" encoding="utf-8"?>
@@ -6834,6 +7710,270 @@ dependencies {
     </LinearLayout>
 
 </LinearLayout>
+
+===== FILE: ./app/src/main/res/layout/fragment_author_page.xml =====
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_dark"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:contentScrim="@android:color/transparent"
+            app:titleEnabled="false">
+
+            <LinearLayout
+                android:id="@+id/headerBlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp">
+
+                <!-- ===== Крестик в правом верхнем углу ===== -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <!-- Строка: аватар + метрики -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingEnd="44dp">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivAvatar"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:background="#33FFFFFF"
+                            android:scaleType="centerCrop"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:shapeAppearanceOverlay="@style/CircleImage" />
+
+                        <LinearLayout
+                            android:id="@+id/headerMetrics"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+                                <TextView
+                                    android:id="@+id/tvViews"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="0" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#CCFFFFFF"
+                                    android:textSize="11sp"
+                                    android:text="Просмотры" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+                                <TextView
+                                    android:id="@+id/tvSubscribers"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="0" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#CCFFFFFF"
+                                    android:textSize="11sp"
+                                    android:text="Подписчики" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+                                <TextView
+                                    android:id="@+id/tvVideos"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="0" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#CCFFFFFF"
+                                    android:textSize="11sp"
+                                    android:text="Видео" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/btnClose"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="top|end"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_player_close"
+                        android:contentDescription="Закрыть"
+                        android:scaleType="centerInside"
+                        android:padding="6dp"
+                        app:tint="#FFFFFF" />
+                </FrameLayout>
+
+                <!-- ===== Строка с ником + кнопки ===== -->
+                <LinearLayout
+                    android:id="@+id/headerNicknameRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvNickname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#FFFFFF"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="Автор" />
+
+                        <TextView
+                            android:id="@+id/tvUsername"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="14sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@username" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubscribe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="140dp"
+                        android:minHeight="42dp"
+                        android:text="Подписаться"
+                        android:textAllCaps="false"
+                        android:textColor="#6A0DAD"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        app:backgroundTint="#FFFFFF"
+                        app:cornerRadius="21dp" />
+
+                    <FrameLayout
+                        android:id="@+id/btnBell"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_subscribe_bell"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/bell_icon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_nav_bell"
+                            android:contentDescription="Уведомления"
+                            app:tint="@color/text_primary" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- ===== Описание ===== -->
+                <TextView
+                    android:id="@+id/tvDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#E6E6E6"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.2"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="" />
+
+            </LinearLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#22000000"
+            app:tabIndicatorColor="#FFFFFF"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="#FFFFFF"
+            app:tabTextColor="#AAFFFFFF"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 ===== FILE: ./app/src/main/res/layout/item_comment_slider.xml =====
 <?xml version="1.0" encoding="utf-8"?>
@@ -6966,6 +8106,11 @@ dependencies {
     <style name="BottomSheetDialogAnim">
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+
+    <style name="RoundedImage16">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
     </style>
 </resources>
 
@@ -7706,7 +8851,8 @@ import java.util.TimeZone
 class VideoAdapter(
     private var videos: List<Video> = emptyList(),
     private val onClick: (Video) -> Unit = {},
-    private val onMoreClick: (Video, View) -> Unit = { _, _ -> }
+    private val onMoreClick: (Video, View) -> Unit = { _, _ -> },
+    private val hideAuthor: Boolean = false
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -7768,15 +8914,25 @@ class VideoAdapter(
             TYPE_SKELETON -> SkeletonViewHolder(
                 ItemVideoSkeletonBinding.inflate(inflater, parent, false)
             )
-            else -> VideoViewHolder(
-                ItemVideoBinding.inflate(inflater, parent, false)
-            )
+            else -> {
+                if (hideAuthor) {
+                    HorizontalAuthorViewHolder(
+                        ru.asmr1.app.databinding.ItemVideoHorizontalAuthorBinding
+                            .inflate(inflater, parent, false)
+                    )
+                } else {
+                    VideoViewHolder(
+                        ItemVideoBinding.inflate(inflater, parent, false)
+                    )
+                }
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is VideoViewHolder -> holder.bind(videos[position])
+            is HorizontalAuthorViewHolder -> holder.bind(videos[position])
             is SkeletonViewHolder -> holder.bind()
         }
     }
@@ -7806,6 +8962,15 @@ class VideoAdapter(
         fun bind(video: Video) {
             binding.title.text = video.title
             binding.meta.text = video.author.name
+
+            // На странице автора скрываем аватар и ник автора — они лишние
+            if (hideAuthor) {
+                binding.authorAvatar.visibility = View.GONE
+                binding.meta.visibility = View.GONE
+            } else {
+                binding.authorAvatar.visibility = View.VISIBLE
+                binding.meta.visibility = View.VISIBLE
+            }
 
             binding.viewsOverlay.text = formatViewsShort(video.views)
             binding.dateOverlay.text = timeAgoShort(video.published)
@@ -7842,13 +9007,23 @@ class VideoAdapter(
             }
 
             binding.root.setOnClickListener {
-                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — tap")
                 val rect = android.graphics.Rect()
                 binding.thumbnail.getGlobalVisibleRect(rect)
                 onClick(video)
-                android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — onClick returned")
             }
             binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
+            // Аватар автора → страница автора
+            binding.authorAvatar.setOnClickListener {
+                val act = itemView.context as? ru.asmr1.app.MainActivity
+                act?.openAuthorPage(video.author.id)
+            }
+
+            // Ник автора → страница автора
+            binding.meta.setOnClickListener {
+                val act = itemView.context as? ru.asmr1.app.MainActivity
+                act?.openAuthorPage(video.author.id)
+            }
+
         }
     }
 
@@ -7857,6 +9032,31 @@ class VideoAdapter(
 
         fun bind() {
             binding.veilLayout.veil()
+        }
+    }
+
+    inner class HorizontalAuthorViewHolder(
+        private val binding: ru.asmr1.app.databinding.ItemVideoHorizontalAuthorBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(video: Video) {
+            binding.title.text = video.title
+            binding.viewsOverlay.text = formatViewsShort(video.views)
+            binding.dateOverlay.text = timeAgoShort(video.published)
+
+            if (video.thumbnail.isNotEmpty()) {
+                binding.thumbnail.load(video.thumbnail) {
+                    crossfade(false)
+                    placeholder(R.color.card_bg)
+                    error(R.color.card_bg)
+                    memoryCachePolicy(CachePolicy.ENABLED)
+                    diskCachePolicy(CachePolicy.ENABLED)
+                    allowHardware(true)
+                }
+            }
+
+            binding.root.setOnClickListener { onClick(video) }
+            binding.btnMore.setOnClickListener { v -> onMoreClick(video, v) }
         }
     }
 
@@ -9658,6 +10858,7 @@ package ru.asmr1.app
 
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -9724,6 +10925,7 @@ class MainActivity : AppCompatActivity() {
     // ===== Поля, доступные extension-функциям =====
 
     internal lateinit var feedContainer: View
+    internal lateinit var authorContainer: View
     internal lateinit var overlayContainer: View
     internal lateinit var playerContainer: View
     internal lateinit var contentContainer: View
@@ -9775,6 +10977,7 @@ class MainActivity : AppCompatActivity() {
         authManager = AuthManager(this)
 
         feedContainer = findViewById(R.id.feed_container)
+        authorContainer = findViewById(R.id.author_container)
         overlayContainer = findViewById(R.id.overlay_container)
         playerContainer = findViewById(R.id.player_container)
         contentContainer = findViewById(R.id.content_container)
@@ -9868,6 +11071,11 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // Страница автора — закрываем первой
+                if (isAuthorPageOpen()) {
+                    closeAuthorPage()
+                    return
+                }
                 val loginFrag = supportFragmentManager.findFragmentByTag(TAG_LOGIN)
                 if (loginFrag != null && loginFrag.isVisible) {
                     supportFragmentManager.popBackStack()
@@ -10029,6 +11237,10 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.setOnItemSelectedListener { item ->
             try {
+                // Если открыта страница автора — закрываем её
+                if (isAuthorPageOpen()) {
+                    closeAuthorPage()
+                }
                 when (item.itemId) {
                     R.id.nav_home -> {
                         supportFragmentManager.beginTransaction()
@@ -10081,6 +11293,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // ============================================================
+    // СТРАНИЦА АВТОРА (как фрагмент поверх feed_container)
+    // ============================================================
+
+    fun openAuthorPage(authorId: Int) {
+        if (authorId <= 0) return
+        authorContainer.visibility = View.VISIBLE
+        authorContainer.translationY = screenHeightPx
+        authorContainer.alpha = 1f
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.author_container, ru.asmr1.app.author.AuthorPageFragment.newInstance(authorId))
+            .commit()
+        authorContainer.post {
+            authorContainer.animate()
+                .translationY(0f)
+                .setDuration(260)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }
+    }
+
+    fun closeAuthorPage() {
+        authorContainer.animate()
+            .translationY(screenHeightPx)
+            .setDuration(220)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                supportFragmentManager.findFragmentById(R.id.author_container)?.let {
+                    supportFragmentManager.beginTransaction().remove(it).commit()
+                }
+                authorContainer.visibility = View.GONE
+                authorContainer.translationY = 0f
+            }
+            .start()
+    }
+
+    internal fun isAuthorPageOpen(): Boolean {
+        return ::authorContainer.isInitialized && authorContainer.visibility == View.VISIBLE
+    }
+
     // ============================================================
     // PLAYER
     // ============================================================
@@ -10116,7 +11369,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openPlayer(video: Video) {
-        android.util.Log.d("VideoTap", "t=${System.currentTimeMillis()} — openPlayer START")
         currentVideo = video
 
         val mode = PlaybackModeResolver.resolve(this, video)
@@ -10419,6 +11671,12 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.visibility = View.VISIBLE
 
+        // Если страница автора была открыта — показываем снова
+        if (::authorContainer.isInitialized && 
+            supportFragmentManager.findFragmentById(R.id.author_container) != null) {
+            authorContainer.visibility = View.VISIBLE
+        }
+
         disablePip()
     }
 
@@ -10651,8 +11909,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     override fun onDestroy() {
+
         super.onDestroy()
         splashRippleRun?.let { splashHandler.removeCallbacks(it) }
         splashHandler.removeCallbacksAndMessages(null)
@@ -11087,6 +12345,992 @@ class RegisterFragment : Fragment() {
     }
 }
 
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorPlaylistsFragment.kt =====
+package ru.asmr1.app.author
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.databinding.FragmentAuthorPlaylistsBinding
+import ru.asmr1.app.profile.PlaylistBigAdapter
+import ru.asmr1.app.profile.PlaylistCard
+
+class AuthorPlaylistsFragment : Fragment() {
+
+    companion object {
+        private const val ARG_DATA = "data"
+        fun newInstance(data: AuthorPageResponse) = AuthorPlaylistsFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_DATA, data) }
+        }
+    }
+
+    private var _binding: FragmentAuthorPlaylistsBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: PlaylistBigAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorPlaylistsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val data = arguments?.getParcelable<AuthorPageResponse>(ARG_DATA) ?: return
+
+        val playlists = data.tabs?.playlists?.map { p ->
+            PlaylistCard(
+                id = p.id,
+                title = p.title,
+                count = p.count,
+                type = p.type,
+                firstVideo = null,
+                visibility = p.visibility
+            )
+        } ?: emptyList()
+
+        adapter = PlaylistBigAdapter(items = playlists, onClick = { /* TODO */ })
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+
+        // Заглушка, если плейлистов нет
+        if (playlists.isEmpty()) {
+            binding.recyclerView.visibility = View.GONE
+            binding.playlistsEmpty.visibility = View.VISIBLE
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.playlistsEmpty.visibility = View.GONE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorPagerAdapter.kt =====
+package ru.asmr1.app.author
+
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import ru.asmr1.app.data.AuthorPageResponse
+
+class AuthorPagerAdapter(
+    activity: FragmentActivity,
+    private val data: AuthorPageResponse
+) : FragmentStateAdapter(activity) {
+
+    override fun getItemCount(): Int = 4
+
+    override fun createFragment(position: Int): Fragment {
+        return when (position) {
+            0 -> AuthorHomeFragment.newInstance(data)
+            1 -> AuthorVideosFragment.newInstance(data)
+            2 -> AuthorPlaylistsFragment.newInstance(data)
+            3 -> AuthorAboutFragment.newInstance(data)
+            else -> Fragment()
+        }
+    }
+}
+
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorPageFragment.kt =====
+package ru.asmr1.app.author
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.transition.AutoTransition
+import androidx.transition.TransitionManager
+import androidx.lifecycle.lifecycleScope
+import coil.load
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.data.SubscribeRequest
+import ru.asmr1.app.databinding.FragmentAuthorPageBinding
+import ru.asmr1.app.auth.AuthManager
+import ru.asmr1.app.utils.formatViewsShort
+
+class AuthorPageFragment : Fragment() {
+
+    companion object {
+        const val ARG_AUTHOR_ID = "AUTHOR_ID"
+        fun newInstance(authorId: Int) = AuthorPageFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_AUTHOR_ID, authorId) }
+        }
+    }
+
+    private var _binding: FragmentAuthorPageBinding? = null
+    private val binding get() = _binding!!
+
+    private var authorId: Int = -1
+    private var authorData: AuthorPageResponse? = null
+
+    private var subscriptionState: Int = 0
+    private var subscribersCount: Int = 0
+    private var subscribeInFlight: Boolean = false
+
+    private lateinit var authManager: AuthManager
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorPageBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        authManager = AuthManager(requireContext())
+
+        // Жёстко скрываем чипы при старте — они появятся только на вкладке "Видео"
+
+        authorId = arguments?.getInt(ARG_AUTHOR_ID, -1) ?: -1
+        if (authorId <= 0) {
+            (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+            return
+        }
+
+        binding.btnClose.setOnClickListener {
+            (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+        }
+
+        // Клик по описанию → вкладка "Об авторе"
+        binding.tvDescription.setOnClickListener {
+            binding.viewPager.setCurrentItem(3, true)
+        }
+
+        setupSwipeToClose()
+
+        binding.btnSubscribe.setOnClickListener {
+            if (subscriptionState == 0) performSubscribe("sub")
+            else performSubscribe("unsub")
+        }
+        binding.btnBell.setOnClickListener { showSubscriptionMenu() }
+
+        // Клик по аватару → модалка с увеличенным аватаром
+        binding.ivAvatar.setOnClickListener {
+            val url = authorData?.avatar ?: return@setOnClickListener
+            showAvatarPreview(url)
+        }
+
+        loadAuthor()
+    }
+
+    private fun loadAuthor() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getUserPage(authorId)
+                if (_binding == null) return@launch
+                authorData = response
+                bindAuthor(response)
+                loadSubscriptionStatus()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (_binding == null) return@launch
+                Toast.makeText(requireContext(), "Ошибка загрузки: ${e.message}", Toast.LENGTH_SHORT).show()
+                (activity as? ru.asmr1.app.MainActivity)?.closeAuthorPage()
+            }
+        }
+    }
+
+    private fun bindAuthor(data: AuthorPageResponse) {
+        val uname = "@" + data.nickname.lowercase().replace(" ", "_").replace("[^a-z0-9_]".toRegex(), "")
+
+        binding.tvNickname.text = data.nickname
+        binding.tvUsername.text = uname
+        binding.tvSubscribers.text = formatViewsShort(data.subscribersCount)
+        binding.tvVideos.text = data.videoCount.toString()
+        binding.tvViews.text = formatViewsShort(data.totalViews)
+
+        if (data.avatar.isNotEmpty()) {
+            binding.ivAvatar.load(data.avatar) {
+                crossfade(true)
+                placeholder(R.color.card_bg)
+                error(R.color.card_bg)
+            }
+        }
+
+        if (!data.description.isNullOrEmpty()) {
+            binding.tvDescription.text = data.description
+        } else {
+            binding.tvDescription.visibility = View.GONE
+        }
+
+        subscriptionState = if (data.followStatus) 1 else 0
+        subscribersCount = data.subscribersCount
+        updateSubscriptionUi()
+
+        setupPager(data)
+        setupAuthorVideoChips()
+    }
+
+
+    // ============================================================
+    // ЧИПЫ СОРТИРОВКИ ВИДЕО (в activity_main.xml, внизу над меню)
+    // ============================================================
+
+    private fun setupAuthorVideoChips() {
+        val chips = activity?.findViewById<android.view.View>(R.id.author_video_chips) ?: return
+        val chipNew = activity?.findViewById<android.widget.TextView>(R.id.author_chip_new)
+        val chipOld = activity?.findViewById<android.widget.TextView>(R.id.author_chip_old)
+        val chipViews = activity?.findViewById<android.widget.TextView>(R.id.author_chip_views)
+
+        fun refresh(mode: String) {
+            fun setChip(chip: android.widget.TextView?, active: Boolean) {
+                chip?.isSelected = active
+                chip?.setTextColor(
+                    androidx.core.content.ContextCompat.getColor(
+                        requireContext(),
+                        if (active) android.R.color.white else R.color.text_secondary
+                    )
+                )
+            }
+            setChip(chipNew, mode == "new")
+            setChip(chipOld, mode == "old")
+            setChip(chipViews, mode == "views")
+        }
+
+        fun getVideosFragment(): AuthorVideosFragment? {
+            // ViewPager2 не даёт теги f0/f1 — ищем по типу рекурсивно
+            fun searchRecursive(fm: androidx.fragment.app.FragmentManager): AuthorVideosFragment? {
+                for (f in fm.fragments) {
+                    if (f is AuthorVideosFragment) return f
+                    val found = searchRecursive(f.childFragmentManager)
+                    if (found != null) return found
+                }
+                return null
+            }
+            return searchRecursive(childFragmentManager)
+        }
+
+        fun setChipsVisible(visible: Boolean) {
+            chips.animate().cancel()
+            chips.animate().alpha(if (visible) 1f else 0f).setDuration(150).start()
+        }
+
+        chipNew?.setOnClickListener { getVideosFragment()?.setSort("new"); refresh("new") }
+        chipOld?.setOnClickListener { getVideosFragment()?.setSort("old"); refresh("old") }
+        chipViews?.setOnClickListener { getVideosFragment()?.setSort("views"); refresh("views") }
+
+        binding.viewPager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                setChipsVisible(position == 1)
+                if (position == 1) refresh(getVideosFragment()?.getSortMode() ?: "new")
+            }
+        })
+
+        setChipsVisible(binding.viewPager.currentItem == 1)
+        refresh("new")
+    }
+
+    private fun setupPager(data: AuthorPageResponse) {
+        val adapter = AuthorPagerAdapter(requireActivity(), data)
+        binding.viewPager.adapter = adapter
+        // Предзагрузка всех 4 вкладок — убирает лаг при первом переключении
+        binding.viewPager.offscreenPageLimit = 4
+
+        com.google.android.material.tabs.TabLayoutMediator(
+            binding.tabLayout,
+            binding.viewPager
+        ) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Главная"
+                1 -> "Видео"
+                2 -> "Плейлисты"
+                3 -> "Об авторе"
+                else -> ""
+            }
+        }.attach()
+    }
+
+    // ============================================================
+    // ПОДПИСКА
+    // ============================================================
+
+    private fun loadSubscriptionStatus() {
+        if (authorId <= 0) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val response = ApiClient.createJwtService(token).getSubscriptionStatus(authorId)
+                if (_binding == null) return@launch
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun performSubscribe(action: String) {
+        if (subscribeInFlight) return
+        if (!authManager.isLoggedIn()) {
+            Toast.makeText(requireContext(), "Войдите чтобы подписаться", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (authorId <= 0) return
+
+        subscribeInFlight = true
+        val oldState = subscriptionState
+        val oldCount = subscribersCount
+
+        when (action) {
+            "sub"    -> { subscriptionState = 1; subscribersCount = oldCount + 1 }
+            "unsub"  -> { subscriptionState = 0; subscribersCount = (oldCount - 1).coerceAtLeast(0) }
+            "notify" -> subscriptionState = 1
+            "mute"   -> subscriptionState = 2
+        }
+        updateSubscriptionUi()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val response = ApiClient.createJwtService(token)
+                    .subscribe(authorId, SubscribeRequest(action))
+                if (_binding == null) return@launch
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                } else {
+                    subscriptionState = oldState
+                    subscribersCount = oldCount
+                    updateSubscriptionUi()
+                    Toast.makeText(requireContext(), response.message ?: "Ошибка", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                if (_binding == null) return@launch
+                subscriptionState = oldState
+                subscribersCount = oldCount
+                updateSubscriptionUi()
+                Toast.makeText(requireContext(), "Ошибка сети", Toast.LENGTH_SHORT).show()
+            } finally {
+                subscribeInFlight = false
+            }
+        }
+    }
+
+    private fun updateSubscriptionUi() {
+        if (_binding == null) return
+        val subscribed = subscriptionState != 0
+        val iconRes = if (subscriptionState == 1) R.drawable.ic_nav_bell else R.drawable.ic_bell_off
+
+        if (!subscribed) {
+            binding.btnSubscribe.visibility = android.view.View.VISIBLE
+            binding.btnSubscribe.text = "Подписаться"
+            binding.btnBell.visibility = android.view.View.GONE
+        } else {
+            binding.btnSubscribe.visibility = android.view.View.GONE
+            binding.btnBell.visibility = android.view.View.VISIBLE
+            binding.bellIcon.setImageResource(iconRes)
+        }
+    }
+
+    private fun showSubscriptionMenu() {
+        try {
+            val sheetView = layoutInflater.inflate(R.layout.sheet_subscription_menu, null)
+            val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+            dialog.setContentView(sheetView)
+            sheetView.findViewById<View>(R.id.subs_menu_notify)?.setOnClickListener {
+                performSubscribe("notify"); dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_mute)?.setOnClickListener {
+                performSubscribe("mute"); dialog.dismiss()
+            }
+            sheetView.findViewById<View>(R.id.subs_menu_unsubscribe)?.setOnClickListener {
+                performSubscribe("unsub"); dialog.dismiss()
+            }
+            dialog.show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Ошибка меню", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    // ============================================================
+    // СВАЙП ВНИЗ ПО ШАПКЕ = ЗАКРЫТИЕ СТРАНИЦЫ АВТОРА
+    // ============================================================
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupSwipeToClose() {
+        val activity = activity as? ru.asmr1.app.MainActivity ?: return
+        val container = activity.findViewById<android.view.View>(R.id.author_container) ?: return
+        val appBar = binding.headerBlock
+
+        var startY = 0f
+        var isDragging = false
+        val thresholdPx = 150 * resources.displayMetrics.density
+
+        appBar.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startY = event.rawY
+                    isDragging = false
+                    false
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = event.rawY - startY
+                    if (dy > 20f) {
+                        isDragging = true
+                        // Только вниз, не вверх
+                        container.translationY = dy.coerceAtLeast(0f)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val dy = event.rawY - startY
+                    if (isDragging && dy > thresholdPx) {
+                        // Закрываем
+                        container.translationY = 0f
+                        activity.closeAuthorPage()
+                    } else {
+                        // Возвращаем
+                        container.animate()
+                            .translationY(0f)
+                            .setDuration(180)
+                            .start()
+                    }
+                    isDragging = false
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+
+
+
+
+    // ============================================================
+    // ПРОКИДКА СКРОЛЛА В AppBarLayout
+    // ============================================================
+
+    fun scrollAppBar(dy: Int) {
+        if (!isAdded) return
+        if (_binding == null) return
+        binding.appBar.setExpanded(dy <= 0, true)
+    }
+
+
+    // ============================================================
+    // МОДАЛКА С УВЕЛИЧЕННЫМ АВАТАРОМ
+    // ============================================================
+
+    private fun showAvatarPreview(url: String) {
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
+        val view = layoutInflater.inflate(R.layout.dialog_avatar_preview, null)
+        dialog.setContentView(view)
+
+        val img = view.findViewById<com.google.android.material.imageview.ShapeableImageView>(R.id.avatar_preview_image)
+        val closeBtn = view.findViewById<android.widget.ImageButton>(R.id.avatar_preview_close)
+        val root = view.findViewById<android.view.View>(R.id.avatar_preview_root)
+
+        img.load(url) {
+            crossfade(true)
+            placeholder(R.color.card_bg)
+            error(R.color.card_bg)
+        }
+
+        closeBtn.setOnClickListener { dialog.dismiss() }
+        root.setOnClickListener { dialog.dismiss() }
+        img.setOnClickListener { /* не закрываем при клике на аватар */ }
+
+        dialog.setOnShowListener {
+            val window = dialog.window
+            if (window != null) {
+                window.setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                window.setBackgroundDrawableResource(android.R.color.transparent)
+                window.setDimAmount(0f)
+            }
+        }
+
+        dialog.show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        activity?.findViewById<android.view.View>(R.id.author_video_chips)
+            ?.animate()?.alpha(0f)?.setDuration(120)?.start()
+        _binding = null
+    }
+}
+
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorVideosFragment.kt =====
+package ru.asmr1.app.author
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.auth.AuthManager
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentAuthorVideosBinding
+import ru.asmr1.app.player.AddToPlaylistSheet
+import ru.asmr1.app.ui.VideoAdapter
+
+class AuthorVideosFragment : Fragment() {
+
+    companion object {
+        private const val ARG_DATA = "data"
+        fun newInstance(data: AuthorPageResponse) = AuthorVideosFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_DATA, data) }
+        }
+    }
+
+    private var _binding: FragmentAuthorVideosBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private var allVideos: List<Video> = emptyList()
+    private lateinit var authManager: AuthManager
+
+    private var sortMode: String = "new"
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorVideosBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        authManager = AuthManager(requireContext())
+
+        val data = arguments?.getParcelable<AuthorPageResponse>(ARG_DATA) ?: return
+        allVideos = data.tabs?.videos ?: emptyList()
+
+        adapter = VideoAdapter(
+            videos = emptyList(),
+            onClick = { video ->
+                (requireActivity() as? ru.asmr1.app.MainActivity)?.openPlayer(video)
+            },
+            onMoreClick = { video, _ -> showVideoMenu(video) },
+            hideAuthor = true
+        )
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+
+        binding.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val header = parentFragment as? AuthorPageFragment ?: return
+                header.scrollAppBar(dy)
+            }
+        })
+        binding.swipeRefresh.isEnabled = false
+
+        applySort()
+    }
+
+    fun setSort(mode: String) {
+        if (sortMode == mode) return
+        sortMode = mode
+        applySort()
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    fun getSortMode(): String = sortMode
+
+    private fun applySort() {
+        android.util.Log.e("AuthorSort", "sortMode=$sortMode, allVideos=$allVideos")
+        allVideos.take(3).forEach {
+            android.util.Log.e("AuthorSort", "video id=${it.id}, published='${it.published}', views=${it.views}")
+        }
+        val sorted = when (sortMode) {
+            "old" -> allVideos.sortedBy { it.published }
+            "views" -> allVideos.sortedByDescending { it.views }
+            else -> allVideos.sortedByDescending { it.published }
+        }
+        android.util.Log.e("AuthorSort", "sorted first 3: ${sorted.take(3).map { it.id }}")
+        adapter.setVideos(sorted)
+    }
+
+    // ============================================================
+    // МЕНЮ ПОД КАРТОЧКОЙ (⋯)
+    // ============================================================
+
+    private fun showVideoMenu(video: Video) {
+        val sheetView = layoutInflater.inflate(R.layout.sheet_author_video_menu, null)
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+        dialog.setContentView(sheetView)
+
+        // 1. Смотреть позже
+        sheetView.findViewById<View>(R.id.menu_watch_later)?.setOnClickListener {
+            dialog.dismiss()
+            addToWatchLater(video)
+        }
+
+        // 2. Сохранить в плейлист
+        sheetView.findViewById<View>(R.id.menu_save_playlist)?.setOnClickListener {
+            dialog.dismiss()
+            if (!authManager.isLoggedIn()) {
+                Toast.makeText(requireContext(), "Войдите, чтобы сохранять", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val sheet = AddToPlaylistSheet.newInstance(video.id)
+            sheet.show(childFragmentManager, "add_to_playlist")
+        }
+
+        // 3. Поделиться
+        sheetView.findViewById<View>(R.id.menu_share)?.setOnClickListener {
+            dialog.dismiss()
+            shareVideo(video)
+        }
+
+        // 4. Скачать видео
+        sheetView.findViewById<View>(R.id.menu_download)?.setOnClickListener {
+            dialog.dismiss()
+            Toast.makeText(requireContext(), "Скачивание — скоро", Toast.LENGTH_SHORT).show()
+        }
+
+        // 5. Отмена
+        sheetView.findViewById<View>(R.id.menu_cancel)?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    // ============================================================
+    // СМОТРЕТЬ ПОЗЖЕ
+    // ============================================================
+
+    private fun addToWatchLater(video: Video) {
+        if (!authManager.isLoggedIn()) {
+            Toast.makeText(requireContext(), "Войдите, чтобы сохранять", Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val api = ApiClient.createJwtService(token)
+
+                // Проверяем, есть ли уже в "Смотреть позже"
+                val profile = api.getMeProfile()
+                val watchLaterId = profile.watchlater.playlistId
+                if (watchLaterId <= 0) {
+                    Toast.makeText(requireContext(), "Ошибка плейлиста", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val response = api.addToPlaylist(watchLaterId, video.id)
+                if (response.success) {
+                    val msg = if (response.alreadyIn) "Уже в «Смотреть позже»" else "Добавлено в «Смотреть позже»"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), response.message ?: "Ошибка", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ============================================================
+    // ПОДЕЛИТЬСЯ
+    // ============================================================
+
+    private fun shareVideo(video: Video) {
+        try {
+            val url = "https://asmr1.ru/watch/${video.id}/"
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, url + "\n\n" + video.title)
+                putExtra(Intent.EXTRA_SUBJECT, video.title)
+            }
+            startActivity(Intent.createChooser(intent, "Поделиться"))
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorAboutFragment.kt =====
+package ru.asmr1.app.author
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.databinding.FragmentAuthorAboutBinding
+import ru.asmr1.app.utils.timeAgo
+
+class AuthorAboutFragment : Fragment() {
+
+    companion object {
+        private const val ARG_DATA = "data"
+        fun newInstance(data: AuthorPageResponse) = AuthorAboutFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_DATA, data) }
+        }
+    }
+
+    private var _binding: FragmentAuthorAboutBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorAboutBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val data = arguments?.getParcelable<AuthorPageResponse>(ARG_DATA) ?: return
+
+        binding.tvNickname.text = data.nickname
+        binding.tvDescription.text = data.description ?: "Описание не заполнено"
+        binding.tvSubscribers.text = data.subscribersCount.toString()
+        binding.tvVideos.text = data.videoCount.toString()
+        binding.tvViews.text = data.totalViews.toString()
+
+        if (!data.channelJoined.isNullOrEmpty()) {
+            binding.tvJoined.text = "На сайте с ${data.channelJoined.take(10)}"
+        } else {
+            binding.tvJoined.visibility = View.GONE
+        }
+
+        // Соцсети
+        val s = data.socials
+        binding.socialsContainer.removeAllViews()
+        if (s != null) {
+            val map = mapOf(
+                "YouTube" to s.youtube,
+                "Telegram" to s.telegram,
+                "VK" to s.vk,
+                "Rutube" to s.rutube,
+                "Дзен" to s.dzen,
+                "Boosty" to s.boosty,
+                "Patreon" to s.patreon,
+                "DonationAlerts" to s.donationalerts,
+                "Сайт" to s.website
+            )
+            for ((name, url) in map) {
+                if (!url.isNullOrEmpty()) {
+                    val tv = android.widget.TextView(requireContext())
+                    tv.text = "$name: $url"
+                    tv.setTextColor(0xFFE6E6E6.toInt())
+                    tv.textSize = 14f
+                    tv.setPadding(0, 8, 0, 8)
+                    binding.socialsContainer.addView(tv)
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
+===== FILE: ./app/src/main/java/ru/asmr1/app/author/AuthorHomeFragment.kt =====
+package ru.asmr1.app.author
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.auth.AuthManager
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentAuthorVideosBinding
+import ru.asmr1.app.player.AddToPlaylistSheet
+import ru.asmr1.app.ui.VideoAdapter
+
+class AuthorHomeFragment : Fragment() {
+
+    companion object {
+        private const val ARG_DATA = "data"
+        fun newInstance(data: AuthorPageResponse) = AuthorHomeFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_DATA, data) }
+        }
+    }
+
+    private var _binding: FragmentAuthorVideosBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private lateinit var authManager: AuthManager
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorVideosBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        authManager = AuthManager(requireContext())
+
+        val data = arguments?.getParcelable<AuthorPageResponse>(ARG_DATA) ?: return
+
+        adapter = VideoAdapter(
+            videos = data.tabs?.popular ?: emptyList(),
+            onClick = { video ->
+                (requireActivity() as? ru.asmr1.app.MainActivity)?.openPlayer(video)
+            },
+            onMoreClick = { video, _ -> showVideoMenu(video) },
+            hideAuthor = true
+        )
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+
+        binding.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val header = parentFragment as? AuthorPageFragment ?: return
+                header.scrollAppBar(dy)
+            }
+        })
+        binding.swipeRefresh.isEnabled = false
+    }
+
+    // ============================================================
+    // МЕНЮ ПОД КАРТОЧКОЙ (⋯)
+    // ============================================================
+
+    private fun showVideoMenu(video: Video) {
+        val sheetView = layoutInflater.inflate(R.layout.sheet_author_video_menu, null)
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+        dialog.setContentView(sheetView)
+
+        sheetView.findViewById<View>(R.id.menu_watch_later)?.setOnClickListener {
+            dialog.dismiss()
+            addToWatchLater(video)
+        }
+
+        sheetView.findViewById<View>(R.id.menu_save_playlist)?.setOnClickListener {
+            dialog.dismiss()
+            if (!authManager.isLoggedIn()) {
+                Toast.makeText(requireContext(), "Войдите, чтобы сохранять", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val sheet = AddToPlaylistSheet.newInstance(video.id)
+            sheet.show(childFragmentManager, "add_to_playlist")
+        }
+
+        sheetView.findViewById<View>(R.id.menu_share)?.setOnClickListener {
+            dialog.dismiss()
+            shareVideo(video)
+        }
+
+        sheetView.findViewById<View>(R.id.menu_download)?.setOnClickListener {
+            dialog.dismiss()
+            Toast.makeText(requireContext(), "Скачивание — скоро", Toast.LENGTH_SHORT).show()
+        }
+
+        sheetView.findViewById<View>(R.id.menu_cancel)?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun addToWatchLater(video: Video) {
+        if (!authManager.isLoggedIn()) {
+            Toast.makeText(requireContext(), "Войдите, чтобы сохранять", Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = authManager.getToken() ?: return@launch
+                val api = ApiClient.createJwtService(token)
+                val profile = api.getMeProfile()
+                val watchLaterId = profile.watchlater.playlistId
+                if (watchLaterId <= 0) {
+                    Toast.makeText(requireContext(), "Ошибка плейлиста", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                val response = api.addToPlaylist(watchLaterId, video.id)
+                if (response.success) {
+                    val msg = if (response.alreadyIn) "Уже в «Смотреть позже»" else "Добавлено в «Смотреть позже»"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), response.message ?: "Ошибка", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun shareVideo(video: Video) {
+        try {
+            val url = "https://asmr1.ru/watch/${video.id}/"
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, url + "\n\n" + video.title)
+                putExtra(Intent.EXTRA_SUBJECT, video.title)
+            }
+            startActivity(Intent.createChooser(intent, "Поделиться"))
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+
 ===== FILE: ./app/src/main/java/ru/asmr1/app/utils/SearchHistoryManager.kt =====
 package ru.asmr1.app.utils
 
@@ -11175,6 +13419,17 @@ fun timeAgo(dateStr: String): String {
     } catch (_: Exception) {
         ""
     }
+}
+
+
+/**
+ * Короткий формат БЕЗ слова "просмотров" — для мест, где рядом уже есть подпись.
+ * Пример: 1500 -> "1.5K", 1500000 -> "1.5M", 42 -> "42"
+ */
+fun formatViewsShort(n: Int): String = when {
+    n >= 1_000_000 -> String.format(java.util.Locale.US, "%.1fM", n / 1_000_000.0)
+    n >= 1_000 -> String.format(java.util.Locale.US, "%.1fK", n / 1_000.0)
+    else -> n.toString()
 }
 
 ===== FILE: ./app/src/main/java/ru/asmr1/app/utils/NetworkUtils.kt =====
@@ -13686,6 +15941,99 @@ data class CommentRepliesResponse(
     @SerializedName("has_more")  val hasMore: Boolean,
     @SerializedName("replies")   val replies: List<Comment>
 )
+===== FILE: ./app/src/main/java/ru/asmr1/app/data/AuthorPageModels.kt =====
+package ru.asmr1.app.data
+
+import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class AuthorPageResponse(
+    @SerializedName("id")                val id: Int,
+    @SerializedName("nickname")          val nickname: String,
+    @SerializedName("avatar")            val avatar: String,
+    @SerializedName("banner")            val banner: String?,
+    @SerializedName("description")       val description: String?,
+    @SerializedName("socials")           val socials: Socials,
+    @SerializedName("subscribers_count") val subscribersCount: Int,
+    @SerializedName("video_count")       val videoCount: Int,
+    @SerializedName("total_views")       val totalViews: Int,
+    @SerializedName("channel_joined")    val channelJoined: String?,
+    @SerializedName("is_author")         val isAuthor: Boolean,
+    @SerializedName("follow_status")     val followStatus: Boolean,
+    @SerializedName("tabs")              val tabs: AuthorTabs?
+) : Parcelable
+
+@Parcelize
+data class Socials(
+    @SerializedName("youtube")         val youtube: String?,
+    @SerializedName("telegram")        val telegram: String?,
+    @SerializedName("vk")              val vk: String?,
+    @SerializedName("rutube")          val rutube: String?,
+    @SerializedName("dzen")            val dzen: String?,
+    @SerializedName("boosty")          val boosty: String?,
+    @SerializedName("patreon")         val patreon: String?,
+    @SerializedName("donationalerts")  val donationalerts: String?,
+    @SerializedName("website")         val website: String?
+) : Parcelable
+
+@Parcelize
+data class AuthorTabs(
+    @SerializedName("popular")           val popular: List<Video>,
+    @SerializedName("videos")            val videos: List<Video>,
+    @SerializedName("playlists")         val playlists: List<AuthorPlaylist>,
+    @SerializedName("videos_pagination") val videosPagination: AuthorVideosPagination?
+) : Parcelable
+
+@Parcelize
+data class AuthorVideosPagination(
+    @SerializedName("page")     val page: Int,
+    @SerializedName("per_page") val perPage: Int,
+    @SerializedName("total")    val total: Int,
+    @SerializedName("has_more") val hasMore: Boolean
+) : Parcelable
+
+@Parcelize
+data class AuthorPlaylist(
+    @SerializedName("id")         val id: Int,
+    @SerializedName("title")      val title: String,
+    @SerializedName("count")      val count: Int,
+    @SerializedName("thumbnail")  val thumbnail: String?,
+    @SerializedName("type")       val type: String,
+    @SerializedName("visibility") val visibility: String?
+) : Parcelable
+
+// ============================================================
+// Кастомный десериализатор для Socials: переваривает и {} и []
+// ============================================================
+object SocialsDeserializer : com.google.gson.JsonDeserializer<Socials> {
+    override fun deserialize(
+        json: com.google.gson.JsonElement?,
+        typeOfT: java.lang.reflect.Type?,
+        context: com.google.gson.JsonDeserializationContext?
+    ): Socials {
+        // Если сервер вернул пустой массив [] или null — отдаём пустой Socials
+        if (json == null || json.isJsonNull || json.isJsonArray) {
+            return Socials(null, null, null, null, null, null, null, null, null)
+        }
+        // Если объект — берём поля как обычно
+        val obj = json.asJsonObject
+        fun s(key: String) = obj.get(key)?.takeIf { !it.isJsonNull }?.asString
+        return Socials(
+            youtube        = s("youtube"),
+            telegram       = s("telegram"),
+            vk             = s("vk"),
+            rutube         = s("rutube"),
+            dzen           = s("dzen"),
+            boosty         = s("boosty"),
+            patreon        = s("patreon"),
+            donationalerts = s("donationalerts"),
+            website        = s("website")
+        )
+    }
+}
+
 ===== FILE: ./app/src/main/java/ru/asmr1/app/data/AuthApiService.kt =====
 package ru.asmr1.app.data
 
@@ -14099,6 +16447,12 @@ interface ApiService {
     suspend fun deletePlaylist(
         @Path("id") playlistId: Int
     ): DeletePlaylistResponse
+
+    @GET("user/{id}")
+    suspend fun getUserPage(
+        @Path("id") userId: Int
+    ): AuthorPageResponse
+
 }
 
 ===== FILE: ./app/src/main/java/ru/asmr1/app/data/ApiClient.kt =====
@@ -14115,6 +16469,17 @@ object ApiClient {
 
     private const val BASE_URL = "https://asmr1.ru/"
 
+    private fun createCustomGson(): com.google.gson.Gson {
+        return com.google.gson.GsonBuilder()
+            .registerTypeAdapter(
+                ru.asmr1.app.data.Socials::class.java,
+                ru.asmr1.app.data.SocialsDeserializer
+            )
+            .create()
+    }
+
+    private val customGson by lazy { createCustomGson() }
+
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
@@ -14129,7 +16494,7 @@ object ApiClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL + "wp-json/yt/v1/")
             .client(baseClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(ApiService::class.java)
     }
@@ -14138,7 +16503,7 @@ object ApiClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(baseClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(AuthApiService::class.java)
     }
@@ -14150,7 +16515,7 @@ object ApiClient {
         return Retrofit.Builder()
             .baseUrl(BASE_URL + "wp-json/yt/v1/")
             .client(jwtClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(ApiService::class.java)
     }
@@ -14162,7 +16527,7 @@ object ApiClient {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(jwtClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(customGson))
             .build()
             .create(AuthApiService::class.java)
     }
@@ -17143,6 +19508,17 @@ class ContentFragment : Fragment() {
                 crossfade(true)
                 placeholder(R.color.card_bg)
             }
+
+            // Клик по аватору автора → страница автора
+            val goToAuthor = {
+                val act = requireActivity() as? ru.asmr1.app.MainActivity
+                if (act != null) {
+                    act.collapseToMini()
+                    act.openAuthorPage(v.author.id)
+                }
+            }
+            binding.authorAvatar.setOnClickListener { goToAuthor() }
+            binding.authorName.setOnClickListener { goToAuthor() }
         }
 
         likesCount = v.likes
@@ -17834,3 +20210,254 @@ android.nonTransitiveRClass=true
 kotlin.code.style=official
 android.suppressUnsupportedCompileSdk=36
 org.gradle.java.home=/Applications/Android Studio.app/Contents/jbr/Contents/Home
+
+===== FILE: ./_bak_archive/AuthorPageActivity.kt =====
+package ru.asmr1.app.author
+
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import coil.load
+import kotlinx.coroutines.launch
+import ru.asmr1.app.R
+import ru.asmr1.app.data.ApiClient
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.databinding.ActivityAuthorPageBinding
+import ru.asmr1.app.utils.formatViews
+import ru.asmr1.app.utils.formatViewsShort
+
+class AuthorPageActivity : AppCompatActivity() {
+
+    companion object {
+        const val EXTRA_AUTHOR_ID = "AUTHOR_ID"
+    }
+
+    private lateinit var binding: ActivityAuthorPageBinding
+    private var authorId: Int = -1
+    private var authorData: AuthorPageResponse? = null
+
+    // 0 = не подписан, 1 = подписан + уведомления, 2 = подписан без уведомлений
+    private var subscriptionState: Int = 0
+    private var subscribersCount: Int = 0
+    private var subscribeInFlight: Boolean = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityAuthorPageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        authorId = intent.getIntExtra(EXTRA_AUTHOR_ID, -1)
+        android.util.Log.d("AuthorPage", "onCreate: authorId = $authorId")
+        if (authorId <= 0) {
+            android.util.Log.e("AuthorPage", "authorId <= 0, finish()")
+            finish()
+            return
+        }
+
+        setupCloseButton()
+        loadAuthor()
+    }
+
+    private fun setupCloseButton() {
+        binding.btnClose.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    private fun loadAuthor() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.service.getUserPage(authorId)
+                authorData = response
+                bindAuthor(response)
+                loadSubscriptionStatus()
+            } catch (e: Exception) {
+                android.util.Log.e("AuthorPage", "loadAuthor FAILED", e)
+                Toast.makeText(
+                    this@AuthorPageActivity,
+                    "Ошибка загрузки: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+            }
+        }
+    }
+
+    private fun bindAuthor(data: AuthorPageResponse) {
+        binding.tvNickname.text = data.nickname
+        binding.tvUsername.text = "@" + data.nickname.lowercase().replace(" ", "_").replace("[^a-z0-9_]".toRegex(), "")
+        binding.tvSubscribers.text = formatViewsShort(data.subscribersCount)
+        binding.tvVideos.text = data.videoCount.toString()
+        binding.tvViews.text = formatViewsShort(data.totalViews)
+
+        if (data.avatar.isNotEmpty()) {
+            binding.ivAvatar.load(data.avatar) {
+                crossfade(true)
+                placeholder(R.color.card_bg)
+                error(R.color.card_bg)
+            }
+        }
+
+        if (!data.description.isNullOrEmpty()) {
+            binding.tvDescription.text = data.description
+        } else {
+            binding.tvDescription.visibility = android.view.View.GONE
+        }
+
+        // Начальное состояние подписки из данных автора
+        subscriptionState = if (data.followStatus) 1 else 0
+        subscribersCount = data.subscribersCount
+        updateSubscriptionUi()
+
+        binding.btnSubscribe.setOnClickListener {
+            if (subscriptionState == 0) performSubscribe("sub")
+            else performSubscribe("unsub")
+        }
+        binding.btnBell.setOnClickListener { showSubscriptionMenu() }
+
+        binding.btnMessage.setOnClickListener {
+            android.widget.Toast.makeText(
+                this@AuthorPageActivity,
+                "Скоро",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        setupPager(data)
+    }
+
+
+    // ============================================================
+    // ПОДПИСКА
+    // ============================================================
+
+    private fun loadSubscriptionStatus() {
+        if (authorId <= 0) return
+        lifecycleScope.launch {
+            try {
+                val token = ru.asmr1.app.auth.AuthManager(this@AuthorPageActivity).getToken()
+                    ?: return@launch
+                val response = ApiClient.createJwtService(token).getSubscriptionStatus(authorId)
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun performSubscribe(action: String) {
+        if (subscribeInFlight) return
+        if (!ru.asmr1.app.auth.AuthManager(this).isLoggedIn()) {
+            Toast.makeText(this, "Войдите чтобы подписаться", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (authorId <= 0) return
+
+        subscribeInFlight = true
+        val oldState = subscriptionState
+        val oldCount = subscribersCount
+
+        // Оптимистичное обновление UI
+        when (action) {
+            "sub"    -> { subscriptionState = 1; subscribersCount = oldCount + 1 }
+            "unsub"  -> { subscriptionState = 0; subscribersCount = (oldCount - 1).coerceAtLeast(0) }
+            "notify" -> subscriptionState = 1
+            "mute"   -> subscriptionState = 2
+        }
+        updateSubscriptionUi()
+
+        lifecycleScope.launch {
+            try {
+                val token = ru.asmr1.app.auth.AuthManager(this@AuthorPageActivity).getToken()
+                    ?: return@launch
+                val response = ApiClient.createJwtService(token)
+                    .subscribe(authorId, ru.asmr1.app.data.SubscribeRequest(action))
+                if (response.success) {
+                    subscribersCount = response.subscribersCount
+                    subscriptionState = when {
+                        !response.subscribed -> 0
+                        response.notificationsEnabled -> 1
+                        else -> 2
+                    }
+                    updateSubscriptionUi()
+                } else {
+                    subscriptionState = oldState
+                    subscribersCount = oldCount
+                    updateSubscriptionUi()
+                    Toast.makeText(this@AuthorPageActivity, response.message ?: "Ошибка", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                subscriptionState = oldState
+                subscribersCount = oldCount
+                updateSubscriptionUi()
+                Toast.makeText(this@AuthorPageActivity, "Ошибка сети", Toast.LENGTH_SHORT).show()
+            } finally {
+                subscribeInFlight = false
+            }
+        }
+    }
+
+    private fun updateSubscriptionUi() {
+        when (subscriptionState) {
+            0 -> {
+                binding.btnSubscribe.visibility = android.view.View.VISIBLE
+                binding.btnBell.visibility = android.view.View.GONE
+                binding.btnSubscribe.text = "Подписаться"
+            }
+            else -> {
+                binding.btnSubscribe.visibility = android.view.View.VISIBLE
+                binding.btnSubscribe.text = "Отписаться"
+                binding.btnBell.visibility = android.view.View.VISIBLE
+                binding.bellIcon.setImageResource(
+                    if (subscriptionState == 1) R.drawable.ic_nav_bell
+                    else R.drawable.ic_bell_off
+                )
+            }
+        }
+    }
+
+    private fun showSubscriptionMenu() {
+        try {
+            val sheetView = layoutInflater.inflate(R.layout.sheet_subscription_menu, null)
+            val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+            dialog.setContentView(sheetView)
+            sheetView.findViewById<android.view.View>(R.id.subs_menu_notify)?.setOnClickListener {
+                performSubscribe("notify"); dialog.dismiss()
+            }
+            sheetView.findViewById<android.view.View>(R.id.subs_menu_mute)?.setOnClickListener {
+                performSubscribe("mute"); dialog.dismiss()
+            }
+            sheetView.findViewById<android.view.View>(R.id.subs_menu_unsubscribe)?.setOnClickListener {
+                performSubscribe("unsub"); dialog.dismiss()
+            }
+            dialog.show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Ошибка меню", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupPager(data: AuthorPageResponse) {
+        val adapter = AuthorPagerAdapter(this, data)
+        binding.viewPager.adapter = adapter
+
+        com.google.android.material.tabs.TabLayoutMediator(
+            binding.tabLayout,
+            binding.viewPager
+        ) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Главная"
+                1 -> "Видео"
+                2 -> "Плейлисты"
+                3 -> "Об авторе"
+                else -> ""
+            }
+        }.attach()
+    }
+}

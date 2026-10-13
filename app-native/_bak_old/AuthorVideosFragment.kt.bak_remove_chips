@@ -1,0 +1,113 @@
+package ru.asmr1.app.author
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import ru.asmr1.app.MainActivity
+import ru.asmr1.app.R
+import ru.asmr1.app.data.AuthorPageResponse
+import ru.asmr1.app.data.Video
+import ru.asmr1.app.databinding.FragmentAuthorVideosBinding
+import ru.asmr1.app.ui.VideoAdapter
+
+class AuthorVideosFragment : Fragment() {
+
+    companion object {
+        private const val ARG_DATA = "data"
+        fun newInstance(data: AuthorPageResponse) = AuthorVideosFragment().apply {
+            arguments = Bundle().apply { putParcelable(ARG_DATA, data) }
+        }
+    }
+
+    private var _binding: FragmentAuthorVideosBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var adapter: VideoAdapter
+    private var allVideos: List<Video> = emptyList()
+
+    // "new" | "old" | "views"
+    private var sortMode: String = "new"
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAuthorVideosBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val data = arguments?.getParcelable<AuthorPageResponse>(ARG_DATA) ?: return
+        allVideos = data.tabs?.videos ?: emptyList()
+
+        adapter = VideoAdapter(
+            videos = emptyList(),
+            onClick = { video ->
+                (requireActivity() as? ru.asmr1.app.MainActivity)?.openPlayer(video)
+            },
+            onMoreClick = { _, _ -> },
+            hideAuthor = true
+        )
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+
+        // COLLAPSE-HEADER-LISTENER
+        binding.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val header = parentFragment as? AuthorPageFragment ?: return
+                header.scrollAppBar(dy)
+            }
+        })
+        binding.swipeRefresh.isEnabled = false
+
+        // Чипы сортировки
+        binding.chipNew.setOnClickListener { setSort("new") }
+        binding.chipOld.setOnClickListener { setSort("old") }
+        binding.chipViews.setOnClickListener { setSort("views") }
+
+        applySort()
+    }
+
+    private fun setSort(mode: String) {
+        if (sortMode == mode) return
+        sortMode = mode
+        applySort()
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    private fun applySort() {
+        val sorted = when (sortMode) {
+            "old" -> allVideos.sortedBy { it.published }
+            "views" -> allVideos.sortedByDescending { it.views }
+            else -> allVideos.sortedByDescending { it.published }
+        }
+        adapter.setVideos(sorted)
+        updateChipsUi()
+    }
+
+    private fun updateChipsUi() {
+        setChipActive(binding.chipNew, sortMode == "new")
+        setChipActive(binding.chipOld, sortMode == "old")
+        setChipActive(binding.chipViews, sortMode == "views")
+    }
+
+    private fun setChipActive(chip: TextView, active: Boolean) {
+        chip.isSelected = active
+        chip.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                if (active) android.R.color.white else R.color.text_secondary
+            )
+        )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

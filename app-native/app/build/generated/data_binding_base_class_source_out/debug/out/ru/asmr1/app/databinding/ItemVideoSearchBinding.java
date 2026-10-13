@@ -4,7 +4,6 @@ package ru.asmr1.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -31,7 +30,7 @@ public final class ItemVideoSearchBinding implements ViewBinding {
   public final TextView duration;
 
   @NonNull
-  public final ImageView thumbnail;
+  public final ShapeableImageView thumbnail;
 
   @NonNull
   public final TextView title;
@@ -44,7 +43,7 @@ public final class ItemVideoSearchBinding implements ViewBinding {
 
   private ItemVideoSearchBinding(@NonNull LinearLayout rootView,
       @NonNull ShapeableImageView authorAvatar, @NonNull TextView authorName,
-      @NonNull TextView duration, @NonNull ImageView thumbnail, @NonNull TextView title,
+      @NonNull TextView duration, @NonNull ShapeableImageView thumbnail, @NonNull TextView title,
       @NonNull TextView tvDate, @NonNull TextView tvViews) {
     this.rootView = rootView;
     this.authorAvatar = authorAvatar;
@@ -102,7 +101,7 @@ public final class ItemVideoSearchBinding implements ViewBinding {
       }
 
       id = R.id.thumbnail;
-      ImageView thumbnail = ViewBindings.findChildViewById(rootView, id);
+      ShapeableImageView thumbnail = ViewBindings.findChildViewById(rootView, id);
       if (thumbnail == null) {
         break missingId;
       }

@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -26,7 +28,19 @@ public final class ActivityMainBinding implements ViewBinding {
   private final FrameLayout rootView;
 
   @NonNull
+  public final TextView authorChipNew;
+
+  @NonNull
+  public final TextView authorChipOld;
+
+  @NonNull
+  public final TextView authorChipViews;
+
+  @NonNull
   public final FrameLayout authorContainer;
+
+  @NonNull
+  public final HorizontalScrollView authorVideoChips;
 
   @NonNull
   public final BottomNavigationView bottomNav;
@@ -85,7 +99,9 @@ public final class ActivityMainBinding implements ViewBinding {
   @NonNull
   public final RippleView splashRipple;
 
-  private ActivityMainBinding(@NonNull FrameLayout rootView, @NonNull FrameLayout authorContainer,
+  private ActivityMainBinding(@NonNull FrameLayout rootView, @NonNull TextView authorChipNew,
+      @NonNull TextView authorChipOld, @NonNull TextView authorChipViews,
+      @NonNull FrameLayout authorContainer, @NonNull HorizontalScrollView authorVideoChips,
       @NonNull BottomNavigationView bottomNav, @NonNull FrameLayout commentsOverlayContainer,
       @NonNull FrameLayout contentContainer, @NonNull FrameLayout contentOverlayContainer,
       @NonNull FrameLayout descriptionOverlayContainer, @NonNull FrameLayout feedContainer,
@@ -97,7 +113,11 @@ public final class ActivityMainBinding implements ViewBinding {
       @NonNull ImageView splashLogo, @NonNull FrameLayout splashOverlay,
       @NonNull RippleView splashRipple) {
     this.rootView = rootView;
+    this.authorChipNew = authorChipNew;
+    this.authorChipOld = authorChipOld;
+    this.authorChipViews = authorChipViews;
     this.authorContainer = authorContainer;
+    this.authorVideoChips = authorVideoChips;
     this.bottomNav = bottomNav;
     this.commentsOverlayContainer = commentsOverlayContainer;
     this.contentContainer = contentContainer;
@@ -146,9 +166,33 @@ public final class ActivityMainBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.author_chip_new;
+      TextView authorChipNew = ViewBindings.findChildViewById(rootView, id);
+      if (authorChipNew == null) {
+        break missingId;
+      }
+
+      id = R.id.author_chip_old;
+      TextView authorChipOld = ViewBindings.findChildViewById(rootView, id);
+      if (authorChipOld == null) {
+        break missingId;
+      }
+
+      id = R.id.author_chip_views;
+      TextView authorChipViews = ViewBindings.findChildViewById(rootView, id);
+      if (authorChipViews == null) {
+        break missingId;
+      }
+
       id = R.id.author_container;
       FrameLayout authorContainer = ViewBindings.findChildViewById(rootView, id);
       if (authorContainer == null) {
+        break missingId;
+      }
+
+      id = R.id.author_video_chips;
+      HorizontalScrollView authorVideoChips = ViewBindings.findChildViewById(rootView, id);
+      if (authorVideoChips == null) {
         break missingId;
       }
 
@@ -266,11 +310,12 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityMainBinding((FrameLayout) rootView, authorContainer, bottomNav,
-          commentsOverlayContainer, contentContainer, contentOverlayContainer,
-          descriptionOverlayContainer, feedContainer, miniBtnClose, miniBtnNext, miniBtnPlayPause,
-          miniBtnPrev, miniControls, miniPlayerContainer, miniPlayerView, miniWrap,
-          overlayContainer, playerContainer, splashLogo, splashOverlay, splashRipple);
+      return new ActivityMainBinding((FrameLayout) rootView, authorChipNew, authorChipOld,
+          authorChipViews, authorContainer, authorVideoChips, bottomNav, commentsOverlayContainer,
+          contentContainer, contentOverlayContainer, descriptionOverlayContainer, feedContainer,
+          miniBtnClose, miniBtnNext, miniBtnPlayPause, miniBtnPrev, miniControls,
+          miniPlayerContainer, miniPlayerView, miniWrap, overlayContainer, playerContainer,
+          splashLogo, splashOverlay, splashRipple);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

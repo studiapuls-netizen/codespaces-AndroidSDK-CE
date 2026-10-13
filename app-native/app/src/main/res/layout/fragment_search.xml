@@ -216,7 +216,8 @@
         android:background="@color/bg_dark"
         android:scrollbars="none"
         android:visibility="gone"
-        android:paddingVertical="8dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="96dp">
 
         <LinearLayout
             android:layout_width="wrap_content"

@@ -49,6 +49,8 @@
                             android:layout_height="72dp"
                             android:background="#33FFFFFF"
                             android:scaleType="centerCrop"
+                            android:clickable="true"
+                            android:focusable="true"
                             app:shapeAppearanceOverlay="@style/CircleImage" />
 
                         <LinearLayout

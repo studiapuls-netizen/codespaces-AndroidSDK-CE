@@ -84,10 +84,17 @@ id audio_dim
 id audio_mode_icon
 id audio_preview
 id author_avatar
+id author_chip_new
+id author_chip_old
+id author_chip_views
 id author_container
 id author_name
 id author_row
 id author_subs
+id author_video_chips
+id avatar_preview_close
+id avatar_preview_image
+id avatar_preview_root
 id bell_icon
 id bottom_nav
 id btnBell
@@ -142,6 +149,8 @@ id chip_all
 id chip_audio
 id chip_date
 id chip_likes
+id chip_new
+id chip_old
 id chip_order
 id chip_title
 id chip_unread
@@ -236,6 +245,7 @@ id mark_all_read
 id menu_cancel
 id menu_delete_audio
 id menu_delete_video
+id menu_download
 id menu_download_audio
 id menu_download_audio_text
 id menu_download_cancel
@@ -245,6 +255,9 @@ id menu_hide
 id menu_hide_channel
 id menu_report
 id menu_save
+id menu_save_playlist
+id menu_share
+id menu_watch_later
 id meta
 id meta_arrow
 id mini_btn_close
@@ -286,6 +299,7 @@ id playlist_empty
 id playlist_loading
 id playlist_recycler
 id playlist_title
+id playlists_empty
 id playlists_recycler
 id playlists_wrap
 id plv_author
@@ -386,6 +400,7 @@ layout activity_author_page
 layout activity_main
 layout activity_player
 layout custom_player_controls
+layout dialog_avatar_preview
 layout dialog_replies
 layout fragment_author_about
 layout fragment_author_page
@@ -423,10 +438,12 @@ layout item_search_history
 layout item_subscribed_all
 layout item_subscribed_author
 layout item_video
+layout item_video_horizontal_author
 layout item_video_search
 layout item_video_skeleton
 layout item_video_skeleton_search
 layout sheet_add_to_playlist
+layout sheet_author_video_menu
 layout sheet_create_playlist
 layout sheet_download_menu
 layout sheet_edit_playlist
@@ -447,4 +464,5 @@ string tab_recommended
 style BottomSheetDialogAnim
 style CircleImage
 style RoundedImage
+style RoundedImage16
 style Theme.ASMR1

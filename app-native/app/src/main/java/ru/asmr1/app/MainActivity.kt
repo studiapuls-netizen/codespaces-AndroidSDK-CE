@@ -381,6 +381,10 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.setOnItemSelectedListener { item ->
             try {
+                // Если открыта страница автора — закрываем её
+                if (isAuthorPageOpen()) {
+                    closeAuthorPage()
+                }
                 when (item.itemId) {
                     R.id.nav_home -> {
                         supportFragmentManager.beginTransaction()
